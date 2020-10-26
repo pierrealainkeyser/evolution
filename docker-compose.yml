@@ -1,0 +1,32 @@
+version: '3'
+services:
+  iaww:
+    restart: always
+    image: evolution/main
+    container_name: evolution
+    depends_on:
+    - evolution-letsencrypt
+    ports:
+      - 8080:8080
+    volumes:
+      - "/etc/evolution/db:/app/db"
+  evolution-letsencrypt:
+    image: linuxserver/swag
+    container_name: evolution-swag
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - "/vagrant/nginx/default:/config/nginx/site-confs/default"
+      - "/etc/evolution/keys:/config/keys"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - EMAIL=pierrealain.keyser@gmail.com
+      - URL=ddns.net
+      - SUBDOMAINS=pakeyser
+      - ONLY_SUBDOMAINS=true
+      - VALIDATION=http
+      - TZ=Europe/Paris
+      - STAGING=false
+    
