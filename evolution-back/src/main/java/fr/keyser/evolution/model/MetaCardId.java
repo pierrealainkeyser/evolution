@@ -2,6 +2,8 @@ package fr.keyser.evolution.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public final class MetaCardId {
 
 	private final String name;
@@ -13,6 +15,12 @@ public final class MetaCardId {
 	@Override
 	public int hashCode() {
 		return Objects.hash(name);
+	}
+
+	@Override
+	@JsonValue
+	public String toString() {
+		return name;
 	}
 
 	@Override

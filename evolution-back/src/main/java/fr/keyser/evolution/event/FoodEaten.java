@@ -2,6 +2,7 @@ package fr.keyser.evolution.event;
 
 import java.util.List;
 
+import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.FoodConsumption;
 import fr.keyser.evolution.model.FoodSource;
@@ -16,10 +17,10 @@ public class FoodEaten extends SpecieEvent implements PoolEvent, DiscardedEvent 
 
 	private final List<UsedTrait> traits;
 
-	private final CardId discarded;
+	private final Card discarded;
 
 	public FoodEaten(SpecieId src, FoodConsumption consumption, FoodSource source, List<UsedTrait> traits,
-			CardId discarded) {
+			Card discarded) {
 		super(src);
 		this.source = source;
 		this.consumption = consumption;
@@ -52,9 +53,13 @@ public class FoodEaten extends SpecieEvent implements PoolEvent, DiscardedEvent 
 		return getSrc().getPlayer();
 	}
 
+	public Card getDiscardedCard() {
+		return discarded;
+	}
+
 	@Override
 	public CardId getDiscarded() {
-		return discarded;
+		return discarded != null ? discarded.getId() : null;
 	}
 
 	public boolean isFoodPool() {

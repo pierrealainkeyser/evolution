@@ -23,15 +23,6 @@ import fr.keyser.fsm.InstanceId;
  */
 public class AutomatEngine implements Supplier<AutomatInstanceContainer> {
 
-	/**
-	 * An empty container with a single {@link AutomatInstanceValue} called
-	 * {@link AutomatLifeCycle#ROOT}
-	 */
-	private final static AutomatInstanceContainerValue EMPTY = AutomatInstanceContainerValue.create(
-			Collections.singletonList(AutomatInstanceValue.create(AutomatLifeCycle.ROOT, AutomatLifeCycle.INITIAL, null,
-					0, Collections.emptyList(), Collections.emptyMap())),
-			Collections.emptyMap());
-
 	private static class AutomatEventDispatch {
 		private final AutomatEvent event;
 		private final Collection<InstanceId> ids;
@@ -50,11 +41,41 @@ public class AutomatEngine implements Supplier<AutomatInstanceContainer> {
 		}
 	}
 
-	private final MultiPriorityQueue<AutomatEventDispatch> events = new MultiPriorityQueue<>();
+	/**
+	 * An empty container with a single {@link AutomatInstanceValue} called
+	 * {@link AutomatLifeCycle#ROOT}
+	 */
+	private final static AutomatInstanceContainerValue EMPTY = AutomatInstanceContainerValue.create(
+			Collections.singletonList(AutomatInstanceValue.create(AutomatLifeCycle.ROOT, AutomatLifeCycle.INITIAL, null,
+					0, Collections.emptyList(), Collections.emptyMap())),
+			Collections.emptyMap());
+
+	public static AutomatEngine start(AutomatLogic logic, Object payload) {
+		AutomatEngine engine = new AutomatEngine(EMPTY, logic);
+
+		engine.get().getRoot().unicast(AutomatLifeCycleEvent.START.event(payload));
+
+		return engine;
+	}
 
 	private DefaultAutomatInstanceContainer container;
 
+	private final MultiPriorityQueue<AutomatEventDispatch> events = new MultiPriorityQueue<>();
+
 	private final AtomicInteger worker = new AtomicInteger(0);
+
+	public AutomatEngine(AutomatInstanceContainerValue value, AutomatLogic logic) {
+		container = new DefaultAutomatInstanceContainer(value, this, logic);
+	}
+	
+	public void start(Object payload) {
+		get().getRoot().unicast(AutomatLifeCycleEvent.START.event(payload));
+	}
+
+	@Override
+	public AutomatInstanceContainer get() {
+		return container;
+	}
 
 	public void multicast(int priority, Collection<InstanceId> ids, AutomatEvent event) {
 		events.add(priority, new AutomatEventDispatch(ids, event));
@@ -78,22 +99,7 @@ public class AutomatEngine implements Supplier<AutomatInstanceContainer> {
 		}
 	}
 
-	private void setContainer(DefaultAutomatInstanceContainer container) {
-		this.container = container;
-	}
-
-	@Override
-	public AutomatInstanceContainer get() {
-		return container;
-	}
-
-	public static AutomatEngine start(AutomatLogic logic, Object payload) {
-		AutomatEngine engine = new AutomatEngine();
-		DefaultAutomatInstanceContainer container = new DefaultAutomatInstanceContainer(EMPTY, engine, logic);
-		engine.setContainer(container);
-
-		container.getRoot().unicast(AutomatLifeCycleEvent.START.event(payload));
-
-		return engine;
+	public AutomatInstanceContainerValue getInternal() {
+		return container.getInternal();
 	}
 }

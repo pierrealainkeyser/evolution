@@ -8,9 +8,9 @@ public class DisabledViolation {
 
 	private final UsedTrait used;
 
-	private final CardId discarded;
+	private final Card discarded;
 
-	public DisabledViolation(String violation, UsedTrait trait, UsedTrait used, CardId discarded) {
+	public DisabledViolation(String violation, UsedTrait trait, UsedTrait used, Card discarded) {
 		this.violation = violation;
 		this.trait = trait;
 		this.used = used;
@@ -27,7 +27,7 @@ public class DisabledViolation {
 		return trait;
 	}
 
-	public CardId getDiscarded() {
+	public Card getDiscarded() {
 		return discarded;
 	}
 

@@ -74,7 +74,7 @@ public class Player {
 		return new CardAddedToPool(this.id, inHand(command.getCard()));
 	}
 
-	private Card inHand(CardId id) {
+	public Card inHand(CardId id) {
 		return hands.stream().filter(c -> c.getId().equals(id)).findFirst().orElseThrow();
 	}
 

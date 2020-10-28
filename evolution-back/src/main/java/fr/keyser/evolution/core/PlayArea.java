@@ -30,6 +30,7 @@ import fr.keyser.evolution.event.DiscardPoolFood;
 import fr.keyser.evolution.event.FatMoved;
 import fr.keyser.evolution.event.FoodEaten;
 import fr.keyser.evolution.event.FoodScored;
+import fr.keyser.evolution.event.LastTurnEvent;
 import fr.keyser.evolution.event.PlayerEvent;
 import fr.keyser.evolution.event.PoolEvent;
 import fr.keyser.evolution.event.PoolRevealed;
@@ -49,7 +50,9 @@ import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.DisabledViolation;
 import fr.keyser.evolution.model.FoodConsumption;
 import fr.keyser.evolution.model.FoodSource;
+import fr.keyser.evolution.model.PlayerScoreBoard;
 import fr.keyser.evolution.model.PlayerSpecies;
+import fr.keyser.evolution.model.Score;
 import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.SpeciePosition;
 import fr.keyser.evolution.model.Trait;
@@ -141,6 +144,25 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		}
 	}
 
+	public List<PlayerScoreBoard> scoreBoards() {
+
+		Map<Integer, Score> scoreBoards = players.getPlayers().stream()
+				.collect(Collectors.toMap(Player::getId, p -> {
+					int id = p.getId();
+					PlayerSpecies spec = species.forPlayer(id);
+					int traits = spec.stream().mapToInt(s -> s.getTraits().size()).sum();
+					int population = spec.stream().mapToInt(Specie::getPopulation).sum();
+
+					return new Score(p.getScore(), traits, population);
+				}));
+
+		Score alpha = scoreBoards.values().stream().max(Score::compareTo).get();
+		return scoreBoards.entrySet().stream()
+				.map(e -> new PlayerScoreBoard(e.getKey(), e.getValue(), e.getValue().compareTo(alpha) == 0))
+				.sorted((p0, p1) -> p1.getScore().compareTo(p0.getScore()))
+				.collect(Collectors.toList());
+	}
+
 	public List<Summary> actionsForPlayer(int player) {
 		Map<Integer, PlayerSpecies> all = players.getPlayers().stream()
 				.collect(Collectors.toMap(Player::getId, p -> species.forPlayer(p.getId())));
@@ -175,7 +197,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		});
 	}
 
-	private FoodEaten intelligentPlantEat(SpecieId specieId, CardId discarded) {
+	private FoodEaten intelligentPlantEat(SpecieId specieId, Card discarded) {
 		Specie specie = species.byId(specieId);
 
 		FoodSource source = FoodSource.PLANT;
@@ -205,9 +227,11 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		SpecieId specieId = specie.getId();
 
 		List<Summary> summary = new ArrayList<Summary>();
-		if (specie.isIntelligent() && getPlayer(specieId).getHandSize() > 0) {
+		Player player = getPlayer(specieId);
+		if (specie.isIntelligent() && player.getHandSize() > 0) {
 			summary.add(
-					new IntelligentFeedSummary(specieId, process(intelligentPlantEat(specieId, null)).getEvents(), 1));
+					new IntelligentFeedSummary(specieId,
+							process(intelligentPlantEat(specieId, player.getHands().get(0))).getEvents(), 1));
 		}
 
 		plantEat(specieId)
@@ -226,25 +250,25 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		if (violations.isPossible(handsSize)) {
 			List<String> must = violations.getMustPay();
 			CardIdSequence seq = new CardIdSequence(player);
-			outcomes.add(outcome(violations, must, seq));
+			outcomes.add(outcome(player, violations, must, seq));
 
 			List<String> may = violations.getMayPay();
 			int available = Math.min(handsSize - must.size(), may.size());
 			for (int i = 0; i < available; ++i) {
 				List<String> dis = new ArrayList<>(must);
 				dis.add(may.get(i));
-				outcomes.add(outcome(violations, dis, seq));
+				outcomes.add(outcome(player, violations, dis, seq));
 			}
 
 		}
 		return new AttackSummary(source, violations.getTarget(), violations.getViolations(), outcomes);
 	}
 
-	private AttackOutcome outcome(AttackViolations violations, List<String> disabled, CardIdSequence seq) {
+	private AttackOutcome outcome(Player player ,AttackViolations violations, List<String> disabled, CardIdSequence seq) {
 
 		AttackCommand command = new AttackCommand(violations,
 				disabled.stream().collect(Collectors.toMap(Function.identity(), seq.reset())));
-		Attacked attacked = command.resolve(violations);
+		Attacked attacked = command.resolve(violations, player);
 
 		return new AttackOutcome(process(attacked).getEvents(), disabled.size(), disabled);
 	}
@@ -576,10 +600,10 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 			attack.getViolations().values().forEach(player::checkCard);
 
 			AttackViolations violations = attack(species.byId(attack.getSpecie()), species.byId(attack.getTarget()));
-			return attack.resolve(violations);
+			return attack.resolve(violations, player);
 		} else if (command instanceof IntelligentFeedCommand) {
 			IntelligentFeedCommand feed = (IntelligentFeedCommand) command;
-			return intelligentPlantEat(feed.getSpecie(), player.checkCard(feed.getDiscarded()));
+			return intelligentPlantEat(feed.getSpecie(), player.inHand(feed.getDiscarded()));
 		} else if (command instanceof FeedCommand) {
 			FeedCommand feed = (FeedCommand) command;
 			return plantEat(feed.getSpecie()).orElseThrow();
@@ -675,6 +699,13 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 			reduced(consumer, (PopulationReduced) event);
 		} else if (event instanceof SpecieExtincted) {
 			extincted(consumer, (SpecieExtincted) event);
+		} else if (event instanceof CardDealed)
+			cardDealed(consumer, (CardDealed) event);
+	}
+
+	private void cardDealed(EventConsumer<Event> consumer, CardDealed dealed) {
+		if (dealed.isShuffle()) {
+			consumer.event(new LastTurnEvent(true));
 		}
 	}
 

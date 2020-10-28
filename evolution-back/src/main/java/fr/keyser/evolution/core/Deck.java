@@ -24,10 +24,10 @@ import fr.keyser.evolution.model.MetaCard;
 public class Deck {
 
 	public static final Deck INITIAL = new Deck(Collections.emptyMap(), Collections.emptyList(),
-			Collections.emptyList(), false);
+			Collections.emptyList());
 
 	public static final Deck create(Map<CardId, MetaCard> cards) {
-		return new Deck(cards, new ArrayList<>(cards.keySet()), Collections.emptyList(), false);
+		return new Deck(cards, new ArrayList<>(cards.keySet()), Collections.emptyList());
 	}
 
 	public class Picker {
@@ -72,13 +72,10 @@ public class Deck {
 
 	private final List<CardId> discarded;
 
-	private final boolean shuffled;
-
-	private Deck(Map<CardId, MetaCard> meta, List<CardId> cards, List<CardId> discarded, boolean shuffled) {
+	private Deck(Map<CardId, MetaCard> meta, List<CardId> cards, List<CardId> discarded) {
 		this.meta = Collections.unmodifiableMap(meta);
 		this.cards = Collections.unmodifiableList(cards);
 		this.discarded = Collections.unmodifiableList(discarded);
-		this.shuffled = shuffled;
 	}
 
 	private Card resolve(CardId id) {
@@ -89,7 +86,7 @@ public class Deck {
 
 	public Deck accept(DeckEvent event) {
 		if (event instanceof CardDealed)
-			return picked((CardDealed) event);
+			return dealed((CardDealed) event);
 		else if (event instanceof DiscardedEvent)
 			return discarded((DiscardedEvent) event);
 		else if (event instanceof Attacked)
@@ -106,15 +103,15 @@ public class Deck {
 		return discardAll(revealed.getCards().stream().map(Card::getId).collect(Collectors.toList()));
 	}
 
-	private Deck picked(CardDealed evt) {
+	private Deck dealed(CardDealed evt) {
 
 		if (evt.isShuffle()) {
-			return new Deck(meta, evt.getShuffledCards(), Collections.emptyList(), true);
+			return new Deck(meta, evt.getShuffledCards(), Collections.emptyList());
 		}
 
 		int skip = evt.getCards().size();
 		List<CardId> cards = this.cards.stream().skip(skip).collect(Collectors.toList());
-		return new Deck(meta, cards, discarded, shuffled);
+		return new Deck(meta, cards, discarded);
 	}
 
 	private Deck extincted(SpecieExtincted evt) {
@@ -145,7 +142,7 @@ public class Deck {
 	private Deck discardAll(Collection<CardId> all) {
 		List<CardId> discarded = new ArrayList<>(this.discarded);
 		discarded.addAll(all);
-		return new Deck(meta, cards, discarded, shuffled);
+		return new Deck(meta, cards, discarded);
 	}
 
 	public List<CardId> getCards() {
@@ -154,10 +151,6 @@ public class Deck {
 
 	public List<CardId> getDiscarded() {
 		return discarded;
-	}
-
-	public boolean isShuffled() {
-		return shuffled;
 	}
 
 	public Picker picker() {

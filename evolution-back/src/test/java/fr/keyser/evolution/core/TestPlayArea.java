@@ -277,7 +277,8 @@ public class TestPlayArea {
 		assertThat(violations.isPossible(p.getHandSize())).isTrue();
 
 		run(area,
-				new AttackCommand(violations, Map.of("hard_shell", p.getHands().get(0).getId())).resolve(violations),true);
+				new AttackCommand(violations, Map.of("hard_shell", p.getHands().get(0).getId())).resolve(violations, p),
+				true);
 
 		System.out.println("--");
 
@@ -455,7 +456,7 @@ public class TestPlayArea {
 		summary = area.summarize(area.attack(area.getSpecie(attackerId), area.getSpecie(defender)));
 		assertThat(summary.isPossible()).isTrue();
 	}
-	
+
 	@Test
 	void quills() {
 		DeckBuilder builder = new DeckBuilder();

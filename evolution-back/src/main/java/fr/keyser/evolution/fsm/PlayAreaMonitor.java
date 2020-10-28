@@ -21,14 +21,27 @@ public class PlayAreaMonitor {
 
 	private final List<Event> history;
 
+	private final int draw;
+
 	public PlayAreaMonitor(PlayArea area) {
-		this(area, Collections.emptyList(), Collections.emptyList());
+		this(area, Collections.emptyList(), Collections.emptyList(), 0);
 	}
 
-	private PlayAreaMonitor(PlayArea area, List<Event> currents, List<Event> history) {
+	private PlayAreaMonitor(PlayArea area, List<Event> currents, List<Event> history, int draw) {
 		this.area = area;
 		this.currents = currents;
 		this.history = history;
+		this.draw = draw;
+	}
+
+	public PlayAreaMonitor addEvent(Event event) {
+		List<Event> history = new ArrayList<>(this.history);
+		history.add(event);
+
+		List<Event> current = new ArrayList<Event>(this.currents);
+		current.add(event);
+
+		return new PlayAreaMonitor(area, current, history, draw);
 	}
 
 	public PlayAreaMonitor dealCards() {
@@ -36,6 +49,11 @@ public class PlayAreaMonitor {
 		Events<Event, PlayArea> process = area.process(ts.nextStep(TurnStep.SELECT_FOOD));
 		process = process.and(process.getOutput().handleDealCards());
 		return withEvents(process);
+	}
+
+	public PlayAreaMonitor end() {
+		TurnStatus ts = area.getTurnStatus();
+		return withEvents(area.process(ts.nextStep(TurnStep.ENDED)));
 	}
 
 	public PlayAreaMonitor nextFirst() {
@@ -51,7 +69,7 @@ public class PlayAreaMonitor {
 	}
 
 	public PlayAreaMonitor reset() {
-		return new PlayAreaMonitor(area, Collections.emptyList(), history);
+		return new PlayAreaMonitor(area, Collections.emptyList(), history, draw + 1);
 	}
 
 	public PlayAreaMonitor playCards() {
@@ -87,7 +105,7 @@ public class PlayAreaMonitor {
 		if (events)
 			return withEvents(process);
 		else
-			return new PlayAreaMonitor(process.getOutput(), currents, history);
+			return new PlayAreaMonitor(process.getOutput(), currents, history, draw);
 	}
 
 	public Optional<ActiveFeedingPlayer> firstActive() {
@@ -121,7 +139,7 @@ public class PlayAreaMonitor {
 		List<Event> current = new ArrayList<Event>(this.currents);
 		current.addAll(forActions);
 
-		return new PlayAreaMonitor(events.getOutput(), current, history);
+		return new PlayAreaMonitor(events.getOutput(), current, history, draw);
 	}
 
 	public PlayArea getArea() {
@@ -134,5 +152,9 @@ public class PlayAreaMonitor {
 
 	public List<Event> getHistory() {
 		return history;
+	}
+
+	public int getDraw() {
+		return draw;
 	}
 }

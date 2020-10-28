@@ -2,6 +2,8 @@ package fr.keyser.evolution.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public final class CardId {
 
 	private final int index;
@@ -15,6 +17,7 @@ public final class CardId {
 		return Objects.hash(index);
 	}
 
+	@JsonValue
 	@Override
 	public String toString() {
 		return "#" + index;

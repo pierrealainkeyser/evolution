@@ -13,17 +13,17 @@ import fr.keyser.fsm.impl.AutomatEngine;
 
 public class PlayerBridge {
 
-	private final int index;
+	private final PlayerRef ref;
 
 	private final AutomatEngine engine;
 
-	public PlayerBridge(int index, AutomatEngine engine) {
-		this.index = index;
+	public PlayerBridge(PlayerRef ref, AutomatEngine engine) {
+		this.ref = ref;
 		this.engine = engine;
 	}
 
 	public List<Event> pass() {
-		my().unicast(new AutomatEvent(EvolutionGameBuilder.DONE, null));
+		my().unicast(new AutomatEvent(EvolutionGraphBuilder.DONE, null));
 		return events();
 	}
 
@@ -40,16 +40,21 @@ public class PlayerBridge {
 	}
 
 	private List<Event> sendCommand(Command cmd) {
-		my().unicast(new AutomatEvent(EvolutionGameBuilder.INPUT, cmd));
+		my().unicast(new AutomatEvent(EvolutionGraphBuilder.INPUT, cmd));
 		return events();
 	}
 
 	private List<Event> events() {
-		PlayAreaMonitor monitor = my().getGlobal(EvolutionGameBuilder.PLAY_AREA);
+		PlayAreaMonitor monitor = my().getGlobal(EvolutionGraphBuilder.PLAY_AREA);
 		return monitor.getCurrents();
 	}
 
-	private AutomatInstance my() {
-		return engine.get().getRoot().getChilds().get(index);
+	public AutomatInstance my() {
+		return root().getChilds().get(ref.getIndex());
 	}
+
+	public AutomatInstance root() {
+		return engine.get().getRoot();
+	}
+
 }

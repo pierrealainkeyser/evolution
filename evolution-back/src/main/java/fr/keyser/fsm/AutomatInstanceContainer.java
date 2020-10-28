@@ -16,5 +16,4 @@ public interface AutomatInstanceContainer {
 	default AutomatInstance getRoot() {
 		return getAll().stream().findFirst().orElse(null);
 	}
-
 }

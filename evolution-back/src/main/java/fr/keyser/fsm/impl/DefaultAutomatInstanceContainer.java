@@ -129,7 +129,7 @@ public class DefaultAutomatInstanceContainer implements AutomatInstanceContainer
 		return all;
 	}
 
-	public AutomatInstanceContainerValue getContainer() {
+	public AutomatInstanceContainerValue getInternal() {
 		return container;
 	}
 

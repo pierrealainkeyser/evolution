@@ -11,4 +11,9 @@ public class LastTurnEvent implements TurnEvent {
 	public boolean isLastTurn() {
 		return lastTurn;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("LastTurnEvent [lastTurn=%s]", lastTurn);
+	}
 }

@@ -8,6 +8,7 @@ import static fr.keyser.fsm.impl.transition.TransitionSourceBuilder.to;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import fr.keyser.evolution.command.AddCardToPoolCommand;
 import fr.keyser.evolution.command.Command;
@@ -15,7 +16,11 @@ import fr.keyser.evolution.command.FeedingPhaseCommand;
 import fr.keyser.evolution.command.PlayCardsPhaseCommand;
 import fr.keyser.evolution.command.PlayerCommand;
 import fr.keyser.evolution.core.PlayArea;
+import fr.keyser.evolution.core.PlayerState;
 import fr.keyser.evolution.core.TurnStatus;
+import fr.keyser.evolution.event.PlayerPassedEvent;
+import fr.keyser.evolution.event.PlayerStateChanged;
+import fr.keyser.evolution.model.PlayerInputStatus;
 import fr.keyser.fsm.AutomatEvent;
 import fr.keyser.fsm.AutomatInstance;
 import fr.keyser.fsm.AutomatLifeCycleEvent;
@@ -24,11 +29,15 @@ import fr.keyser.fsm.impl.graph.AutomatGraph;
 import fr.keyser.fsm.impl.graph.GraphBuilder;
 import fr.keyser.fsm.impl.graph.GraphBuilder.NodeBuilder;
 
-public class EvolutionGameBuilder {
+public class EvolutionGraphBuilder {
 
 	public final static String PLAY_AREA = "playarea";
 
 	public final static String SUMMARY = "summary";
+
+	public final static String SCOREBOARDS = "scoreboards";
+
+	public final static String STATUS = "status";
 
 	public final static String INPUT = "input";
 
@@ -79,12 +88,17 @@ public class EvolutionGameBuilder {
 
 		public PlayerFlow(NodeBuilder root) {
 
+			NodeBuilder start = root.sub("start");
 			NodeBuilder idle = root.sub("idle");
 
 			NodeBuilder selectFood = root.sub("selectFood");
 			NodeBuilder playCards = root.sub("playCards");
 			NodeBuilder feeding = root.sub("feeding");
 
+			start.entry(this::start);
+			start.auto(idle);
+
+			idle.entry(playerState(PlayerInputStatus.IDLE));
 			idle.transition(route()
 					.on(PlayerFlowEnum.SELECT_FOOD, to(selectFood))
 					.on(PlayerFlowEnum.PLAY_CARDS, to(playCards))
@@ -101,11 +115,14 @@ public class EvolutionGameBuilder {
 		}
 
 		private void selectFood(NodeBuilder selectFood, NodeBuilder idle) {
+			selectFood.entry(playerState(PlayerInputStatus.SELECT_FOOD));
+
 			NodeBuilder wait = selectFood.sub("wait");
 			selectFoodDone = selectFood.sub("done");
 
 			wait.transition(route().on(INPUT, check(this::checkAddCardToPool, to(selectFoodDone))));
 			wait.leave(this::command);
+			wait.leave(playerState(PlayerInputStatus.IDLE));
 
 			selectFoodDone.transition(join(to(idle)));
 		}
@@ -119,10 +136,12 @@ public class EvolutionGameBuilder {
 			Command payload = (Command) transition.getPayload();
 			return instance.updateGlobal(PLAY_AREA,
 					(PlayAreaMonitor monitor) -> monitor.reset()
-					.acceptCommand(new PlayerCommand(instance.getIndex(), payload)));
+							.acceptCommand(new PlayerCommand(instance.getIndex(), payload)));
 		}
 
 		private void playCards(NodeBuilder playCards, NodeBuilder idle) {
+			playCards.entry(playerState(PlayerInputStatus.PLAY_CARDS));
+
 			NodeBuilder wait = playCards.sub("wait");
 			NodeBuilder play = playCards.sub("play");
 			NodeBuilder pass = playCards.sub("pass");
@@ -134,11 +153,32 @@ public class EvolutionGameBuilder {
 			play.entry(this::command);
 			play.auto(wait);
 
-			pass.entry(this::reset);
+			pass.entry(this::pass);
 			pass.auto(idle);
 
 			playCards.leave(this::done);
+		}
 
+		private AutomatInstance pass(AutomatInstance instance) {
+			PlayerPassedEvent event = new PlayerPassedEvent(instance.getIndex());
+			return instance.updateGlobal(PLAY_AREA, (PlayAreaMonitor pm) -> pm.reset().addEvent(event));
+		}
+
+		private AutomatInstance start(AutomatInstance instance) {
+			return instance.setLocal(STATUS, PlayerState.INITIAL);
+		}
+
+		private UnaryOperator<AutomatInstance> playerState(PlayerInputStatus status) {
+			return instance -> {
+
+				PlayerState state = instance.getLocal(STATUS);
+				if (state.getState() == status)
+					return instance;
+
+				PlayerStateChanged changed = new PlayerStateChanged(instance.getIndex(), status);
+				return instance.updateGlobal(PLAY_AREA, (PlayAreaMonitor pm) -> pm.addEvent(changed))
+						.updateLocal(STATUS, (PlayerState ps) -> ps.accept(changed));
+			};
 		}
 
 		private boolean checkPlayCardsPhaseCommand(AutomatInstance instance, AutomatEvent event) {
@@ -147,6 +187,8 @@ public class EvolutionGameBuilder {
 		}
 
 		private void feeding(NodeBuilder feeding, NodeBuilder idle) {
+			feeding.entry(playerState(PlayerInputStatus.FEEDING));
+
 			NodeBuilder wait = feeding.sub("wait");
 			NodeBuilder play = feeding.sub("play");
 
@@ -172,10 +214,6 @@ public class EvolutionGameBuilder {
 			return instance.setLocal(SUMMARY, transition.getPayload());
 		}
 
-		private AutomatInstance reset(AutomatInstance instance) {
-			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::reset);
-		}
-
 		private AutomatInstance done(AutomatInstance instance) {
 			instance.getParent().ifPresent(p -> p.unicast(ControlFlowEnum.DONE));
 			return instance;
@@ -194,14 +232,24 @@ public class EvolutionGameBuilder {
 			NodeBuilder playCards = root.sub("playCards");
 			NodeBuilder feeding = root.sub("feeding");
 			NodeBuilder cleanUp = root.sub("cleanUp");
-			NodeBuilder checkEog = root.sub("checkEog");
 			NodeBuilder end = root.sub("end");
 
 			selectFood(selectFood, playCards);
 			playCards(playCards, feeding);
 			feeding(feeding, cleanUp);
-			cleanUp(cleanUp, selectFood, checkEog);
+			cleanUp(cleanUp, selectFood, end);
+			end(end);
 
+		}
+
+		private void end(NodeBuilder end) {
+			end.entry(this::end);
+		}
+
+		private AutomatInstance end(AutomatInstance instance) {
+			PlayAreaMonitor monitor = instance.getGlobal(PLAY_AREA);
+			return instance.setGlobal(SCOREBOARDS, monitor.getArea().scoreBoards())
+					.setGlobal(PLAY_AREA, monitor.end());
 		}
 
 		private void selectFood(NodeBuilder select, NodeBuilder playCards) {
