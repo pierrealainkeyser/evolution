@@ -18,4 +18,9 @@ public class AuthenticatedPlayer {
 	public String getName() {
 		return name;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("AuthenticatedPlayer [id=%s, name=%s]", id, name);
+	}
 }

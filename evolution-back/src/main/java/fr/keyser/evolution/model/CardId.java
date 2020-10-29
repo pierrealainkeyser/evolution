@@ -2,10 +2,12 @@ package fr.keyser.evolution.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public final class CardId {
 
+	@JsonCreator
 	public static CardId parse(String s) {
 		return new CardId(Integer.parseInt(s.substring(1)));
 	}

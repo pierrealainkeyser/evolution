@@ -1,6 +1,8 @@
 package fr.keyser.evolution.fsm.view;
 
+import fr.keyser.evolution.fsm.PlayerRef;
+
 public interface ViewDispatcher {
 
-	public void dispatch(String uuid, PartialRender render);
+	public void dispatch(PlayerRef ref, PartialRender render);
 }

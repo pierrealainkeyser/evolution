@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.core.Player;
 import fr.keyser.evolution.event.Attacked;
 import fr.keyser.evolution.model.AttackViolationStatus;
@@ -23,7 +26,9 @@ public class AttackCommand extends FeedingPhaseCommand {
 		this(violations.getSource(), violations.getTarget(), resolved);
 	}
 
-	public AttackCommand(SpecieId specie, SpecieId target, Map<String, CardId> violations) {
+	@JsonCreator
+	public AttackCommand(@JsonProperty("specie") SpecieId specie, @JsonProperty("target") SpecieId target,
+			@JsonProperty("violations") Map<String, CardId> violations) {
 		super(specie);
 		this.target = target;
 		this.violations = violations;

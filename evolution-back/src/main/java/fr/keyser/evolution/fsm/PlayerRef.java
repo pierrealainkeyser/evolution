@@ -25,4 +25,13 @@ public class PlayerRef {
 	public AuthenticatedPlayer getPlayer() {
 		return player;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("PlayerRef [index=%s, uuid=%s, player=%s]", index, uuid, player);
+	}
+
+	public String getId() {
+		return player.getId();
+	}
 }

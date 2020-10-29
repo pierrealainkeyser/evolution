@@ -71,7 +71,7 @@ public class TestBridgeService {
 		String p0 = created.getPlayers().get(0).getUuid();
 		String p1 = created.getPlayers().get(1).getUuid();
 
-		CompleteRender complete = service.init(p0);
+		CompleteRender complete = service.connect(p0);
 		assertThat(complete.getDraw())
 				.isEqualTo(0);
 		assertThat(complete.getGame().getPlayers())
@@ -175,7 +175,7 @@ public class TestBridgeService {
 
 		BridgeService service = new BridgeService(locker, resolver, new Renderer(), dispatcher);
 
-		CompleteRender complete = service.init(uuid0);
+		CompleteRender complete = service.connect(uuid0);
 		logger.info("--->\n{}", pp.writeValueAsString(complete));
 
 		service.selectFood(uuid0, new AddCardToPoolCommand(ambush));
@@ -183,7 +183,7 @@ public class TestBridgeService {
 
 		service.playCard(uuid0, new AddTraitCommand(longNeck, new SpecieId(0, 0), 0));
 
-		complete = service.init(uuid0);
+		complete = service.connect(uuid0);
 		logger.info("--->\n{}", pp.writeValueAsString(complete));
 
 		service.pass(uuid0);
@@ -202,7 +202,7 @@ public class TestBridgeService {
 		service.feed(uuid1, new FeedCommand(new SpecieId(1, 1)));
 		dumpState(engine);
 
-		complete = service.init(uuid0);
+		complete = service.connect(uuid0);
 		logger.info("--->\n{}", pp.writeValueAsString(complete));
 
 		assertThat(engine.get().getRoot().getCurrent())

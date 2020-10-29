@@ -32,12 +32,12 @@ public class BridgeService {
 		this.dispatcher = dispatcher;
 	}
 
-	public CompleteRender init(String uuid) {
+	public CompleteRender connect(String uuid) {
 		ResolvedRef ref = resolver.findByUuid(uuid);
 		GameRef game = ref.getGame();
 		PlayerRef myself = ref.getMyself();
 		return locker.withinLock(game, () -> {
-			AutomatEngine engine = resolver.getEngine(game);			
+			AutomatEngine engine = resolver.getEngine(game);
 			PlayerBridge bridge = new PlayerBridge(myself, engine);
 			return renderer.complete(myself.getIndex(), game.getPlayers(), bridge.my());
 		});
@@ -77,7 +77,7 @@ public class BridgeService {
 			for (PlayerRef p : ref.getPlayers()) {
 				int index = p.getIndex();
 				PartialRender partial = renderer.partial(index, root.getChilds().get(index), events);
-				dispatcher.dispatch(p.getUuid(), partial);
+				dispatcher.dispatch(p, partial);
 			}
 		});
 	}
