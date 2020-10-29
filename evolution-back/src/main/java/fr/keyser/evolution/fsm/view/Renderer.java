@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import fr.keyser.evolution.core.PlayArea;
+import fr.keyser.evolution.core.Player;
+import fr.keyser.evolution.core.PlayerState;
+import fr.keyser.evolution.core.TurnStatus;
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.event.CardAddedToPool;
 import fr.keyser.evolution.event.CardDealed;
@@ -27,24 +31,52 @@ import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.FoodConsumption;
 import fr.keyser.evolution.model.FoodSource;
 import fr.keyser.evolution.model.PlayerScoreBoard;
+import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.UsedTrait;
 import fr.keyser.evolution.summary.FeedSummary;
-import fr.keyser.evolution.summary.Summary;
+import fr.keyser.evolution.summary.FeedingActionSummary;
 import fr.keyser.fsm.AutomatInstance;
 
 public class Renderer {
 
 	public CompleteRender complete(int player, List<PlayerRef> players, AutomatInstance playerInstance) {
 		PlayAreaMonitor monitor = playerInstance.getGlobal(EvolutionGraphBuilder.PLAY_AREA);
-		int draw = monitor.getDraw();
+		List<PlayerScoreBoard> scoreBoards = playerInstance.getGlobal(EvolutionGraphBuilder.SCOREBOARDS);
+		List<FeedingActionSummary> actions = playerInstance.getLocal(EvolutionGraphBuilder.FEEDING_ACTIONS);
+		AutomatInstance root = playerInstance.getParent().get();
 
-		return new CompleteRender(draw);
+		int draw = monitor.getDraw();
+		PlayArea area = monitor.getArea();
+		TurnStatus ts = area.getTurnStatus();
+
+		List<PlayerView> playersView = players.stream()
+				.map(p -> renderPlayer(player, p, area, root.getChilds().get(p.getIndex())))
+				.collect(Collectors.toList());
+		PlayerAreaView playerAreaView = new PlayerAreaView(playersView, scoreBoards, ts.getStep(), ts.isLastTurn(),
+				new FoodPoolView(area.getPool()));
+
+		Player myself = area.getPlayer(player);
+		UserView userView = new UserView(player,
+				myself.getHands().stream().map(CardView::new).collect(Collectors.toList()), actions(player, actions));
+
+		return new CompleteRender(draw, userView, playerAreaView, renderAll(player, monitor.getHistory()));
+	}
+
+	private PlayerView renderPlayer(int forPlayer, PlayerRef ref, PlayArea area, AutomatInstance instance) {
+
+		PlayerState state = instance.getLocal(EvolutionGraphBuilder.STATUS);
+		int index = ref.getIndex();
+		Player player = area.getPlayer(index);
+		List<SpecieView> species = area.forPlayer(index).stream().map(s -> new SpecieView(s, index == forPlayer))
+				.collect(Collectors.toList());
+		return new PlayerView(index, ref.getPlayer(), state.getState(), player.getHandSize(), species);
+
 	}
 
 	public PartialRender partial(int player, AutomatInstance playerInstance, List<Event> events) {
 		PlayAreaMonitor monitor = playerInstance.getGlobal(EvolutionGraphBuilder.PLAY_AREA);
 		List<PlayerScoreBoard> scoreBoards = playerInstance.getGlobal(EvolutionGraphBuilder.SCOREBOARDS);
-		List<Summary> actions = playerInstance.getLocal(EvolutionGraphBuilder.SUMMARY);
+		List<FeedingActionSummary> actions = playerInstance.getLocal(EvolutionGraphBuilder.FEEDING_ACTIONS);
 		int draw = monitor.getDraw();
 
 		List<RenderedEvent> rendered = new ArrayList<>(renderAll(player, events));
@@ -69,7 +101,7 @@ public class Renderer {
 				.collect(Collectors.toList());
 	}
 
-	private List<SummaryView> actions(int player, List<Summary> actions) {
+	private List<SummaryView> actions(int player, List<FeedingActionSummary> actions) {
 		if (actions != null) {
 			return actions.stream().map(a -> renderAction(player, a)).collect(Collectors.toList());
 
@@ -77,11 +109,13 @@ public class Renderer {
 		return null;
 	}
 
-	private SummaryView renderAction(int player, Summary in) {
+	private SummaryView renderAction(int player, FeedingActionSummary in) {
 		if (in instanceof FeedSummary) {
 			FeedSummary feed = (FeedSummary) in;
 			return new FeedSumaryView(feed.getSpecie(), renderAll(player, feed.getEvents()));
 		}
+
+		// TODO other actions
 
 		return null;
 	}
@@ -116,7 +150,7 @@ public class Renderer {
 
 	private RenderedEvent render(TraitsRevealed revealed) {
 		RenderedEvent evt = new RenderedEvent("traits-revealed")
-				.put("specie", revealed.getSrc().toString());
+				.put("specie", revealed.getSrc());
 		revealed.getTraits().entrySet().forEach(e -> evt.put("traits[" + e.getKey() + "]", new CardView(e.getValue())));
 
 		return evt;
@@ -136,8 +170,10 @@ public class Renderer {
 	private RenderedEvent render(FoodEaten foodEaten) {
 		FoodConsumption consumption = foodEaten.getConsumption();
 		FoodSource source = foodEaten.getSource();
+		SpecieId specie = foodEaten.getSrc();
 		RenderedEvent evt = new RenderedEvent("specie-food-eaten")
-				.put("specie", foodEaten.getSrc().toString())
+				.put("player", specie.getPlayer())
+				.put("specie", specie)
 				.put("food", consumption.getFood())
 				.put("fat", consumption.getFat())
 				.put("source", source);
@@ -203,8 +239,10 @@ public class Renderer {
 
 	private RenderedEvent render(int current, TraitAdded added) {
 		int player = added.getPlayer();
+		SpecieId specie = added.getSrc();
 		RenderedEvent out = new RenderedEvent("specie-trait-added")
-				.put("specie", added.getSrc().toString())
+				.put("player", specie.getPlayer())
+				.put("specie", specie)
 				.put("index", added.getIndex());
 
 		if (player == current)

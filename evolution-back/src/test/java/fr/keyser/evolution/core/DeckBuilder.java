@@ -7,7 +7,6 @@ import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.CardState;
 import fr.keyser.evolution.model.MetaCard;
-import fr.keyser.evolution.model.MetaCardId;
 import fr.keyser.evolution.model.Trait;
 
 public class DeckBuilder {
@@ -17,7 +16,7 @@ public class DeckBuilder {
 
 	public CardId create(Trait trait, int food) {
 		CardId id = new CardId(count++);
-		MetaCard meta = new MetaCard(new MetaCardId(trait.name()), trait, food);
+		MetaCard meta = new MetaCard(trait, food);
 		metas.put(id, meta);
 		return id;
 	}
@@ -27,7 +26,7 @@ public class DeckBuilder {
 	}
 
 	public Card card(Trait trait, int food) {
-		return new Card(new CardId(count++), new MetaCard(new MetaCardId(trait.name()), trait, food),
+		return new Card(new CardId(count++), new MetaCard(trait, food),
 				CardState.INITIAL);
 	}
 

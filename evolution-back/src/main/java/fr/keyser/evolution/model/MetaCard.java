@@ -8,6 +8,10 @@ public class MetaCard {
 
 	private final int food;
 
+	public MetaCard(Trait trait, int food) {
+		this(new MetaCardId(trait.name().toLowerCase() + "-" + food), trait, food);
+	}
+
 	public MetaCard(MetaCardId id, Trait trait, int food) {
 		this.id = id;
 		this.trait = trait;

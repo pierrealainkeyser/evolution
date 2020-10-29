@@ -2,6 +2,8 @@ package fr.keyser.evolution.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public class SpecieId {
 
 	private final int id;
@@ -38,6 +40,7 @@ public class SpecieId {
 		return Objects.hash(id, player);
 	}
 
+	@JsonValue
 	@Override
 	public String toString() {
 		return String.format("%sp%s", id, player);

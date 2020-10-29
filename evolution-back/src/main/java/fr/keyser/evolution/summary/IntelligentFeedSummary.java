@@ -5,7 +5,7 @@ import java.util.List;
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.model.SpecieId;
 
-public class IntelligentFeedSummary extends CostOutcome implements Summary {
+public class IntelligentFeedSummary extends CostOutcome implements FeedingActionSummary {
 
 	private final SpecieId specie;
 

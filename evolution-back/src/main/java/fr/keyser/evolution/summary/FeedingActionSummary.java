@@ -2,7 +2,7 @@ package fr.keyser.evolution.summary;
 
 import fr.keyser.evolution.model.SpecieId;
 
-public interface Summary {
+public interface FeedingActionSummary {
 
 	SpecieId getSpecie();
 

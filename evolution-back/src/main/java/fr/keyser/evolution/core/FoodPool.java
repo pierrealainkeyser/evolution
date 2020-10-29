@@ -78,4 +78,8 @@ public class FoodPool {
 		int consumed = eaten.getConsumed();
 		return new FoodPool(food - consumed, waiting);
 	}
+
+	public List<Card> getWaiting() {
+		return waiting;
+	}
 }

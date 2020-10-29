@@ -7,11 +7,6 @@ import static fr.keyser.fsm.impl.transition.TransitionSourceBuilder.to;
 
 import org.junit.jupiter.api.Test;
 
-import fr.keyser.fsm.AutomatEvent;
-import fr.keyser.fsm.AutomatInstance;
-import fr.keyser.fsm.EventGuard;
-import fr.keyser.fsm.FollowedTransitionSource;
-import fr.keyser.fsm.State;
 import fr.keyser.fsm.impl.transition.StringBuilderTransitionVisitor;
 
 public class TestStringBuilderTransitionVisitor {

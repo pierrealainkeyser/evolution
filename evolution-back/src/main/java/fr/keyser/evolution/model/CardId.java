@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public final class CardId {
 
+	public static CardId parse(String s) {
+		return new CardId(Integer.parseInt(s.substring(1)));
+	}
+
 	private final int index;
 
 	public CardId(int index) {

@@ -20,6 +20,7 @@ import fr.keyser.evolution.core.PlayerState;
 import fr.keyser.evolution.core.TurnStatus;
 import fr.keyser.evolution.event.PlayerPassedEvent;
 import fr.keyser.evolution.event.PlayerStateChanged;
+import fr.keyser.evolution.model.EvolutionGameSettings;
 import fr.keyser.evolution.model.PlayerInputStatus;
 import fr.keyser.fsm.AutomatEvent;
 import fr.keyser.fsm.AutomatInstance;
@@ -33,7 +34,7 @@ public class EvolutionGraphBuilder {
 
 	public final static String PLAY_AREA = "playarea";
 
-	public final static String SUMMARY = "summary";
+	public final static String FEEDING_ACTIONS = "feedingactions";
 
 	public final static String SCOREBOARDS = "scoreboards";
 
@@ -86,7 +87,9 @@ public class EvolutionGraphBuilder {
 
 		private NodeBuilder selectFoodDone;
 
-		public PlayerFlow(NodeBuilder root) {
+		private NodeBuilder quickPlayCardsDone;
+
+		public PlayerFlow(NodeBuilder root, EvolutionGameSettings settings) {
 
 			NodeBuilder start = root.sub("start");
 			NodeBuilder idle = root.sub("idle");
@@ -105,7 +108,10 @@ public class EvolutionGraphBuilder {
 					.on(PlayerFlowEnum.FEEDING, check(this::checkSummary, to(feeding))));
 
 			selectFood(selectFood, idle);
-			playCards(playCards, idle);
+			if (settings.isQuickplay())
+				quickPlayCards(playCards, idle);
+			else
+				playCards(playCards, idle);
 			feeding(feeding, idle);
 		}
 
@@ -146,17 +152,35 @@ public class EvolutionGraphBuilder {
 			NodeBuilder play = playCards.sub("play");
 			NodeBuilder pass = playCards.sub("pass");
 
-			wait.transition(route()
-					.on(INPUT, check(this::checkPlayCardsPhaseCommand, to(play)))
-					.on(DONE, to(pass)));
-
-			play.entry(this::command);
-			play.auto(wait);
+			playCardsLoop(wait, play, pass);
 
 			pass.entry(this::pass);
 			pass.auto(idle);
 
 			playCards.leave(this::done);
+		}
+
+		private void playCardsLoop(NodeBuilder wait, NodeBuilder play, NodeBuilder done) {
+			wait.transition(route()
+					.on(INPUT, check(this::checkPlayCardsPhaseCommand, to(play)))
+					.on(DONE, to(done)));
+
+			play.entry(this::command);
+			play.auto(wait);
+		}
+
+		private void quickPlayCards(NodeBuilder playCards, NodeBuilder idle) {
+			playCards.entry(playerState(PlayerInputStatus.PLAY_CARDS));
+
+			NodeBuilder wait = playCards.sub("wait");
+			NodeBuilder play = playCards.sub("play");
+			quickPlayCardsDone = playCards.sub("done");
+
+			playCardsLoop(wait, play, quickPlayCardsDone);
+
+			quickPlayCardsDone.entry(this::pass);
+			quickPlayCardsDone.entry(playerState(PlayerInputStatus.IDLE));
+			quickPlayCardsDone.transition(join(to(idle)));
 		}
 
 		private AutomatInstance pass(AutomatInstance instance) {
@@ -211,7 +235,7 @@ public class EvolutionGraphBuilder {
 		}
 
 		private AutomatInstance registerSummary(AutomatInstance instance, FollowedTransition transition) {
-			return instance.setLocal(SUMMARY, transition.getPayload());
+			return instance.setLocal(FEEDING_ACTIONS, transition.getPayload());
 		}
 
 		private AutomatInstance done(AutomatInstance instance) {
@@ -220,22 +244,27 @@ public class EvolutionGraphBuilder {
 		}
 
 		private AutomatInstance fed(AutomatInstance instance) {
-			return instance.setLocal(SUMMARY, null);
+			return instance.setLocal(FEEDING_ACTIONS, null);
 		}
 	}
 
 	private class ControlFlow {
 		private final NodeBuilder selectFood;
 
-		public ControlFlow(NodeBuilder root) {
+		private final NodeBuilder playCards;
+
+		public ControlFlow(NodeBuilder root, EvolutionGameSettings settings) {
 			selectFood = root.sub("selectFood");
-			NodeBuilder playCards = root.sub("playCards");
+			playCards = root.sub("playCards");
 			NodeBuilder feeding = root.sub("feeding");
 			NodeBuilder cleanUp = root.sub("cleanUp");
 			NodeBuilder end = root.sub("end");
 
 			selectFood(selectFood, playCards);
-			playCards(playCards, feeding);
+			if (settings.isQuickplay())
+				quickPlayCards(playCards, feeding);
+			else
+				playCards(playCards, feeding);
 			feeding(feeding, cleanUp);
 			cleanUp(cleanUp, selectFood, end);
 			end(end);
@@ -260,7 +289,16 @@ public class EvolutionGraphBuilder {
 		private AutomatInstance selectFood(AutomatInstance instance) {
 			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::dealCards)
 					.multicast(instance.getChildsId(), PlayerFlowEnum.SELECT_FOOD);
+		}
 
+		private void quickPlayCards(NodeBuilder playCards, NodeBuilder feeding) {
+			playCards.entry(this::quickPlayCards);
+			playCards.transition(join(to(feeding)));
+		}
+
+		private AutomatInstance quickPlayCards(AutomatInstance instance) {
+			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::playCards)
+					.multicast(instance.getChildsId(), PlayerFlowEnum.PLAY_CARDS);
 		}
 
 		private void playCards(NodeBuilder playCards, NodeBuilder feeding) {
@@ -380,7 +418,7 @@ public class EvolutionGraphBuilder {
 
 	}
 
-	public AutomatGraph build(int nbPlayers) {
+	public AutomatGraph build(EvolutionGameSettings settings) {
 
 		GraphBuilder builder = new GraphBuilder();
 
@@ -392,12 +430,14 @@ public class EvolutionGraphBuilder {
 		initial.transition(route().on(AutomatLifeCycleEvent.START, to(fork)));
 		initial.leave(this::bootstrap);
 
-		fork.fork(control, nbPlayers, player);
+		fork.fork(control, settings.getPlayersCount(), player);
 
-		ControlFlow controlFlow = new ControlFlow(control);
-		PlayerFlow playerFlow = new PlayerFlow(player);
+		ControlFlow controlFlow = new ControlFlow(control, settings);
+		PlayerFlow playerFlow = new PlayerFlow(player, settings);
 
 		builder.rendezVous(controlFlow.selectFood, playerFlow.selectFoodDone);
+		if (settings.isQuickplay())
+			builder.rendezVous(controlFlow.playCards, playerFlow.quickPlayCardsDone);
 
 		return builder.build();
 	}

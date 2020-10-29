@@ -2,15 +2,15 @@ package fr.keyser.evolution.fsm;
 
 import java.util.List;
 
-import fr.keyser.evolution.summary.Summary;
+import fr.keyser.evolution.summary.FeedingActionSummary;
 
 public class ActiveFeedingPlayer {
 
 	private final int player;
 
-	private final List<Summary> summary;
+	private final List<FeedingActionSummary> summary;
 
-	public ActiveFeedingPlayer(int player, List<Summary> summary) {
+	public ActiveFeedingPlayer(int player, List<FeedingActionSummary> summary) {
 		this.player = player;
 		this.summary = summary;
 	}
@@ -19,7 +19,7 @@ public class ActiveFeedingPlayer {
 		return player;
 	}
 
-	public List<Summary> getSummary() {
+	public List<FeedingActionSummary> getSummary() {
 		return summary;
 	}
 }

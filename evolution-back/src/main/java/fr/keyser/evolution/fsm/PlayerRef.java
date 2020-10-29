@@ -6,12 +6,12 @@ public class PlayerRef {
 
 	private final String uuid;
 
-	private final String label;
+	private final AuthenticatedPlayer player;
 
-	public PlayerRef(int index, String uuid, String label) {
+	public PlayerRef(int index, String uuid, AuthenticatedPlayer player) {
 		this.index = index;
 		this.uuid = uuid;
-		this.label = label;
+		this.player = player;
 	}
 
 	public int getIndex() {
@@ -22,7 +22,7 @@ public class PlayerRef {
 		return uuid;
 	}
 
-	public String getLabel() {
-		return label;
+	public AuthenticatedPlayer getPlayer() {
+		return player;
 	}
 }

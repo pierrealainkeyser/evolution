@@ -60,8 +60,8 @@ import fr.keyser.evolution.model.UsedTrait;
 import fr.keyser.evolution.summary.AttackOutcome;
 import fr.keyser.evolution.summary.AttackSummary;
 import fr.keyser.evolution.summary.FeedSummary;
+import fr.keyser.evolution.summary.FeedingActionSummary;
 import fr.keyser.evolution.summary.IntelligentFeedSummary;
-import fr.keyser.evolution.summary.Summary;
 
 public class PlayArea implements EventProcessor<Event, PlayArea> {
 
@@ -149,7 +149,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		Map<Integer, Score> scoreBoards = players.getPlayers().stream()
 				.collect(Collectors.toMap(Player::getId, p -> {
 					int id = p.getId();
-					PlayerSpecies spec = species.forPlayer(id);
+					PlayerSpecies spec = forPlayer(id);
 					int traits = spec.stream().mapToInt(s -> s.getTraits().size()).sum();
 					int population = spec.stream().mapToInt(Specie::getPopulation).sum();
 
@@ -163,14 +163,18 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 				.collect(Collectors.toList());
 	}
 
-	public List<Summary> actionsForPlayer(int player) {
+	public PlayerSpecies forPlayer(int id) {
+		return species.forPlayer(id);
+	}
+
+	public List<FeedingActionSummary> actionsForPlayer(int player) {
 		Map<Integer, PlayerSpecies> all = players.getPlayers().stream()
-				.collect(Collectors.toMap(Player::getId, p -> species.forPlayer(p.getId())));
+				.collect(Collectors.toMap(Player::getId, p -> forPlayer(p.getId())));
 		PlayerSpecies current = all.get(player);
 		return current.stream().flatMap(s -> summaryFor(s, all)).collect(Collectors.toList());
 	}
 
-	private Stream<Summary> summaryFor(Specie specie, Map<Integer, PlayerSpecies> all) {
+	private Stream<FeedingActionSummary> summaryFor(Specie specie, Map<Integer, PlayerSpecies> all) {
 
 		int hungryNess = specie.hungryNess();
 		if (hungryNess > 0) {
@@ -184,7 +188,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 
 	}
 
-	private Stream<Summary> carnivorousFeeding(Specie specie, Map<Integer, PlayerSpecies> all) {
+	private Stream<FeedingActionSummary> carnivorousFeeding(Specie specie, Map<Integer, PlayerSpecies> all) {
 		SpecieId id = specie.getId();
 		return all.values().stream().flatMap(arround -> {
 			return arround.stream().flatMap(target -> {
@@ -223,10 +227,10 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		return Optional.empty();
 	}
 
-	private Stream<Summary> vegetarianFeeding(Specie specie) {
+	private Stream<FeedingActionSummary> vegetarianFeeding(Specie specie) {
 		SpecieId specieId = specie.getId();
 
-		List<Summary> summary = new ArrayList<Summary>();
+		List<FeedingActionSummary> summary = new ArrayList<FeedingActionSummary>();
 		Player player = getPlayer(specieId);
 		if (specie.isIntelligent() && player.getHandSize() > 0) {
 			summary.add(
@@ -264,7 +268,8 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		return new AttackSummary(source, violations.getTarget(), violations.getViolations(), outcomes);
 	}
 
-	private AttackOutcome outcome(Player player ,AttackViolations violations, List<String> disabled, CardIdSequence seq) {
+	private AttackOutcome outcome(Player player, AttackViolations violations, List<String> disabled,
+			CardIdSequence seq) {
 
 		AttackCommand command = new AttackCommand(violations,
 				disabled.stream().collect(Collectors.toMap(Function.identity(), seq.reset())));
@@ -274,7 +279,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 	}
 
 	public AttackViolations attack(Specie source, Specie target) {
-		return attack(source, target, species.forPlayer(target.getId().getPlayer()));
+		return attack(source, target, forPlayer(target.getId().getPlayer()));
 	}
 
 	public AttackViolations attack(Specie source, Specie target, PlayerSpecies arround) {
@@ -503,6 +508,10 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 	private void cooperation(EventConsumer<Event> consumer, FoodEaten eaten, Specie specie) {
 		species.rightOf(specie).ifPresent(r -> {
 			FoodSource source = eaten.getSource();
+
+			if (r.isCarnivorous() && source.isPlantBased())
+				return;
+
 			int max = r.consumable(source, 1);
 			if (source.isFoodPool())
 				max = Math.min(max, pool.getFood());
@@ -566,7 +575,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		Picker picker = deck.picker();
 		return players.getPlayers().stream().map(p -> {
 			int playerId = p.getId();
-			int count = species.forPlayer(playerId).size() + 3;
+			int count = forPlayer(playerId).size() + 3;
 			return pickForPlayer(picker, playerId, count);
 		}).collect(Collectors.toList());
 	}
@@ -719,7 +728,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 
 	private void extincted(EventConsumer<Event> consumer, SpecieExtincted extincted) {
 		int player = extincted.getPlayer();
-		if (species.forPlayer(player).size() == 0) {
+		if (forPlayer(player).size() == 0) {
 			// recreate a specie when last specie is extincted
 			consumer.event(addSpecie(player, null, SpeciePosition.RIGHT));
 		}

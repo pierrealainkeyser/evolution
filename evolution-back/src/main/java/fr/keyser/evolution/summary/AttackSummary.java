@@ -5,7 +5,7 @@ import java.util.List;
 import fr.keyser.evolution.model.AttackViolation;
 import fr.keyser.evolution.model.SpecieId;
 
-public class AttackSummary implements Summary {
+public class AttackSummary implements FeedingActionSummary {
 	private final SpecieId specie;
 
 	private final SpecieId target;

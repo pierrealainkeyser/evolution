@@ -3,12 +3,13 @@ package fr.keyser.evolution.fsm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -18,9 +19,12 @@ import fr.keyser.evolution.command.FeedCommand;
 import fr.keyser.evolution.core.DeckBuilder;
 import fr.keyser.evolution.core.PlayArea;
 import fr.keyser.evolution.core.Players;
+import fr.keyser.evolution.fsm.view.CompleteRender;
 import fr.keyser.evolution.fsm.view.Renderer;
 import fr.keyser.evolution.fsm.view.ViewDispatcher;
 import fr.keyser.evolution.model.CardId;
+import fr.keyser.evolution.model.EvolutionGameSettings;
+import fr.keyser.evolution.model.PlayerInputStatus;
 import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.Trait;
 import fr.keyser.fsm.State;
@@ -34,7 +38,65 @@ public class TestBridgeService {
 	private static final Logger logger = LoggerFactory.getLogger(TestBridgeService.class);
 
 	@Test
-	void nominal() {
+	void mapGameResolver() throws JsonProcessingException {
+
+		MapGameResolver resolver = new MapGameResolver();
+
+		ObjectMapper om = new ObjectMapper();
+		ObjectWriter pp = om.writerWithDefaultPrettyPrinter();
+		ViewDispatcher dispatcher = (uuid, render) -> {
+			try {
+				logger.info("to {} -\n{}", uuid, pp.writeValueAsString(render));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+		};
+		GameLocker locker = new GameLocker() {
+
+			@Override
+			public <T> T withinLock(GameRef game, Supplier<T> supplier) {
+				return supplier.get();
+			}
+		};
+		BridgeService service = new BridgeService(locker, resolver, new Renderer(), dispatcher);
+
+		AuthenticatedPlayer ap0 = new AuthenticatedPlayer("p1", "Joueur 1");
+		AuthenticatedPlayer ap1 = new AuthenticatedPlayer("p2", "Joueur 2");
+
+		GameBuilder builder = new GameBuilder();
+		ActiveGame created = builder.create(new EvolutionGameSettings(Arrays.asList(ap0, ap1), false));
+		resolver.addGame(created);
+
+		String p0 = created.getPlayers().get(0).getUuid();
+		String p1 = created.getPlayers().get(1).getUuid();
+
+		CompleteRender complete = service.init(p0);
+		assertThat(complete.getDraw())
+				.isEqualTo(0);
+		assertThat(complete.getGame().getPlayers())
+				.hasSize(2)
+				.allSatisfy(pv -> {
+					assertThat(pv.getStatus()).isEqualTo(PlayerInputStatus.SELECT_FOOD);
+				});
+
+		String written = pp.writeValueAsString(complete);
+		logger.info("--->{}\n{}", p0, written);
+		assertThat(written)
+				.doesNotContain(p0)
+				.doesNotContain(p1);
+
+		CardId first = complete.getUser().getHand().get(0).getId();
+
+		service.selectFood(p0, new AddCardToPoolCommand(first));
+
+		assertThat(resolver.getEngine(created.getRef()).get().getRoot().getCurrent())
+				.isEqualTo(new State("control", "selectFood"));
+
+	}
+
+	@Test
+	void nominal() throws JsonProcessingException {
 
 		DeckBuilder builder = new DeckBuilder();
 		CardId ambush = builder.create(Trait.AMBUSH, 4);
@@ -57,12 +119,16 @@ public class TestBridgeService {
 		PlayArea area = PlayArea.init(Players.players(2), builder.deck());
 
 		EvolutionGraphBuilder gbuilder = new EvolutionGraphBuilder();
-		AutomatGraph graph = gbuilder.build(2);
+
+		AuthenticatedPlayer ap0 = new AuthenticatedPlayer("p1", "Joueur 1");
+		AuthenticatedPlayer ap1 = new AuthenticatedPlayer("p2", "Joueur 2");
+
+		AutomatGraph graph = gbuilder.build(new EvolutionGameSettings(Arrays.asList(ap0, ap1), false));
 
 		AutomatEngine engine = AutomatEngine.start(graph, new PlayAreaMonitor(area));
 
-		PlayerRef p0 = new PlayerRef(0, "p1", "Joueur 1");
-		PlayerRef p1 = new PlayerRef(1, "p2", "Joueur 2");
+		PlayerRef p0 = new PlayerRef(0, "5615-15651-A", ap0);
+		PlayerRef p1 = new PlayerRef(1, "51651-1321-B", ap1);
 
 		String uuid0 = p0.getUuid();
 		String uuid1 = p1.getUuid();
@@ -79,12 +145,18 @@ public class TestBridgeService {
 			}
 
 		};
-		GameLocker locker = (g, r) -> r.run();
+		GameLocker locker = new GameLocker() {
+
+			@Override
+			public <T> T withinLock(GameRef game, Supplier<T> supplier) {
+				return supplier.get();
+			}
+		};
 
 		GameResolver resolver = new GameResolver() {
 
 			@Override
-			public void setEngine(GameRef ref, AutomatEngine engine) {
+			public void updateEngine(GameRef ref, AutomatEngine engine) {
 			}
 
 			@Override
@@ -103,10 +175,17 @@ public class TestBridgeService {
 
 		BridgeService service = new BridgeService(locker, resolver, new Renderer(), dispatcher);
 
+		CompleteRender complete = service.init(uuid0);
+		logger.info("--->\n{}", pp.writeValueAsString(complete));
+
 		service.selectFood(uuid0, new AddCardToPoolCommand(ambush));
 		service.selectFood(uuid1, new AddCardToPoolCommand(symbiosis));
 
 		service.playCard(uuid0, new AddTraitCommand(longNeck, new SpecieId(0, 0), 0));
+
+		complete = service.init(uuid0);
+		logger.info("--->\n{}", pp.writeValueAsString(complete));
+
 		service.pass(uuid0);
 		service.pass(uuid1);
 		service.feed(uuid1, new FeedCommand(new SpecieId(1, 1)));
@@ -123,7 +202,11 @@ public class TestBridgeService {
 		service.feed(uuid1, new FeedCommand(new SpecieId(1, 1)));
 		dumpState(engine);
 
-		assertThat(engine.get().getRoot().getCurrent()).isEqualTo(new State("control", "end"));
+		complete = service.init(uuid0);
+		logger.info("--->\n{}", pp.writeValueAsString(complete));
+
+		assertThat(engine.get().getRoot().getCurrent())
+				.isEqualTo(new State("control", "end"));
 	}
 
 	public void dumpState(AutomatEngine engine) {
