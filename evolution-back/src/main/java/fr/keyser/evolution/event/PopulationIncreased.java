@@ -1,13 +1,14 @@
 package fr.keyser.evolution.event;
 
+import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.SpecieId;
 
 public class PopulationIncreased extends PopulationChanged implements DiscardedEvent {
 
-	private final CardId discarded;
+	private final Card discarded;
 
-	public PopulationIncreased(SpecieId src, int to, CardId discarded) {
+	public PopulationIncreased(SpecieId src, int to, Card discarded) {
 		super(src, to);
 		this.discarded = discarded;
 	}
@@ -17,9 +18,13 @@ public class PopulationIncreased extends PopulationChanged implements DiscardedE
 		return getSrc().getPlayer();
 	}
 
+	public Card getCard() {
+		return discarded;
+	}
+
 	@Override
 	public CardId getDiscarded() {
-		return discarded;
+		return discarded.getId();
 	}
 
 	@Override

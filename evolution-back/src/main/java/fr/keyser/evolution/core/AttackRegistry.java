@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.event.AttackEvent;
 import fr.keyser.evolution.event.Attacked;
 import fr.keyser.evolution.event.Quilled;
@@ -17,11 +20,15 @@ public class AttackRegistry {
 
 	public final static AttackRegistry INITIAL = new AttackRegistry(Collections.emptySet(), Collections.emptyMap());
 
+	@JsonProperty
 	private final Set<SpecieId> attackers;
 
+	@JsonProperty
 	private final Map<SpecieId, UsedTrait> quilleds;
 
-	private AttackRegistry(Set<SpecieId> attackers, Map<SpecieId, UsedTrait> quilleds) {
+	@JsonCreator
+	public AttackRegistry(@JsonProperty("attackers") Set<SpecieId> attackers,
+			@JsonProperty("quilleds") Map<SpecieId, UsedTrait> quilleds) {
 		this.attackers = attackers;
 		this.quilleds = quilleds;
 	}

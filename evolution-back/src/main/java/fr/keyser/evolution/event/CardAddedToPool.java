@@ -1,9 +1,8 @@
 package fr.keyser.evolution.event;
 
-import fr.keyser.evolution.model.Card;
-import fr.keyser.evolution.model.CardId;
+import fr.keyser.evolution.core.Card;
 
-public class CardAddedToPool implements DiscardedEvent, PoolEvent {
+public class CardAddedToPool implements PlayerEvent, PoolEvent {
 
 	private final Card card;
 
@@ -12,11 +11,6 @@ public class CardAddedToPool implements DiscardedEvent, PoolEvent {
 	public CardAddedToPool(int player, Card card) {
 		this.player = player;
 		this.card = card;
-	}
-
-	@Override
-	public CardId getDiscarded() {
-		return card.getId();
 	}
 
 	@Override

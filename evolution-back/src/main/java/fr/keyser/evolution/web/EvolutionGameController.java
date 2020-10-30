@@ -28,14 +28,14 @@ public class EvolutionGameController {
 	public CompleteRender connect(@DestinationVariable String uuid) {
 		return bridgeService.connect(uuid);
 	}
-	
+
 	/*------- select food -------- */
 
 	@MessageMapping("/game/{uuid}/select-food")
 	public void selectFood(@DestinationVariable String uuid, @Payload AddCardToPoolCommand cmd) {
 		bridgeService.selectFood(uuid, cmd);
 	}
-	
+
 	/*------- feeding -------- */
 
 	@MessageMapping("/game/{uuid}/attack")
@@ -75,7 +75,7 @@ public class EvolutionGameController {
 	}
 
 	@MessageMapping("/game/{uuid}/pass")
-	public void pass(@DestinationVariable  String uuid) {
+	public void pass(@DestinationVariable String uuid) {
 		bridgeService.pass(uuid);
 	}
 }

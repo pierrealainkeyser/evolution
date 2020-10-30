@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.command.AddCardToPoolCommand;
 import fr.keyser.evolution.command.AddSpeciesCommand;
 import fr.keyser.evolution.command.AddTraitCommand;
@@ -14,13 +18,11 @@ import fr.keyser.evolution.command.IncreaseSizeCommand;
 import fr.keyser.evolution.event.Attacked;
 import fr.keyser.evolution.event.CardAddedToPool;
 import fr.keyser.evolution.event.CardDealed;
-import fr.keyser.evolution.event.DiscardedEvent;
 import fr.keyser.evolution.event.PopulationIncreased;
 import fr.keyser.evolution.event.Scored;
 import fr.keyser.evolution.event.SizeIncreased;
 import fr.keyser.evolution.event.SpecieAdded;
 import fr.keyser.evolution.event.TraitAdded;
-import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.SpecieId;
 
@@ -36,7 +38,9 @@ public class Player {
 
 	private final int score;
 
-	private Player(int id, int score, List<Card> hands) {
+	@JsonCreator
+	public Player(@JsonProperty("id") int id, @JsonProperty("score") int score,
+			@JsonProperty("hands") List<Card> hands) {
 		this.id = id;
 		this.score = score;
 		this.hands = Collections.unmodifiableList(hands);
@@ -50,14 +54,14 @@ public class Player {
 		int size = target.getSize() + 1;
 		if (size > 6)
 			throw new IllegalArgumentException("size too big");
-		return new SizeIncreased(target.getId(), size, checkCard(command.getCard()));
+		return new SizeIncreased(target.getId(), size, inHand(command.getCard()));
 	}
 
 	public PopulationIncreased handleIncreasePopulation(IncreasePopulationCommand command, Specie target) {
 		int population = target.getPopulation() + 1;
 		if (population > 6)
 			throw new IllegalArgumentException("population too big");
-		return new PopulationIncreased(target.getId(), population, checkCard(command.getCard()));
+		return new PopulationIncreased(target.getId(), population, inHand(command.getCard()));
 	}
 
 	public TraitAdded handleAddTrait(AddTraitCommand command, Specie target) {
@@ -86,23 +90,26 @@ public class Player {
 
 	public Player discard(Attacked event) {
 		Set<CardId> discardeds = event.getDiscardeds();
+		return discarded(discardeds);
+
+	}
+
+	private Player discarded(Set<CardId> discardeds) {
 		if (discardeds.isEmpty())
 			return this;
 
 		return new Player(id, score,
 				hands.stream().filter(c -> !discardeds.contains(c.getId())).collect(Collectors.toList()));
-
 	}
 
-	public Player discard(DiscardedEvent event) {
-		CardId discarded = event.getDiscarded();
+	public Player discard(CardId discarded) {
 		if (discarded == null)
 			return this;
 
-		return new Player(id, score,
-				hands.stream().filter(c -> !c.getId().equals(discarded)).collect(Collectors.toList()));
+		return discarded(Collections.singleton(discarded));
 	}
 
+	@JsonIgnore
 	public int getHandSize() {
 		return hands.size();
 	}

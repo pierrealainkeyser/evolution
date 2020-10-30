@@ -5,7 +5,7 @@ import fr.keyser.evolution.core.TurnStep;
 public class NextStepEvent implements TurnEvent {
 
 	private final TurnStep step;
-	
+
 	private final int currentPlayer;
 
 	public NextStepEvent(TurnStep step, int currentPlayer) {

@@ -36,7 +36,7 @@ public class AttackViolations {
 		return violations.stream().filter(a -> a.getStatus() == AttackViolationStatus.MAY_PAY)
 				.map(AttackViolation::getType).collect(Collectors.toList());
 	}
-	
+
 	public SpecieId getTarget() {
 		return target;
 	}

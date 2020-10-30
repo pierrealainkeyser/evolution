@@ -5,12 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.event.CardAddedToPool;
 import fr.keyser.evolution.event.DiscardPoolFood;
 import fr.keyser.evolution.event.FoodEaten;
 import fr.keyser.evolution.event.PoolEvent;
 import fr.keyser.evolution.event.PoolRevealed;
-import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.CardState;
 
 public class FoodPool {
@@ -21,7 +23,8 @@ public class FoodPool {
 
 	private final List<Card> waiting;
 
-	private FoodPool(int food, List<Card> waiting) {
+	@JsonCreator
+	public FoodPool(@JsonProperty("food") int food, @JsonProperty("waiting") List<Card> waiting) {
 		this.food = food;
 		this.waiting = Collections.unmodifiableList(waiting);
 	}
@@ -47,8 +50,8 @@ public class FoodPool {
 			return reveal((PoolRevealed) event);
 		} else if (event instanceof CardAddedToPool) {
 			return add((CardAddedToPool) event);
-		} else if(event instanceof DiscardPoolFood ) {
-			return discard((DiscardPoolFood)event);
+		} else if (event instanceof DiscardPoolFood) {
+			return discard((DiscardPoolFood) event);
 		}
 
 		return this;

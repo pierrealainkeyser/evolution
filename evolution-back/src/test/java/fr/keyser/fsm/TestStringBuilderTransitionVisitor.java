@@ -52,7 +52,8 @@ public class TestStringBuilderTransitionVisitor {
 
 		StringBuilderTransitionVisitor visitor = new StringBuilderTransitionVisitor();
 
-		FollowedTransitionSource r1 = choice().when(new NamedGuardEvent("testA"), to(this::getA)).orElse(to(this::getB));
+		FollowedTransitionSource r1 = choice().when(new NamedGuardEvent("testA"), to(this::getA))
+				.orElse(to(this::getB));
 
 		visitor.visit(r1);
 

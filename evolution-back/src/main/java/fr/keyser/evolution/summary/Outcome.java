@@ -5,7 +5,7 @@ import java.util.List;
 import fr.keyser.evolution.engine.Event;
 
 public abstract class Outcome {
-	
+
 	private final List<Event> events;
 
 	public Outcome(List<Event> events) {

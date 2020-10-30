@@ -11,22 +11,19 @@ public class MapGameResolver implements GameResolver {
 
 	private static class BoundGame {
 
-		private final GameRef ref;
+		private final ActiveGame game;
 
-		private final AutomatEngine engine;
-
-		public BoundGame(GameRef ref, AutomatEngine engine) {
-			this.ref = ref;
-			this.engine = engine;
+		public BoundGame(ActiveGame game) {
+			this.game = game;
 		}
 
 		public boolean match(String uuid) {
-			return ref.getPlayers().stream().anyMatch(uuidMatch(uuid));
+			return game.getPlayers().stream().anyMatch(uuidMatch(uuid));
 		}
 
 		public ResolvedRef resolve(String uuid) {
-			PlayerRef myself = ref.getPlayers().stream().filter(uuidMatch(uuid)).findFirst().get();
-			return new ResolvedRef(myself, ref);
+			PlayerRef myself = game.getPlayers().stream().filter(uuidMatch(uuid)).findFirst().get();
+			return new ResolvedRef(myself, game.getRef());
 		}
 
 		private Predicate<? super PlayerRef> uuidMatch(String uuid) {
@@ -34,7 +31,7 @@ public class MapGameResolver implements GameResolver {
 		}
 
 		public AutomatEngine getEngine() {
-			return engine;
+			return game.getEngine();
 		}
 
 	}
@@ -63,7 +60,7 @@ public class MapGameResolver implements GameResolver {
 	@Override
 	public void addGame(ActiveGame active) {
 		GameRef ref = active.getRef();
-		games.put(ref.getUuid(), new BoundGame(ref, active.getEngine()));
+		games.put(ref.getUuid(), new BoundGame(active));
 	}
 
 	@Override

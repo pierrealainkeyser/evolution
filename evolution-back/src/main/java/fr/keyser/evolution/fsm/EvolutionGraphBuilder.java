@@ -282,27 +282,27 @@ public class EvolutionGraphBuilder {
 		}
 
 		private void selectFood(NodeBuilder select, NodeBuilder playCards) {
-			select.entry(this::selectFood);
+			select.entry(this::doSelectFood);
 			select.transition(join(to(playCards)));
 		}
 
-		private AutomatInstance selectFood(AutomatInstance instance) {
+		private AutomatInstance doSelectFood(AutomatInstance instance) {
 			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::dealCards)
 					.multicast(instance.getChildsId(), PlayerFlowEnum.SELECT_FOOD);
 		}
 
 		private void quickPlayCards(NodeBuilder playCards, NodeBuilder feeding) {
-			playCards.entry(this::quickPlayCards);
+			playCards.entry(this::doQuickPlayCards);
 			playCards.transition(join(to(feeding)));
 		}
 
-		private AutomatInstance quickPlayCards(AutomatInstance instance) {
+		private AutomatInstance doQuickPlayCards(AutomatInstance instance) {
 			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::playCards)
 					.multicast(instance.getChildsId(), PlayerFlowEnum.PLAY_CARDS);
 		}
 
 		private void playCards(NodeBuilder playCards, NodeBuilder feeding) {
-			playCards.entry(this::playCards);
+			playCards.entry(this::doPlayCards);
 
 			NodeBuilder loop = playCards.sub("loop");
 			NodeBuilder check = playCards.sub("check");
@@ -319,7 +319,7 @@ public class EvolutionGraphBuilder {
 		}
 
 		private void feeding(NodeBuilder feeding, NodeBuilder cleanUp) {
-			feeding.entry(this::feeding);
+			feeding.entry(this::doFeeding);
 
 			NodeBuilder loop = feeding.sub("loop");
 			NodeBuilder wait = feeding.sub("wait");
@@ -338,7 +338,7 @@ public class EvolutionGraphBuilder {
 			NodeBuilder clean = cleanUp.sub("clean");
 			NodeBuilder restart = cleanUp.sub("restart");
 
-			clean.entry(this::cleanUp);
+			clean.entry(this::doCleanUp);
 			clean.choice(c -> c.when(this::isLastTurn, to(end))
 					.orElse(to(restart)));
 
@@ -359,11 +359,11 @@ public class EvolutionGraphBuilder {
 			return ts.willLoop(area.getPlayers().size());
 		}
 
-		private AutomatInstance cleanUp(AutomatInstance instance) {
+		private AutomatInstance doCleanUp(AutomatInstance instance) {
 			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::cleanUp);
 		}
 
-		private AutomatInstance playCards(AutomatInstance instance) {
+		private AutomatInstance doPlayCards(AutomatInstance instance) {
 			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::playCards);
 		}
 
@@ -371,7 +371,7 @@ public class EvolutionGraphBuilder {
 			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::nextFirst);
 		}
 
-		private AutomatInstance feeding(AutomatInstance instance) {
+		private AutomatInstance doFeeding(AutomatInstance instance) {
 			return instance.updateGlobal(PLAY_AREA, PlayAreaMonitor::feeding);
 		}
 

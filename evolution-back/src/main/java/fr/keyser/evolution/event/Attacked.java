@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import fr.keyser.evolution.model.Card;
+import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.DisabledViolation;
 import fr.keyser.evolution.model.SpecieId;

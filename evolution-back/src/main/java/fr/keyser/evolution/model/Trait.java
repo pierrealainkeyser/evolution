@@ -19,8 +19,8 @@ public enum Trait {
 	public boolean isCore() {
 		return core;
 	}
-	
-	public static List<Trait> core(){
+
+	public static List<Trait> core() {
 		return Arrays.asList(Trait.values()).stream().filter(Trait::isCore).collect(Collectors.toList());
 	}
 }

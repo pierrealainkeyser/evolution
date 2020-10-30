@@ -1,6 +1,6 @@
 package fr.keyser.evolution.fsm.view;
 
-import fr.keyser.evolution.model.Card;
+import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 
 public class CardView {

@@ -2,6 +2,9 @@ package fr.keyser.evolution.core;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.event.AttackEvent;
 import fr.keyser.evolution.event.LastTurnEvent;
@@ -15,6 +18,7 @@ public class TurnStatus {
 
 	public final static TurnStatus INITIAL = new TurnStatus(TurnStep.SELECT_FOOD, 0, 0, false, AttackRegistry.INITIAL);
 
+	@JsonProperty
 	private final AttackRegistry attackRegistry;
 
 	private final int currentPlayer;
@@ -25,8 +29,10 @@ public class TurnStatus {
 
 	private final TurnStep step;
 
-	public TurnStatus(TurnStep step, int firstPlayer, int currentPlayer, boolean lastTurn,
-			AttackRegistry attackRegistry) {
+	@JsonCreator
+	public TurnStatus(@JsonProperty("step") TurnStep step, @JsonProperty("firstPlayer") int firstPlayer,
+			@JsonProperty("currentPlayer") int currentPlayer, @JsonProperty("lastTurn") boolean lastTurn,
+			@JsonProperty("attackRegistry") AttackRegistry attackRegistry) {
 		this.step = step;
 		this.firstPlayer = firstPlayer;
 		this.currentPlayer = currentPlayer;

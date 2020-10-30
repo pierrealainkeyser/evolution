@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.core.PlayArea;
 import fr.keyser.evolution.core.Player;
 import fr.keyser.evolution.core.PlayerState;
@@ -27,7 +28,6 @@ import fr.keyser.evolution.event.TraitsRevealed;
 import fr.keyser.evolution.fsm.EvolutionGraphBuilder;
 import fr.keyser.evolution.fsm.PlayAreaMonitor;
 import fr.keyser.evolution.fsm.PlayerRef;
-import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.FoodConsumption;
 import fr.keyser.evolution.model.FoodSource;
 import fr.keyser.evolution.model.PlayerScoreBoard;

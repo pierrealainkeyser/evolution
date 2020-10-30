@@ -1,5 +1,8 @@
 package fr.keyser.evolution.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CardState {
 
 	private final boolean visible;
@@ -14,7 +17,8 @@ public class CardState {
 
 	public static final CardState POOL = new CardState(false, false);
 
-	public CardState(boolean visible, boolean preview) {
+	@JsonCreator
+	public CardState(@JsonProperty("visible") boolean visible, @JsonProperty("preview") boolean preview) {
 		this.visible = visible;
 		this.preview = preview;
 	}

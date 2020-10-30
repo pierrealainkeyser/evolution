@@ -1,5 +1,7 @@
 package fr.keyser.evolution.model;
 
+import fr.keyser.evolution.core.Card;
+
 public class DisabledViolation {
 
 	private final String violation;

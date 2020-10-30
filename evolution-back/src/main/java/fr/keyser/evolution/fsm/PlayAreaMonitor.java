@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.command.PlayerCommand;
 import fr.keyser.evolution.core.PlayArea;
 import fr.keyser.evolution.core.TurnStatus;
@@ -27,7 +30,9 @@ public class PlayAreaMonitor {
 		this(area, Collections.emptyList(), Collections.emptyList(), 0);
 	}
 
-	private PlayAreaMonitor(PlayArea area, List<Event> currents, List<Event> history, int draw) {
+	@JsonCreator
+	public PlayAreaMonitor(@JsonProperty("area") PlayArea area, @JsonProperty("currents") List<Event> currents,
+			@JsonProperty("history") List<Event> history, @JsonProperty("draw") int draw) {
 		this.area = area;
 		this.currents = currents;
 		this.history = history;

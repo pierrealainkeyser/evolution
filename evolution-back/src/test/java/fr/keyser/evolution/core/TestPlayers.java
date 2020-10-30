@@ -12,14 +12,13 @@ import fr.keyser.evolution.command.AddTraitCommand;
 import fr.keyser.evolution.command.IncreasePopulationCommand;
 import fr.keyser.evolution.command.IncreaseSizeCommand;
 import fr.keyser.evolution.command.PlayerCommand;
+import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.event.CardAddedToPool;
 import fr.keyser.evolution.event.CardDealed;
-import fr.keyser.evolution.event.DiscardedEvent;
 import fr.keyser.evolution.event.PopulationIncreased;
 import fr.keyser.evolution.event.SizeIncreased;
 import fr.keyser.evolution.event.SpecieAdded;
 import fr.keyser.evolution.event.TraitAdded;
-import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.SpeciePosition;
 import fr.keyser.evolution.model.Trait;
@@ -35,7 +34,7 @@ public class TestPlayers {
 		Card foraging = builder.card(Trait.FORAGING, 5);
 		players = players.accept(new CardDealed(0, Arrays.asList(foraging), false, null));
 
-		DiscardedEvent event = players.handleCommand(new PlayerCommand(0, new AddCardToPoolCommand(foraging.getId())),
+		Event event = players.handleCommand(new PlayerCommand(0, new AddCardToPoolCommand(foraging.getId())),
 				species);
 
 		assertThat(event).isInstanceOf(CardAddedToPool.class);
@@ -51,7 +50,7 @@ public class TestPlayers {
 		Card burrowing = builder.card(Trait.BURROWING, 5);
 		players = players.accept(new CardDealed(0, Arrays.asList(foraging, burrowing), false, null));
 
-		DiscardedEvent event = players.handleCommand(
+		Event event = players.handleCommand(
 				new PlayerCommand(0, new AddSpeciesCommand(foraging.getId(), SpeciePosition.RIGHT)),
 				species);
 

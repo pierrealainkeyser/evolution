@@ -33,4 +33,9 @@ public class ActiveGame {
 	public EvolutionGameSettings getSettings() {
 		return settings;
 	}
+
+	public boolean isTerminated() {
+		Object scoreboards = engine.get().getRoot().getGlobal(EvolutionGraphBuilder.SCOREBOARDS);
+		return scoreboards != null;
+	}
 }

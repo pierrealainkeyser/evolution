@@ -2,7 +2,7 @@ package fr.keyser.evolution.event;
 
 import java.util.List;
 
-import fr.keyser.evolution.model.Card;
+import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.FoodConsumption;
 import fr.keyser.evolution.model.FoodSource;

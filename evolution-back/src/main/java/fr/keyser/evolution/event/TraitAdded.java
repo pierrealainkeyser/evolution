@@ -1,6 +1,6 @@
 package fr.keyser.evolution.event;
 
-import fr.keyser.evolution.model.Card;
+import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.SpecieId;
 
@@ -32,7 +32,10 @@ public class TraitAdded extends SpecieEvent implements DiscardedEvent {
 
 	@Override
 	public CardId getDiscarded() {
-		return card.getId();
+		if (replaced != null)
+			return replaced.getId();
+
+		return null;
 	}
 
 	@Override

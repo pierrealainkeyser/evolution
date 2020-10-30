@@ -19,7 +19,6 @@ public class RenderedEvent {
 		objets.put(key, value);
 		return this;
 	}
-	
 
 	@JsonAnyGetter
 	public Map<String, Object> getObjets() {

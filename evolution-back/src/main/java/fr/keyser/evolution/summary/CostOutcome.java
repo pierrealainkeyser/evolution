@@ -15,5 +15,5 @@ public abstract class CostOutcome extends Outcome {
 
 	public int getCost() {
 		return cost;
-	}	
+	}
 }

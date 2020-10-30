@@ -1,5 +1,6 @@
 package fr.keyser.evolution.core;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -7,8 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import fr.keyser.evolution.event.FatMoved;
 import fr.keyser.evolution.event.FoodEaten;
@@ -30,8 +36,18 @@ public class Species {
 
 	private final Map<SpecieId, Specie> species;
 
+	@JsonCreator
+	public Species(@JsonUnwrapped List<Specie> species) {
+		this(species.stream().collect(Collectors.toMap(Specie::getId, Function.identity())));
+	}
+
 	protected Species(Map<SpecieId, Specie> species) {
 		this.species = Collections.unmodifiableMap(species);
+	}
+
+	@JsonValue
+	public List<Specie> values() {
+		return new ArrayList<>(species.values());
 	}
 
 	@Override

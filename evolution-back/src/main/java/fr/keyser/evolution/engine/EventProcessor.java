@@ -21,18 +21,17 @@ public interface EventProcessor<E extends Event, P extends EventProcessor<E, P>>
 	 * @return the new EventProcessor
 	 */
 	public P process(EventConsumer<E> consumer, E event);
-	
+
 	/**
-	 * Process anand return the tuple that contains all the events
-	 * generated and processed and the final state
+	 * Process anand return the tuple that contains all the events generated and
+	 * processed and the final state
 	 * 
 	 * @param event
 	 * @return
 	 */
-	public default Events<E, P> process(E event) {		
+	public default Events<E, P> process(E event) {
 		return process(Arrays.asList(event));
 	}
-
 
 	/**
 	 * Process a list of event and return the tuple that contains all the events
@@ -43,6 +42,6 @@ public interface EventProcessor<E extends Event, P extends EventProcessor<E, P>>
 	 */
 	@SuppressWarnings("unchecked")
 	public default Events<E, P> process(List<? extends E> events) {
-		return new Events<>((P)this, events);
+		return new Events<>((P) this, events);
 	}
 }

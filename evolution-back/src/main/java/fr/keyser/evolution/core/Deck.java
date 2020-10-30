@@ -10,13 +10,15 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.event.Attacked;
 import fr.keyser.evolution.event.CardDealed;
 import fr.keyser.evolution.event.DeckEvent;
 import fr.keyser.evolution.event.DiscardedEvent;
 import fr.keyser.evolution.event.PoolRevealed;
 import fr.keyser.evolution.event.SpecieExtincted;
-import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.CardState;
 import fr.keyser.evolution.model.MetaCard;
@@ -66,22 +68,29 @@ public class Deck {
 		}
 	}
 
+	@JsonProperty
 	private final Map<CardId, MetaCard> meta;
 
 	private final List<CardId> cards;
 
 	private final List<CardId> discarded;
 
-	private Deck(Map<CardId, MetaCard> meta, List<CardId> cards, List<CardId> discarded) {
+	@JsonCreator
+	public Deck(@JsonProperty("meta") Map<CardId, MetaCard> meta, @JsonProperty("cards") List<CardId> cards,
+			@JsonProperty("discarded") List<CardId> discarded) {
 		this.meta = Collections.unmodifiableMap(meta);
 		this.cards = Collections.unmodifiableList(cards);
 		this.discarded = Collections.unmodifiableList(discarded);
 	}
 
 	private Card resolve(CardId id) {
-		MetaCard metaCard = meta.get(id);
+		MetaCard metaCard = getMeta(id);
 
 		return new Card(id, metaCard, CardState.INITIAL);
+	}
+
+	public MetaCard getMeta(CardId id) {
+		return meta.get(id);
 	}
 
 	public Deck accept(DeckEvent event) {

@@ -2,6 +2,7 @@ package fr.keyser.evolution.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public class SpecieId {
@@ -9,6 +10,12 @@ public class SpecieId {
 	private final int id;
 
 	private final int player;
+
+	@JsonCreator
+	public static SpecieId parse(String s) {
+		String[] split = s.split("p");
+		return new SpecieId(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+	}
 
 	public SpecieId(int id, int player) {
 		this.id = id;

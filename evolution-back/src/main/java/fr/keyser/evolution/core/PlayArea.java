@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.command.AttackCommand;
 import fr.keyser.evolution.command.Command;
 import fr.keyser.evolution.command.FeedCommand;
@@ -45,7 +47,6 @@ import fr.keyser.evolution.event.TurnEvent;
 import fr.keyser.evolution.model.AttackViolation;
 import fr.keyser.evolution.model.AttackViolationStatus;
 import fr.keyser.evolution.model.AttackViolations;
-import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.DisabledViolation;
 import fr.keyser.evolution.model.FoodConsumption;
@@ -78,17 +79,22 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		return new PlayArea(players, deck, species, FoodPool.INITIAL, TurnStatus.INITIAL);
 	}
 
+	@JsonProperty
 	private final Players players;
 
+	@JsonProperty
 	private final FoodPool pool;
 
+	@JsonProperty
 	private final Species species;
 
+	@JsonProperty(index = 0)
 	private final Deck deck;
 
+	@JsonProperty
 	private final TurnStatus turnStatus;
 
-	private PlayArea(Players players, Deck deck, Species species, FoodPool pool, TurnStatus turnStatus) {
+	public PlayArea(Players players, Deck deck, Species species, FoodPool pool, TurnStatus turnStatus) {
 		this.players = players;
 		this.deck = deck;
 		this.species = species;

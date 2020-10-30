@@ -7,6 +7,10 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import fr.keyser.evolution.command.AddCardToPoolCommand;
 import fr.keyser.evolution.command.AddSpeciesCommand;
 import fr.keyser.evolution.command.AddTraitCommand;
@@ -15,11 +19,14 @@ import fr.keyser.evolution.command.IncreasePopulationCommand;
 import fr.keyser.evolution.command.IncreaseSizeCommand;
 import fr.keyser.evolution.command.PlayerCommand;
 import fr.keyser.evolution.command.SpecieCardCommand;
+import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.event.Attacked;
+import fr.keyser.evolution.event.CardAddedToPool;
 import fr.keyser.evolution.event.CardDealed;
 import fr.keyser.evolution.event.DiscardedEvent;
 import fr.keyser.evolution.event.PlayerEvent;
 import fr.keyser.evolution.event.Scored;
+import fr.keyser.evolution.event.TraitAdded;
 
 public class Players {
 
@@ -29,11 +36,12 @@ public class Players {
 
 	private final List<Player> players;
 
-	private Players(List<Player> players) {
+	@JsonCreator
+	public Players(@JsonUnwrapped List<Player> players) {
 		this.players = Collections.unmodifiableList(players);
 	}
 
-	public DiscardedEvent handleCommand(PlayerCommand playerCommand, Species species) {
+	public Event handleCommand(PlayerCommand playerCommand, Species species) {
 		Player p = players.get(playerCommand.getPlayer());
 		Command command = playerCommand.getCommand();
 		if (command instanceof AddCardToPoolCommand)
@@ -55,9 +63,15 @@ public class Players {
 	}
 
 	public Players accept(PlayerEvent pe) {
-		if (pe instanceof DiscardedEvent) {
+		if (pe instanceof TraitAdded) {
+			TraitAdded ta = (TraitAdded) pe;
+			return update(ta.getPlayer(), p -> p.discard(ta.getCard().getId()));
+		} else if (pe instanceof CardAddedToPool) {
+			CardAddedToPool de = (CardAddedToPool) pe;
+			return update(de.getPlayer(), p -> p.discard(de.getCard().getId()));
+		} else if (pe instanceof DiscardedEvent) {
 			DiscardedEvent de = (DiscardedEvent) pe;
-			return update(de.getPlayer(), p -> p.discard(de));
+			return update(de.getPlayer(), p -> p.discard(de.getDiscarded()));
 		} else if (pe instanceof Scored) {
 			Scored s = (Scored) pe;
 			return update(s.getPlayer(), p -> p.score(s));
@@ -82,6 +96,7 @@ public class Players {
 		return new Players(players);
 	}
 
+	@JsonValue
 	public List<Player> getPlayers() {
 		return players;
 	}

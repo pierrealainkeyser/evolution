@@ -1,5 +1,9 @@
 package fr.keyser.evolution.core;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.model.FoodConsumption;
 import fr.keyser.evolution.model.FoodSource;
 
@@ -15,7 +19,9 @@ public class SpecieStat {
 
 	private final int size;
 
-	private SpecieStat(int size, int population, int food, int fat) {
+	@JsonCreator
+	public SpecieStat(@JsonProperty("size") int size, @JsonProperty("population") int population,
+			@JsonProperty("food") int food, @JsonProperty("fat") int fat) {
 		this.size = size;
 		this.population = population;
 		this.food = food;
@@ -78,6 +84,7 @@ public class SpecieStat {
 		return size;
 	}
 
+	@JsonIgnore
 	public boolean isFed() {
 		return food >= population;
 	}

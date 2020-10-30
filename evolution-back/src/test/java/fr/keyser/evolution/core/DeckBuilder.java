@@ -3,7 +3,6 @@ package fr.keyser.evolution.core;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.CardState;
 import fr.keyser.evolution.model.MetaCard;
@@ -26,8 +25,10 @@ public class DeckBuilder {
 	}
 
 	public Card card(Trait trait, int food) {
-		return new Card(new CardId(count++), new MetaCard(trait, food),
-				CardState.INITIAL);
+		CardId id = new CardId(count++);
+		MetaCard meta = new MetaCard(trait, food);
+		metas.put(id, meta);
+		return new Card(id, meta, CardState.INITIAL);
 	}
 
 	public Card card(Trait trait) {

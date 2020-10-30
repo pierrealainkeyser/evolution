@@ -2,7 +2,7 @@ package fr.keyser.evolution.event;
 
 import java.util.List;
 
-import fr.keyser.evolution.model.Card;
+import fr.keyser.evolution.core.Card;
 
 public class PoolRevealed implements PoolEvent, DeckEvent {
 

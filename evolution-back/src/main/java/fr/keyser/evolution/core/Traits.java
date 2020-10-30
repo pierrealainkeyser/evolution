@@ -9,9 +9,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import fr.keyser.evolution.event.TraitAdded;
 import fr.keyser.evolution.event.TraitsRevealed;
-import fr.keyser.evolution.model.Card;
 import fr.keyser.evolution.model.CardState;
 import fr.keyser.evolution.model.Trait;
 
@@ -21,7 +24,8 @@ public class Traits {
 
 	private final List<Card> traits;
 
-	private Traits(List<Card> traits) {
+	@JsonCreator
+	public Traits(@JsonUnwrapped List<Card> traits) {
 		this.traits = Collections.unmodifiableList(traits);
 	}
 
@@ -72,6 +76,7 @@ public class Traits {
 		return traits.stream().anyMatch(c -> c.getMeta().getTrait() == trait);
 	}
 
+	@JsonValue
 	public List<Card> getTraits() {
 		return traits;
 	}

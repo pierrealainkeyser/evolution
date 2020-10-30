@@ -1,19 +1,15 @@
 package fr.keyser.evolution.model;
 
-public class MetaCard {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	private final MetaCardId id;
+public class MetaCard {
 
 	private final Trait trait;
 
 	private final int food;
 
-	public MetaCard(Trait trait, int food) {
-		this(new MetaCardId(trait.name().toLowerCase() + "-" + food), trait, food);
-	}
-
-	public MetaCard(MetaCardId id, Trait trait, int food) {
-		this.id = id;
+	public MetaCard(@JsonProperty("trait") Trait trait,
+			@JsonProperty("food") int food) {
 		this.trait = trait;
 		this.food = food;
 	}
@@ -24,9 +20,5 @@ public class MetaCard {
 
 	public int getFood() {
 		return food;
-	}
-
-	public MetaCardId getId() {
-		return id;
 	}
 }

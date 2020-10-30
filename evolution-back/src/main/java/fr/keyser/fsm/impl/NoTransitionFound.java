@@ -15,7 +15,7 @@ public class NoTransitionFound extends IllegalArgumentException {
 	private final AutomatEvent event;
 
 	public NoTransitionFound(State from, AutomatEvent event) {
-		super("No transition found from "+from+" for "+event.getKey());
+		super("No transition found from " + from + " for " + event.getKey());
 		this.from = from;
 		this.event = event;
 	}

@@ -33,7 +33,7 @@ public class RouteTransitionSource implements FollowedTransitionSource {
 
 		visitor.router();
 		for (Entry<Object, FollowedTransitionSource> entry : delegated.entrySet()) {
-			visitor.next();			
+			visitor.next();
 			visitor.route(entry.getKey());
 			visitor.visit(entry.getValue());
 		}

@@ -67,7 +67,7 @@ public class AutomatEngine implements Supplier<AutomatInstanceContainer> {
 	public AutomatEngine(AutomatInstanceContainerValue value, AutomatLogic logic) {
 		container = new DefaultAutomatInstanceContainer(value, this, logic);
 	}
-	
+
 	public void start(Object payload) {
 		get().getRoot().unicast(AutomatLifeCycleEvent.START.event(payload));
 	}
