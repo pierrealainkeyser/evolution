@@ -20,8 +20,8 @@ public class FeedSumaryView implements SummaryView {
 		return "feed";
 	}
 
-	public String getSpecie() {
-		return specie.toString();
+	public SpecieId getSpecie() {
+		return specie;
 	}
 
 	public List<RenderedEvent> getEvents() {

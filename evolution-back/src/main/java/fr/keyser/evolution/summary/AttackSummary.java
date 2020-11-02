@@ -45,7 +45,7 @@ public class AttackSummary implements FeedingActionSummary {
 
 	@Override
 	public String toString() {
-		return String.format("AttackSummary [specie=%s, target=%s, violations=%s, outcomes=%s]", specie, target,
+		return String.format("AttackSummaryView [specie=%s, target=%s, violations=%s, outcomes=%s]", specie, target,
 				violations, outcomes);
 	}
 

@@ -19,6 +19,10 @@ public class GameBuilder {
 	private final EvolutionGraphBuilder graphBuilder = new EvolutionGraphBuilder();
 
 	public ActiveGame create(EvolutionGameSettings settings) {
+		return create(settings, traitsPack.create(settings));
+	}
+
+	ActiveGame create(EvolutionGameSettings settings, Deck deck) {
 		int playersCount = settings.getPlayersCount();
 		List<PlayerRef> prefs = new ArrayList<>();
 		for (int i = 0; i < playersCount; ++i) {
@@ -27,8 +31,7 @@ public class GameBuilder {
 
 		GameRef ref = new GameRef(newUUID(), prefs);
 
-		Deck deck = traitsPack.create(settings);
-		PlayArea area = PlayArea.init(Players.players(playersCount), deck);
+		PlayArea area = PlayArea.init(Players.players(settings.getPlayersCount()), deck);
 
 		AutomatGraph logic = graphBuilder.build(settings);
 		AutomatEngine engine = AutomatEngine.start(logic, new PlayAreaMonitor(area));

@@ -1,16 +1,17 @@
 package fr.keyser.evolution.event;
 
+import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.SpeciePosition;
 
 public class SpecieAdded extends SpecieEvent implements DiscardedEvent {
 
-	private final CardId discarded;
+	private final Card discarded;
 
 	private final SpeciePosition position;
 
-	public SpecieAdded(SpecieId src, SpeciePosition position, CardId discarded) {
+	public SpecieAdded(SpecieId src, SpeciePosition position, Card discarded) {
 		super(src);
 		this.discarded = discarded;
 		this.position = position;
@@ -21,9 +22,15 @@ public class SpecieAdded extends SpecieEvent implements DiscardedEvent {
 		return getSrc().getPlayer();
 	}
 
+	public Card getCard() {
+		return discarded;
+	}
+
 	@Override
 	public CardId getDiscarded() {
-		return discarded;
+		if (discarded == null)
+			return null;
+		return discarded.getId();
 	}
 
 	public SpeciePosition getPosition() {

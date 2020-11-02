@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import fr.keyser.evolution.command.AddCardToPoolCommand;
 import fr.keyser.evolution.command.AddTraitCommand;
 import fr.keyser.evolution.command.FeedCommand;
+import fr.keyser.evolution.command.IncreaseSizeCommand;
+import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.core.DeckBuilder;
 import fr.keyser.evolution.core.PlayArea;
 import fr.keyser.evolution.core.Players;
@@ -65,7 +67,19 @@ public class TestBridgeService {
 		AuthenticatedPlayer ap1 = new AuthenticatedPlayer("p2", "Joueur 2");
 
 		GameBuilder builder = new GameBuilder();
-		ActiveGame created = builder.create(new EvolutionGameSettings(Arrays.asList(ap0, ap1), false));
+
+		DeckBuilder deck = new DeckBuilder();
+		Card c1 = deck.card(Trait.CARNIVOROUS);
+		Card c2 = deck.card(Trait.COOPERATION);
+		Card c3 = deck.card(Trait.BURROWING);
+		deck.card(Trait.DEFENSIVE_HERDING);
+		
+		Card c4 = deck.card(Trait.HARD_SHELL);
+		deck.card(Trait.FAT_TISSUE);
+		deck.card(Trait.FERTILE);
+		deck.card(Trait.FERTILE);
+
+		ActiveGame created = builder.create(new EvolutionGameSettings(Arrays.asList(ap0, ap1), true), deck.deck());
 		resolver.addGame(created);
 
 		String p0 = created.getPlayers().get(0).getUuid();
@@ -86,12 +100,25 @@ public class TestBridgeService {
 				.doesNotContain(p0)
 				.doesNotContain(p1);
 
-		CardId first = complete.getUser().getHand().get(0).getId();
-
-		service.selectFood(p0, new AddCardToPoolCommand(first));
+		service.selectFood(p0, new AddCardToPoolCommand(c2.getId()));
 
 		assertThat(resolver.getEngine(created.getRef()).get().getRoot().getCurrent())
 				.isEqualTo(new State("control", "selectFood"));
+
+		service.selectFood(p1, new AddCardToPoolCommand(c4.getId()));
+
+		complete = service.connect(p0);
+		assertThat(complete.getGame().getPlayers())
+				.hasSize(2)
+				.allSatisfy(pv -> {
+					assertThat(pv.getStatus()).isEqualTo(PlayerInputStatus.PLAY_CARDS);
+				});
+
+		service.playCard(p0, new AddTraitCommand(c1.getId(), new SpecieId(0, 0), 0));
+		service.playCard(p0, new IncreaseSizeCommand(c3.getId(), new SpecieId(0, 0)));
+		service.pass(p0);
+
+		service.pass(p1);
 
 	}
 

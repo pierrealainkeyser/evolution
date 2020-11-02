@@ -43,7 +43,7 @@ public class DisabledViolation {
 
 	@Override
 	public String toString() {
-		return String.format("DisabledViolation [violation=%s, trait=%s, used=%s, discarded=%s]", violation, trait,
+		return String.format("DisabledViolationView [violation=%s, trait=%s, used=%s, discarded=%s]", violation, trait,
 				used, discarded);
 	}
 }

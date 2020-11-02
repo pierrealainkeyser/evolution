@@ -4,13 +4,17 @@ import java.util.List;
 
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.model.SpecieId;
+import fr.keyser.evolution.model.UsedTrait;
 
 public class IntelligentFeedSummary extends CostOutcome implements FeedingActionSummary {
 
 	private final SpecieId specie;
 
-	public IntelligentFeedSummary(SpecieId specie, List<Event> events, int cost) {
+	private final UsedTrait trait;
+
+	public IntelligentFeedSummary(SpecieId specie, UsedTrait trait, List<Event> events, int cost) {
 		super(events, cost);
+		this.trait = trait;
 		this.specie = specie;
 	}
 
@@ -22,6 +26,10 @@ public class IntelligentFeedSummary extends CostOutcome implements FeedingAction
 	@Override
 	public SpecieId getSpecie() {
 		return specie;
+	}
+
+	public UsedTrait getTrait() {
+		return trait;
 	}
 
 }

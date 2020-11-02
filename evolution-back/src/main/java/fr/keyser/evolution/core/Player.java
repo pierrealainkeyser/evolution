@@ -71,7 +71,7 @@ public class Player {
 	}
 
 	public SpecieAdded handleAddSpecie(AddSpeciesCommand command, SpecieId target) {
-		return new SpecieAdded(target, command.getPosition(), checkCard(command.getCard()));
+		return new SpecieAdded(target, command.getPosition(), inHand(command.getCard()));
 	}
 
 	public CardAddedToPool handleAddToPool(AddCardToPoolCommand command) {

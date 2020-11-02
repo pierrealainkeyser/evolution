@@ -57,9 +57,9 @@ public class TestPlayArea {
 
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.LEFT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s2);
 
 		area = run(area, new CardDealed(0, Arrays.asList(intl, forag, fat, cimbi), false, null));
@@ -90,9 +90,9 @@ public class TestPlayArea {
 		DeckBuilder builder = new DeckBuilder();
 		PlayArea area = PlayArea.with(Players.players(3), Deck.INITIAL);
 
-		area = run(area, area.addSpecie(0, null, SpeciePosition.LEFT));
-		area = run(area, area.addSpecie(0, null, SpeciePosition.RIGHT));
-		area = run(area, area.addSpecie(1, null, SpeciePosition.LEFT));
+		area = run(area, area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT));
+		area = run(area, area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT));
+		area = run(area, area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.LEFT));
 
 		area = run(area, new TraitAdded(new SpecieId(0, 0), builder.card(Trait.LONGNECK), 0, null));
 		area = run(area, new TraitAdded(new SpecieId(0, 0), builder.card(Trait.COOPERATION), 1, null));
@@ -116,7 +116,7 @@ public class TestPlayArea {
 
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
 
 		area = run(area, new TraitAdded(s1.getSrc(), builder.card(Trait.PEST), 0, null));
@@ -134,11 +134,11 @@ public class TestPlayArea {
 		DeckBuilder builder = new DeckBuilder();
 		PlayArea area = PlayArea.with(Players.players(3), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.LEFT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s2);
-		SpecieAdded s3 = area.addSpecie(2, null, SpeciePosition.LEFT);
+		SpecieAdded s3 = area.addSpecie(2, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s3);
 
 		area = run(area, new CardDealed(2, Arrays.asList(builder.card(Trait.FAT_TISSUE)), false, null));
@@ -222,9 +222,9 @@ public class TestPlayArea {
 		DeckBuilder builder = new DeckBuilder();
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.LEFT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s2);
 
 		Card card = builder.card(Trait.FAT_TISSUE);
@@ -282,13 +282,13 @@ public class TestPlayArea {
 
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.LEFT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s2);
-		SpecieAdded s3 = area.addSpecie(0, null, SpeciePosition.RIGHT);
+		SpecieAdded s3 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s3);
-		SpecieAdded s4 = area.addSpecie(0, null, SpeciePosition.RIGHT);
+		SpecieAdded s4 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s4);
 
 		area = run(area, new CardDealed(0,
@@ -335,13 +335,13 @@ public class TestPlayArea {
 
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s2);
-		SpecieAdded s3 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s3 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s3);
-		SpecieAdded s4 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s4 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s4);
 
 		SpecieId attackerId = s1.getSrc();
@@ -387,13 +387,13 @@ public class TestPlayArea {
 
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s2);
-		SpecieAdded s3 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s3 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s3);
-		SpecieAdded s4 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s4 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s4);
 
 		SpecieId attackerId = s1.getSrc();
@@ -428,9 +428,9 @@ public class TestPlayArea {
 
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s2);
 
 		SpecieId attackerId = s1.getSrc();
@@ -466,9 +466,9 @@ public class TestPlayArea {
 
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s2);
 
 		SpecieId attackerId = s1.getSrc();
@@ -503,9 +503,9 @@ public class TestPlayArea {
 
 		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
 
-		SpecieAdded s1 = area.addSpecie(0, null, SpeciePosition.LEFT);
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
 		area = run(area, s1);
-		SpecieAdded s2 = area.addSpecie(1, null, SpeciePosition.RIGHT);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
 		area = run(area, s2);
 
 		SpecieId attackerId = s1.getSrc();

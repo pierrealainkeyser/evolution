@@ -240,7 +240,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		Player player = getPlayer(specieId);
 		if (specie.isIntelligent() && player.getHandSize() > 0) {
 			summary.add(
-					new IntelligentFeedSummary(specieId,
+					new IntelligentFeedSummary(specieId, specie.usedTrait(Trait.INTELLIGENT),
 							process(intelligentPlantEat(specieId, player.getHands().get(0))).getEvents(), 1));
 		}
 
@@ -770,7 +770,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		return species.byId(src);
 	}
 
-	public SpecieAdded addSpecie(int player, CardId discarded, SpeciePosition position) {
+	public SpecieAdded addSpecie(int player, Card discarded, SpeciePosition position) {
 		return new SpecieAdded(species.newId(player), position, discarded);
 	}
 

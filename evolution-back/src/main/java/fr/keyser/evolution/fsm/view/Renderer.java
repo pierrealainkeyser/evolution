@@ -13,8 +13,11 @@ import fr.keyser.evolution.core.Player;
 import fr.keyser.evolution.core.PlayerState;
 import fr.keyser.evolution.core.TurnStatus;
 import fr.keyser.evolution.engine.Event;
+import fr.keyser.evolution.event.Attacked;
 import fr.keyser.evolution.event.CardAddedToPool;
 import fr.keyser.evolution.event.CardDealed;
+import fr.keyser.evolution.event.DiscardPoolFood;
+import fr.keyser.evolution.event.FatMoved;
 import fr.keyser.evolution.event.FoodEaten;
 import fr.keyser.evolution.event.FoodScored;
 import fr.keyser.evolution.event.LastTurnEvent;
@@ -23,6 +26,12 @@ import fr.keyser.evolution.event.NextStepEvent;
 import fr.keyser.evolution.event.PlayerPassedEvent;
 import fr.keyser.evolution.event.PlayerStateChanged;
 import fr.keyser.evolution.event.PoolRevealed;
+import fr.keyser.evolution.event.PopulationGrow;
+import fr.keyser.evolution.event.PopulationIncreased;
+import fr.keyser.evolution.event.PopulationReduced;
+import fr.keyser.evolution.event.SizeIncreased;
+import fr.keyser.evolution.event.SpecieAdded;
+import fr.keyser.evolution.event.SpecieExtincted;
 import fr.keyser.evolution.event.TraitAdded;
 import fr.keyser.evolution.event.TraitsRevealed;
 import fr.keyser.evolution.fsm.EvolutionGraphBuilder;
@@ -33,8 +42,11 @@ import fr.keyser.evolution.model.FoodSource;
 import fr.keyser.evolution.model.PlayerScoreBoard;
 import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.UsedTrait;
+import fr.keyser.evolution.summary.AttackOutcome;
+import fr.keyser.evolution.summary.AttackSummary;
 import fr.keyser.evolution.summary.FeedSummary;
 import fr.keyser.evolution.summary.FeedingActionSummary;
+import fr.keyser.evolution.summary.IntelligentFeedSummary;
 import fr.keyser.fsm.AutomatInstance;
 
 public class Renderer {
@@ -96,7 +108,7 @@ public class Renderer {
 		return new PartialRender(draw, actions(player, actions), scoreBoards, rendered);
 	}
 
-	public List<RenderedEvent> renderAll(int player, List<Event> events) {
+	List<RenderedEvent> renderAll(int player, List<Event> events) {
 		return events.stream().flatMap(e -> Optional.ofNullable(render(player, e)).stream())
 				.collect(Collectors.toList());
 	}
@@ -109,15 +121,29 @@ public class Renderer {
 		return null;
 	}
 
-	private SummaryView renderAction(int player, FeedingActionSummary in) {
+	SummaryView renderAction(int player, FeedingActionSummary in) {
 		if (in instanceof FeedSummary) {
 			FeedSummary feed = (FeedSummary) in;
 			return new FeedSumaryView(feed.getSpecie(), renderAll(player, feed.getEvents()));
 		}
 
-		// TODO other actions
+		else if (in instanceof IntelligentFeedSummary) {
+			IntelligentFeedSummary feed = (IntelligentFeedSummary) in;
+			return new IntelligentFeedSumaryView(feed.getSpecie(), new UsedTraitView(feed.getTrait()),
+					renderAll(player, feed.getEvents()));
+		} else if (in instanceof AttackSummary) {
+			AttackSummary attack = (AttackSummary) in;
+
+			return new AttackSummaryView(attack.getSpecie(), attack.getTarget(),
+					attack.getViolations().stream().map(AttackViolationView::new).collect(Collectors.toList()),
+					attack.getOutcomes().stream().map(o -> attackView(player, o)).collect(Collectors.toList()));
+		}
 
 		return null;
+	}
+
+	private AttackOutcomeView attackView(int player, AttackOutcome out) {
+		return new AttackOutcomeView(out.getDisabled(), out.getCost(), renderAll(player, out.getEvents()));
 	}
 
 	private RenderedEvent render(int player, Event event) {
@@ -131,8 +157,12 @@ public class Renderer {
 			return render(player, (CardDealed) event);
 		} else if (event instanceof FoodEaten) {
 			return render((FoodEaten) event);
+		} else if (event instanceof FatMoved) {
+			return render((FatMoved) event);
 		} else if (event instanceof CardAddedToPool) {
 			return render(player, (CardAddedToPool) event);
+		} else if (event instanceof DiscardPoolFood) {
+			return render((DiscardPoolFood) event);
 		} else if (event instanceof TraitAdded) {
 			return render(player, (TraitAdded) event);
 		} else if (event instanceof PoolRevealed) {
@@ -141,18 +171,41 @@ public class Renderer {
 			return render((TraitsRevealed) event);
 		} else if (event instanceof FoodScored) {
 			return render((FoodScored) event);
-		} else if (event instanceof LastTurnEvent) {
+		} else if (event instanceof PopulationGrow) {
+			return render((PopulationGrow) event);
+		} else if (event instanceof PopulationReduced) {
+			return render((PopulationReduced) event);
+		} else if (event instanceof PopulationIncreased) {
+			return render((PopulationIncreased) event);
+		} else if (event instanceof SizeIncreased) {
+			return render((SizeIncreased) event);
+		} else if (event instanceof SpecieAdded) {
+			return render((SpecieAdded) event);
+		} else if (event instanceof Attacked) {
+			return render((Attacked) event);
+		} else if (event instanceof SpecieExtincted) {
+			return render((SpecieExtincted) event);
+		}
+
+		else if (event instanceof LastTurnEvent) {
 			return new RenderedEvent("last-turn");
 		}
 
 		return null;
 	}
 
+	private RenderedEvent render(Attacked attacked) {
+		return new RenderedEvent("specie-attacked")
+				.put("specie", attacked.getSrc())
+				.put("attacker", attacked.getAttacker())
+				.put("disabled",
+						attacked.getDisabled().stream().map(DisabledViolationView::new).collect(Collectors.toList()));
+	}
+
 	private RenderedEvent render(TraitsRevealed revealed) {
 		RenderedEvent evt = new RenderedEvent("traits-revealed")
 				.put("specie", revealed.getSrc());
 		revealed.getTraits().entrySet().forEach(e -> evt.put("traits[" + e.getKey() + "]", new CardView(e.getValue())));
-
 		return evt;
 	}
 
@@ -162,9 +215,53 @@ public class Renderer {
 	}
 
 	private RenderedEvent render(FoodScored score) {
-		return new RenderedEvent("food-scored")
+		return new RenderedEvent("specie-food-scored")
+				.put("specie", score.getSrc())
 				.put("player", score.getPlayer())
 				.put("score", score.getScore());
+	}
+
+	private RenderedEvent render(PopulationGrow grow) {
+		return new RenderedEvent("specie-population-growed")
+				.put("specie", grow.getSrc())
+				.put("population", grow.getTo())
+				.put("trait", new UsedTraitView(grow.getTrait()));
+	}
+
+	private RenderedEvent render(PopulationReduced reduced) {
+		return new RenderedEvent("specie-population-reduced")
+				.put("specie", reduced.getSrc())
+				.put("population", reduced.getTo())
+				.put("trait", new UsedTraitView(reduced.getTrait()));
+	}
+
+	private RenderedEvent render(SpecieExtincted extincted) {
+		return new RenderedEvent("specie-extincted")
+				.put("specie", extincted.getSrc());
+	}
+
+	private RenderedEvent render(PopulationIncreased increased) {
+		return new RenderedEvent("specie-population-increased")
+				.put("specie", increased.getSrc())
+				.put("population", increased.getTo())
+				.put("discarded", new CardView(increased.getCard()));
+	}
+
+	private RenderedEvent render(SizeIncreased increased) {
+		return new RenderedEvent("specie-size-increased")
+				.put("specie", increased.getSrc())
+				.put("size", increased.getTo())
+				.put("discarded", new CardView(increased.getCard()));
+	}
+
+	private RenderedEvent render(SpecieAdded added) {
+		RenderedEvent evt = new RenderedEvent("specie-added")
+				.put("specie", added.getSrc())
+				.put("position", added.getPosition());
+		Card card = added.getCard();
+		if (card != null)
+			evt.put("discarded", new CardView(card));
+		return evt;
 	}
 
 	private RenderedEvent render(FoodEaten foodEaten) {
@@ -190,6 +287,12 @@ public class Renderer {
 		return evt;
 	}
 
+	private RenderedEvent render(FatMoved fatMoved) {
+		return new RenderedEvent("specie-fat-moved")
+				.put("specie", fatMoved.getSrc())
+				.put("fat", fatMoved.getFat());
+	}
+
 	private RenderedEvent render(NextStepEvent nextStepEvent) {
 		return new RenderedEvent("new-step")
 				.put("step", nextStepEvent.getStep());
@@ -210,6 +313,13 @@ public class Renderer {
 		return new RenderedEvent("pool-revealed")
 				.put("delta", revealed.getDelta())
 				.put("cards", revealed.getCards().stream().map(CardView::new).collect(Collectors.toList()));
+	}
+
+	private RenderedEvent render(DiscardPoolFood discard) {
+		return new RenderedEvent("pool-discarded")
+				.put("food", discard.getFood())
+				.put("delta", discard.getDelta())
+				.put("trait", new UsedTraitView(discard.getTrait()));
 	}
 
 	private RenderedEvent render(int current, CardDealed cardDealed) {

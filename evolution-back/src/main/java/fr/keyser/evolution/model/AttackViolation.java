@@ -35,7 +35,7 @@ public class AttackViolation {
 
 	@Override
 	public String toString() {
-		return String.format("AttackViolation [type=%s, trait=%s, bypass=%s, status=%s]", type, trait, bypass, status);
+		return String.format("AttackViolationView [type=%s, trait=%s, bypass=%s, status=%s]", type, trait, bypass, status);
 	}
 
 }
