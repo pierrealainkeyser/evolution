@@ -19,6 +19,6 @@ public class SimpMessageViewDispatcher implements ViewDispatcher {
 	@Override
 	public void dispatch(PlayerRef ref, PartialRender render) {
 		String destination = MessageFormat.format("/game/{0}", ref.getUuid());
-		sendingOperations.convertAndSendToUser(ref.getId(), destination, render);
+		sendingOperations.convertAndSendToUser(ref.getUserId(), destination, render);
 	}
 }

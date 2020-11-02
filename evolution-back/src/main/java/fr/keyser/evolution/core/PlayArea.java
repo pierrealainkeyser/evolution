@@ -53,6 +53,7 @@ import fr.keyser.evolution.model.FoodConsumption;
 import fr.keyser.evolution.model.FoodSource;
 import fr.keyser.evolution.model.PlayerScoreBoard;
 import fr.keyser.evolution.model.PlayerSpecies;
+import fr.keyser.evolution.model.PlayersScoreBoard;
 import fr.keyser.evolution.model.Score;
 import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.SpeciePosition;
@@ -150,7 +151,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		}
 	}
 
-	public List<PlayerScoreBoard> scoreBoards() {
+	public PlayersScoreBoard scoreBoards() {
 
 		Map<Integer, Score> scoreBoards = players.getPlayers().stream()
 				.collect(Collectors.toMap(Player::getId, p -> {
@@ -163,10 +164,10 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 				}));
 
 		Score alpha = scoreBoards.values().stream().max(Score::compareTo).get();
-		return scoreBoards.entrySet().stream()
+		return new PlayersScoreBoard(scoreBoards.entrySet().stream()
 				.map(e -> new PlayerScoreBoard(e.getKey(), e.getValue(), e.getValue().compareTo(alpha) == 0))
 				.sorted((p0, p1) -> p1.getScore().compareTo(p0.getScore()))
-				.collect(Collectors.toList());
+				.collect(Collectors.toList()));
 	}
 
 	public PlayerSpecies forPlayer(int id) {
@@ -780,6 +781,10 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 
 	public TurnStatus getTurnStatus() {
 		return turnStatus;
+	}
+
+	public Deck getDeck() {
+		return deck;
 	}
 
 }

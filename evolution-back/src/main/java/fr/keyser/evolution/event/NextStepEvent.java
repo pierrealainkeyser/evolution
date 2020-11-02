@@ -1,5 +1,8 @@
 package fr.keyser.evolution.event;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.core.TurnStep;
 
 public class NextStepEvent implements TurnEvent {
@@ -8,7 +11,8 @@ public class NextStepEvent implements TurnEvent {
 
 	private final int currentPlayer;
 
-	public NextStepEvent(TurnStep step, int currentPlayer) {
+	@JsonCreator
+	public NextStepEvent(@JsonProperty("step") TurnStep step, @JsonProperty("currentPlayer") int currentPlayer) {
 		this.step = step;
 		this.currentPlayer = currentPlayer;
 	}

@@ -1,5 +1,8 @@
 package fr.keyser.evolution.event;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.model.PlayerInputStatus;
 
@@ -9,7 +12,8 @@ public class PlayerStateChanged implements Event {
 
 	private final PlayerInputStatus state;
 
-	public PlayerStateChanged(int player, PlayerInputStatus state) {
+	@JsonCreator
+	public PlayerStateChanged(@JsonProperty("player") int player, @JsonProperty("state") PlayerInputStatus state) {
 		this.player = player;
 		this.state = state;
 	}

@@ -39,12 +39,13 @@ import fr.keyser.evolution.fsm.PlayAreaMonitor;
 import fr.keyser.evolution.fsm.PlayerRef;
 import fr.keyser.evolution.model.FoodConsumption;
 import fr.keyser.evolution.model.FoodSource;
-import fr.keyser.evolution.model.PlayerScoreBoard;
+import fr.keyser.evolution.model.PlayersScoreBoard;
 import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.UsedTrait;
 import fr.keyser.evolution.summary.AttackOutcome;
 import fr.keyser.evolution.summary.AttackSummary;
 import fr.keyser.evolution.summary.FeedSummary;
+import fr.keyser.evolution.summary.FeedingActionSummaries;
 import fr.keyser.evolution.summary.FeedingActionSummary;
 import fr.keyser.evolution.summary.IntelligentFeedSummary;
 import fr.keyser.fsm.AutomatInstance;
@@ -53,8 +54,8 @@ public class Renderer {
 
 	public CompleteRender complete(int player, List<PlayerRef> players, AutomatInstance playerInstance) {
 		PlayAreaMonitor monitor = playerInstance.getGlobal(EvolutionGraphBuilder.PLAY_AREA);
-		List<PlayerScoreBoard> scoreBoards = playerInstance.getGlobal(EvolutionGraphBuilder.SCOREBOARDS);
-		List<FeedingActionSummary> actions = playerInstance.getLocal(EvolutionGraphBuilder.FEEDING_ACTIONS);
+		PlayersScoreBoard scoreBoards = playerInstance.getGlobal(EvolutionGraphBuilder.SCOREBOARDS);
+		FeedingActionSummaries actions = playerInstance.getLocal(EvolutionGraphBuilder.FEEDING_ACTIONS);
 		AutomatInstance root = playerInstance.getParent().get();
 
 		int draw = monitor.getDraw();
@@ -64,7 +65,8 @@ public class Renderer {
 		List<PlayerView> playersView = players.stream()
 				.map(p -> renderPlayer(player, p, area, root.getChilds().get(p.getIndex())))
 				.collect(Collectors.toList());
-		PlayerAreaView playerAreaView = new PlayerAreaView(playersView, scoreBoards, ts.getStep(), ts.isLastTurn(),
+		PlayerAreaView playerAreaView = new PlayerAreaView(playersView,
+				scoreBoards != null ? scoreBoards.getBoards() : null, ts.getStep(), ts.isLastTurn(),
 				new FoodPoolView(area.getPool()));
 
 		Player myself = area.getPlayer(player);
@@ -81,14 +83,14 @@ public class Renderer {
 		Player player = area.getPlayer(index);
 		List<SpecieView> species = area.forPlayer(index).stream().map(s -> new SpecieView(s, index == forPlayer))
 				.collect(Collectors.toList());
-		return new PlayerView(index, ref.getPlayer(), state.getState(), player.getHandSize(), species);
+		return new PlayerView(index, ref.getUser(), state.getState(), player.getHandSize(), species);
 
 	}
 
 	public PartialRender partial(int player, AutomatInstance playerInstance, List<Event> events) {
 		PlayAreaMonitor monitor = playerInstance.getGlobal(EvolutionGraphBuilder.PLAY_AREA);
-		List<PlayerScoreBoard> scoreBoards = playerInstance.getGlobal(EvolutionGraphBuilder.SCOREBOARDS);
-		List<FeedingActionSummary> actions = playerInstance.getLocal(EvolutionGraphBuilder.FEEDING_ACTIONS);
+		PlayersScoreBoard scoreBoards = playerInstance.getGlobal(EvolutionGraphBuilder.SCOREBOARDS);
+		FeedingActionSummaries actions = playerInstance.getLocal(EvolutionGraphBuilder.FEEDING_ACTIONS);
 		int draw = monitor.getDraw();
 
 		List<RenderedEvent> rendered = new ArrayList<>(renderAll(player, events));
@@ -105,7 +107,8 @@ public class Renderer {
 			rendered.add(render(psc));
 		}
 
-		return new PartialRender(draw, actions(player, actions), scoreBoards, rendered);
+		return new PartialRender(draw, actions(player, actions), scoreBoards != null ? scoreBoards.getBoards() : null,
+				rendered);
 	}
 
 	List<RenderedEvent> renderAll(int player, List<Event> events) {
@@ -113,7 +116,7 @@ public class Renderer {
 				.collect(Collectors.toList());
 	}
 
-	private List<SummaryView> actions(int player, List<FeedingActionSummary> actions) {
+	private List<SummaryView> actions(int player, FeedingActionSummaries actions) {
 		if (actions != null) {
 			return actions.stream().map(a -> renderAction(player, a)).collect(Collectors.toList());
 

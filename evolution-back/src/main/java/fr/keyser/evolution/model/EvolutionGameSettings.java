@@ -31,6 +31,10 @@ public class EvolutionGameSettings {
 		return players.size();
 	}
 
+	public EvolutionGameParameters getParameters() {
+		return new EvolutionGameParameters(getPlayersCount(), quickplay);
+	}
+
 	public boolean isQuickplay() {
 		return quickplay;
 	}

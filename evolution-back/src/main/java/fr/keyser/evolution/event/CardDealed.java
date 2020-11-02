@@ -2,6 +2,9 @@ package fr.keyser.evolution.event;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 
@@ -15,7 +18,9 @@ public class CardDealed implements PlayerEvent, DeckEvent {
 
 	private final List<CardId> shuffledCards;
 
-	public CardDealed(int player, List<Card> cards, boolean shuffle, List<CardId> shuffledCards) {
+	@JsonCreator
+	public CardDealed(@JsonProperty("player") int player, @JsonProperty("cards") List<Card> cards,
+			@JsonProperty("shuffle") boolean shuffle, @JsonProperty("shuffledCards") List<CardId> shuffledCards) {
 		this.player = player;
 		this.shuffle = shuffle;
 		this.cards = cards;

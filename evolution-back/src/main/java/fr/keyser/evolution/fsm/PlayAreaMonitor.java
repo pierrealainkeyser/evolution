@@ -6,15 +6,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import fr.keyser.evolution.command.PlayerCommand;
 import fr.keyser.evolution.core.PlayArea;
 import fr.keyser.evolution.core.TurnStatus;
 import fr.keyser.evolution.core.TurnStep;
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.engine.Events;
+import fr.keyser.evolution.summary.FeedingActionSummaries;
 import fr.keyser.evolution.summary.FeedingActionSummary;
 
 public class PlayAreaMonitor {
@@ -30,9 +28,8 @@ public class PlayAreaMonitor {
 		this(area, Collections.emptyList(), Collections.emptyList(), 0);
 	}
 
-	@JsonCreator
-	public PlayAreaMonitor(@JsonProperty("area") PlayArea area, @JsonProperty("currents") List<Event> currents,
-			@JsonProperty("history") List<Event> history, @JsonProperty("draw") int draw) {
+	public PlayAreaMonitor(PlayArea area, List<Event> currents,
+			List<Event> history, int draw) {
 		this.area = area;
 		this.currents = currents;
 		this.history = history;
@@ -123,7 +120,7 @@ public class PlayAreaMonitor {
 			if (actionsForPlayer.isEmpty()) {
 				target = (target + 1) % nbPlayers;
 			} else {
-				return Optional.of(new ActiveFeedingPlayer(target, actionsForPlayer));
+				return Optional.of(new ActiveFeedingPlayer(target, new FeedingActionSummaries(actionsForPlayer)));
 			}
 		} while (target != currentPlayer);
 

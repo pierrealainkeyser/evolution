@@ -73,7 +73,7 @@ public class TestBridgeService {
 		Card c2 = deck.card(Trait.COOPERATION);
 		Card c3 = deck.card(Trait.BURROWING);
 		deck.card(Trait.DEFENSIVE_HERDING);
-		
+
 		Card c4 = deck.card(Trait.HARD_SHELL);
 		deck.card(Trait.FAT_TISSUE);
 		deck.card(Trait.FERTILE);
@@ -150,7 +150,7 @@ public class TestBridgeService {
 		AuthenticatedPlayer ap0 = new AuthenticatedPlayer("p1", "Joueur 1");
 		AuthenticatedPlayer ap1 = new AuthenticatedPlayer("p2", "Joueur 2");
 
-		AutomatGraph graph = gbuilder.build(new EvolutionGameSettings(Arrays.asList(ap0, ap1), false));
+		AutomatGraph graph = gbuilder.build(new EvolutionGameSettings(Arrays.asList(ap0, ap1), false).getParameters());
 
 		AutomatEngine engine = AutomatEngine.start(graph, new PlayAreaMonitor(area));
 
@@ -181,6 +181,11 @@ public class TestBridgeService {
 		};
 
 		GameResolver resolver = new GameResolver() {
+
+			@Override
+			public void addGame(ActiveGame active) {
+
+			}
 
 			@Override
 			public void updateEngine(GameRef ref, AutomatEngine engine) {

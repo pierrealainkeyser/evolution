@@ -10,8 +10,6 @@ public interface GameResolver {
 
 	public void updateEngine(GameRef ref, AutomatEngine engine);
 
-	public default void addGame(ActiveGame active) {
-		updateEngine(active.getRef(), active.getEngine());
-	}
+	public void addGame(ActiveGame active);
 
 }

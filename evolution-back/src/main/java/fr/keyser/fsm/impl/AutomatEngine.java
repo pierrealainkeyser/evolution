@@ -52,9 +52,8 @@ public class AutomatEngine implements Supplier<AutomatInstanceContainer> {
 
 	public static AutomatEngine start(AutomatLogic logic, Object payload) {
 		AutomatEngine engine = new AutomatEngine(EMPTY, logic);
-
-		engine.get().getRoot().unicast(AutomatLifeCycleEvent.START.event(payload));
-
+		engine.start(payload);
+		;
 		return engine;
 	}
 

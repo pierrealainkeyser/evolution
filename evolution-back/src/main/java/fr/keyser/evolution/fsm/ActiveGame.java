@@ -18,6 +18,13 @@ public class ActiveGame {
 		this.engine = engine;
 	}
 
+	public ActiveGame withEngine(AutomatEngine engine) {
+		if (engine == this.engine)
+			return this;
+		else
+			return new ActiveGame(ref, settings, engine);
+	}
+
 	public GameRef getRef() {
 		return ref;
 	}

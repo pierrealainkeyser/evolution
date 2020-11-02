@@ -2,7 +2,6 @@ package fr.keyser.evolution.fsm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -21,12 +20,12 @@ import fr.keyser.evolution.core.PlayerState;
 import fr.keyser.evolution.core.Players;
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.model.CardId;
-import fr.keyser.evolution.model.EvolutionGameSettings;
+import fr.keyser.evolution.model.EvolutionGameParameters;
 import fr.keyser.evolution.model.PlayerInputStatus;
 import fr.keyser.evolution.model.SpecieId;
 import fr.keyser.evolution.model.Trait;
 import fr.keyser.evolution.summary.FeedSummary;
-import fr.keyser.evolution.summary.FeedingActionSummary;
+import fr.keyser.evolution.summary.FeedingActionSummaries;
 import fr.keyser.fsm.AutomatInstance;
 import fr.keyser.fsm.impl.AutomatEngine;
 import fr.keyser.fsm.impl.NoTransitionFound;
@@ -60,7 +59,7 @@ public class TestEvolutionGraphBuilder {
 		AuthenticatedPlayer ap1 = new AuthenticatedPlayer("p2", "Joueur 2");
 
 		EvolutionGraphBuilder gbuilder = new EvolutionGraphBuilder();
-		AutomatGraph graph = gbuilder.build(new EvolutionGameSettings(Arrays.asList(ap0, ap1), false));
+		AutomatGraph graph = gbuilder.build(new EvolutionGameParameters(2, false));
 
 		AutomatEngine engine = AutomatEngine.start(graph, new PlayAreaMonitor(area));
 
@@ -113,8 +112,8 @@ public class TestEvolutionGraphBuilder {
 		assertPlayerState(bridge0, PlayerInputStatus.IDLE);
 
 		AutomatInstance second = engine.get().getRoot().getChilds().get(1);
-		List<FeedingActionSummary> summary = second.getLocal(EvolutionGraphBuilder.FEEDING_ACTIONS);
-		assertThat(summary)
+		FeedingActionSummaries summary = second.getLocal(EvolutionGraphBuilder.FEEDING_ACTIONS);
+		assertThat(summary.getActions())
 				.hasSize(1)
 				.anySatisfy(s -> {
 					assertThat(s).isInstanceOf(FeedSummary.class);
@@ -153,7 +152,7 @@ public class TestEvolutionGraphBuilder {
 		AuthenticatedPlayer ap1 = new AuthenticatedPlayer("p2", "Joueur 2");
 
 		EvolutionGraphBuilder gbuilder = new EvolutionGraphBuilder();
-		AutomatGraph graph = gbuilder.build(new EvolutionGameSettings(Arrays.asList(ap0, ap1), true));
+		AutomatGraph graph = gbuilder.build(new EvolutionGameParameters(2, true));
 
 		AutomatEngine engine = AutomatEngine.start(graph, new PlayAreaMonitor(area));
 

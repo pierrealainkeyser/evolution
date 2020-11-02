@@ -1,12 +1,17 @@
 package fr.keyser.evolution.event;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import fr.keyser.evolution.engine.Event;
 
 public class PlayerPassedEvent implements Event {
-
+	
 	private final int player;
 
-	public PlayerPassedEvent(int player) {
+	@JsonCreator
+	public PlayerPassedEvent(@JsonProperty("player") int player) {
 		this.player = player;
 	}
 

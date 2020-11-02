@@ -5,7 +5,6 @@ import static fr.keyser.fsm.impl.transition.TransitionSourceBuilder.join;
 import static fr.keyser.fsm.impl.transition.TransitionSourceBuilder.route;
 import static fr.keyser.fsm.impl.transition.TransitionSourceBuilder.to;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -20,17 +19,22 @@ import fr.keyser.evolution.core.PlayerState;
 import fr.keyser.evolution.core.TurnStatus;
 import fr.keyser.evolution.event.PlayerPassedEvent;
 import fr.keyser.evolution.event.PlayerStateChanged;
-import fr.keyser.evolution.model.EvolutionGameSettings;
+import fr.keyser.evolution.model.EvolutionGameParameters;
 import fr.keyser.evolution.model.PlayerInputStatus;
+import fr.keyser.evolution.summary.FeedingActionSummaries;
 import fr.keyser.fsm.AutomatEvent;
 import fr.keyser.fsm.AutomatInstance;
 import fr.keyser.fsm.AutomatLifeCycleEvent;
 import fr.keyser.fsm.FollowedTransition;
+import fr.keyser.fsm.State;
+import fr.keyser.fsm.impl.AutomatEngine;
 import fr.keyser.fsm.impl.graph.AutomatGraph;
 import fr.keyser.fsm.impl.graph.GraphBuilder;
 import fr.keyser.fsm.impl.graph.GraphBuilder.NodeBuilder;
 
 public class EvolutionGraphBuilder {
+
+	private final static State ENDED = new State("control", "end");
 
 	public final static String PLAY_AREA = "playarea";
 
@@ -89,7 +93,7 @@ public class EvolutionGraphBuilder {
 
 		private NodeBuilder quickPlayCardsDone;
 
-		public PlayerFlow(NodeBuilder root, EvolutionGameSettings settings) {
+		public PlayerFlow(NodeBuilder root, EvolutionGameParameters settings) {
 
 			NodeBuilder start = root.sub("start");
 			NodeBuilder idle = root.sub("idle");
@@ -117,7 +121,7 @@ public class EvolutionGraphBuilder {
 
 		boolean checkSummary(AutomatInstance instance, AutomatEvent event) {
 			Object payload = event.getPayload();
-			return payload instanceof List;
+			return payload instanceof FeedingActionSummaries;
 		}
 
 		private void selectFood(NodeBuilder selectFood, NodeBuilder idle) {
@@ -253,7 +257,7 @@ public class EvolutionGraphBuilder {
 
 		private final NodeBuilder playCards;
 
-		public ControlFlow(NodeBuilder root, EvolutionGameSettings settings) {
+		public ControlFlow(NodeBuilder root, EvolutionGameParameters settings) {
 			selectFood = root.sub("selectFood");
 			playCards = root.sub("playCards");
 			NodeBuilder feeding = root.sub("feeding");
@@ -418,7 +422,12 @@ public class EvolutionGraphBuilder {
 
 	}
 
-	public AutomatGraph build(EvolutionGameSettings settings) {
+	public boolean isTerminated(AutomatEngine engine) {
+
+		return ENDED.equals(engine.get().getRoot().getCurrent());
+	}
+
+	public AutomatGraph build(EvolutionGameParameters settings) {
 
 		GraphBuilder builder = new GraphBuilder();
 

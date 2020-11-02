@@ -43,8 +43,8 @@ public class TraitsPackCollections {
 		return c;
 	}
 
-	public Deck create(EvolutionGameSettings settings) {
-		List<Trait> traits = settings.isCustomTraits() ? settings.getTraits() : Trait.core();
+	public Deck create(EvolutionGameSettings parameters) {
+		List<Trait> traits = parameters.isCustomTraits() ? parameters.getTraits() : Trait.core();
 		return create(traits);
 	}
 

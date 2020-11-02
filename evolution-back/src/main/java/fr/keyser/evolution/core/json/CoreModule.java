@@ -3,6 +3,7 @@ package fr.keyser.evolution.core.json;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import fr.keyser.evolution.core.PlayArea;
+import fr.keyser.evolution.fsm.PlayAreaMonitor;
 
 public class CoreModule extends SimpleModule {
 
@@ -14,5 +15,7 @@ public class CoreModule extends SimpleModule {
 	public CoreModule() {
 		super("evolution-core");
 		addDeserializer(PlayArea.class, new PlayAreaDeserializer());
+		addDeserializer(PlayAreaMonitor.class, new PlayAreaMonitorDeserializer());
+
 	}
 }

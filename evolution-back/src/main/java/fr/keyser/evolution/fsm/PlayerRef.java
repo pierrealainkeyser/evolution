@@ -6,12 +6,12 @@ public class PlayerRef {
 
 	private final String uuid;
 
-	private final AuthenticatedPlayer player;
+	private final AuthenticatedPlayer user;
 
-	public PlayerRef(int index, String uuid, AuthenticatedPlayer player) {
+	public PlayerRef(int index, String uuid, AuthenticatedPlayer user) {
 		this.index = index;
 		this.uuid = uuid;
-		this.player = player;
+		this.user = user;
 	}
 
 	public int getIndex() {
@@ -22,16 +22,16 @@ public class PlayerRef {
 		return uuid;
 	}
 
-	public AuthenticatedPlayer getPlayer() {
-		return player;
+	public AuthenticatedPlayer getUser() {
+		return user;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("PlayerRef [index=%s, uuid=%s, player=%s]", index, uuid, player);
+		return String.format("PlayerRef [index=%s, uuid=%s, user=%s]", index, uuid, user);
 	}
 
-	public String getId() {
-		return player.getId();
+	public String getUserId() {
+		return user.getId();
 	}
 }
