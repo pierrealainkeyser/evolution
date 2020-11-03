@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import fr.keyser.evolution.JacksonConfiguration;
 import fr.keyser.evolution.command.AddCardToPoolCommand;
 import fr.keyser.evolution.command.AddTraitCommand;
 import fr.keyser.evolution.command.FeedCommand;
@@ -162,7 +163,9 @@ public class TestBridgeService {
 
 		GameRef gr = new GameRef("1561", Arrays.asList(p0, p1));
 
-		ObjectMapper om = new ObjectMapper();
+		JacksonConfiguration jconf = new JacksonConfiguration();
+
+		ObjectMapper om = new ObjectMapper().registerModules(jconf.automatsModule(), jconf.coreModule());
 		ObjectWriter pp = om.writerWithDefaultPrettyPrinter();
 		ViewDispatcher dispatcher = (uuid, render) -> {
 			try {
@@ -239,6 +242,16 @@ public class TestBridgeService {
 
 		assertThat(engine.get().getRoot().getCurrent())
 				.isEqualTo(new State("control", "end"));
+
+		AutomatInstanceContainerValue internal = engine.getInternal();
+		String cont = pp.writeValueAsString(internal);
+
+		logger.info("--->\n{}", cont);
+
+		AutomatInstanceContainerValue reloaded = om.readValue(cont, AutomatInstanceContainerValue.class);
+
+		String rewrited = pp.writeValueAsString(reloaded);
+		assertThat(rewrited).isEqualTo(cont);
 	}
 
 	public void dumpState(AutomatEngine engine) {

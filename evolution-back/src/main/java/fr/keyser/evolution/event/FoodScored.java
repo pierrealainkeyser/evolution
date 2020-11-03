@@ -1,17 +1,23 @@
 package fr.keyser.evolution.event;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.model.SpecieId;
 
 public class FoodScored extends SpecieEvent implements Scored {
 
 	private final int score;
 
-	public FoodScored(SpecieId src, int score) {
+	@JsonCreator
+	public FoodScored(@JsonProperty("src") SpecieId src, @JsonProperty("score") int score) {
 		super(src);
 		this.score = score;
 	}
 
 	@Override
+	@JsonIgnore
 	public int getPlayer() {
 		return getSrc().getPlayer();
 	}

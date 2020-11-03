@@ -1,5 +1,8 @@
 package fr.keyser.evolution.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.core.Card;
 
 public class DisabledViolation {
@@ -12,7 +15,9 @@ public class DisabledViolation {
 
 	private final Card discarded;
 
-	public DisabledViolation(String violation, UsedTrait trait, UsedTrait used, Card discarded) {
+	@JsonCreator
+	public DisabledViolation(@JsonProperty("violation") String violation, @JsonProperty("trait") UsedTrait trait,
+			@JsonProperty("used") UsedTrait used, @JsonProperty("discarded") Card discarded) {
 		this.violation = violation;
 		this.trait = trait;
 		this.used = used;

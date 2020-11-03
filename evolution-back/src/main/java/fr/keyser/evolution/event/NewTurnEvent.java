@@ -1,10 +1,14 @@
 package fr.keyser.evolution.event;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class NewTurnEvent implements TurnEvent {
 
 	private final int firstPlayer;
 
-	public NewTurnEvent(int firstPlayer) {
+	@JsonCreator
+	public NewTurnEvent(@JsonProperty("firstPlayer") int firstPlayer) {
 		this.firstPlayer = firstPlayer;
 	}
 

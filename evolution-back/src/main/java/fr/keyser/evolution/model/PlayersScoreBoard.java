@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public class PlayersScoreBoard {
 
@@ -14,7 +15,7 @@ public class PlayersScoreBoard {
 		this.boards = boards;
 	}
 
-	@JsonUnwrapped
+	@JsonValue
 	public List<PlayerScoreBoard> getBoards() {
 		return boards;
 	}

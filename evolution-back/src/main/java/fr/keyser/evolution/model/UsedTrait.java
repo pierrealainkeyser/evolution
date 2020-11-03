@@ -2,13 +2,17 @@ package fr.keyser.evolution.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UsedTrait {
 
 	private final SpecieId specie;
 
 	private final Trait trait;
 
-	public UsedTrait(SpecieId specie, Trait trait) {
+	@JsonCreator
+	public UsedTrait(@JsonProperty("specie") SpecieId specie, @JsonProperty("trait") Trait trait) {
 		this.specie = specie;
 		this.trait = trait;
 	}

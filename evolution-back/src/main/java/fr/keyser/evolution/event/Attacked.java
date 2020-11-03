@@ -5,6 +5,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.DisabledViolation;
@@ -17,7 +20,9 @@ public class Attacked extends SpecieEvent implements DeckEvent, PlayerEvent, Att
 
 	private final List<DisabledViolation> disabled;
 
-	public Attacked(SpecieId src, SpecieId attacker, List<DisabledViolation> disabled) {
+	@JsonCreator
+	public Attacked(@JsonProperty("src") SpecieId src, @JsonProperty("attacker") SpecieId attacker,
+			@JsonProperty("disabled") List<DisabledViolation> disabled) {
 		super(src);
 		this.attacker = attacker;
 		this.disabled = disabled;

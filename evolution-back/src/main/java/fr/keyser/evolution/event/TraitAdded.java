@@ -1,5 +1,9 @@
 package fr.keyser.evolution.event;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.SpecieId;
@@ -10,7 +14,9 @@ public class TraitAdded extends SpecieEvent implements DiscardedEvent {
 	private final int index;
 	private final Card replaced;
 
-	public TraitAdded(SpecieId src, Card card, int index, Card replaced) {
+	@JsonCreator
+	public TraitAdded(@JsonProperty("src") SpecieId src, @JsonProperty("card") Card card,
+			@JsonProperty("index") int index, @JsonProperty("replaced") Card replaced) {
 		super(src);
 		this.card = card;
 		this.index = index;
@@ -31,6 +37,7 @@ public class TraitAdded extends SpecieEvent implements DiscardedEvent {
 	}
 
 	@Override
+	@JsonIgnore
 	public CardId getDiscarded() {
 		if (replaced != null)
 			return replaced.getId();
@@ -39,6 +46,7 @@ public class TraitAdded extends SpecieEvent implements DiscardedEvent {
 	}
 
 	@Override
+	@JsonIgnore
 	public int getPlayer() {
 		return getSrc().getPlayer();
 	}

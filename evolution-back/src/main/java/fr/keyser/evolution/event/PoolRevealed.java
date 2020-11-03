@@ -2,6 +2,9 @@ package fr.keyser.evolution.event;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.core.Card;
 
 public class PoolRevealed implements PoolEvent, DeckEvent {
@@ -12,7 +15,8 @@ public class PoolRevealed implements PoolEvent, DeckEvent {
 
 	private final int food;
 
-	public PoolRevealed(int delta, List<Card> cards, int food) {
+	@JsonCreator
+	public PoolRevealed(@JsonProperty("delta") int delta,@JsonProperty("cards") List<Card> cards,@JsonProperty("food") int food) {
 		this.delta = delta;
 		this.cards = cards;
 		this.food = food;

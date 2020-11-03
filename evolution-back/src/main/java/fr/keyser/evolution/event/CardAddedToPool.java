@@ -1,5 +1,8 @@
 package fr.keyser.evolution.event;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.core.Card;
 
 public class CardAddedToPool implements PlayerEvent, PoolEvent {
@@ -8,7 +11,8 @@ public class CardAddedToPool implements PlayerEvent, PoolEvent {
 
 	private final int player;
 
-	public CardAddedToPool(int player, Card card) {
+	@JsonCreator
+	public CardAddedToPool(@JsonProperty("player") int player, @JsonProperty("card") Card card) {
 		this.player = player;
 		this.card = card;
 	}
