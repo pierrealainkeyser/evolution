@@ -44,6 +44,7 @@ import fr.keyser.evolution.event.SpecieEvent;
 import fr.keyser.evolution.event.SpecieExtincted;
 import fr.keyser.evolution.event.TraitsRevealed;
 import fr.keyser.evolution.event.TurnEvent;
+import fr.keyser.evolution.exception.IllegalCommandException;
 import fr.keyser.evolution.model.AttackViolation;
 import fr.keyser.evolution.model.AttackViolationStatus;
 import fr.keyser.evolution.model.AttackViolations;
@@ -280,7 +281,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 
 		AttackCommand command = new AttackCommand(violations,
 				disabled.stream().collect(Collectors.toMap(Function.identity(), seq.reset())));
-		Attacked attacked = command.resolve(violations, player);
+		Attacked attacked = command.resolve(violations, player, null);
 
 		return new AttackOutcome(process(attacked).getEvents(), disabled.size(), disabled);
 	}
@@ -607,7 +608,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		if (command instanceof SpecieCommand) {
 			SpecieCommand sc = (SpecieCommand) command;
 			if (sc.getSpecie().getPlayer() != player.getId()) {
-				throw new IllegalArgumentException("illegal player");
+				throw new IllegalCommandException("illegal_player", sc);
 			}
 		}
 
@@ -616,7 +617,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 			attack.getViolations().values().forEach(player::checkCard);
 
 			AttackViolations violations = attack(species.byId(attack.getSpecie()), species.byId(attack.getTarget()));
-			return attack.resolve(violations, player);
+			return attack.resolve(violations, player, attack);
 		} else if (command instanceof IntelligentFeedCommand) {
 			IntelligentFeedCommand feed = (IntelligentFeedCommand) command;
 			return intelligentPlantEat(feed.getSpecie(), player.inHand(feed.getDiscarded()));

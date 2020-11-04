@@ -2,7 +2,6 @@ package fr.keyser.evolution.event;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import fr.keyser.evolution.engine.Event;
 

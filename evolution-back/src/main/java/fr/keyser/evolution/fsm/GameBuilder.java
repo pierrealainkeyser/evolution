@@ -11,6 +11,7 @@ import fr.keyser.evolution.core.PlayArea;
 import fr.keyser.evolution.core.Players;
 import fr.keyser.evolution.model.EvolutionGameParameters;
 import fr.keyser.evolution.model.EvolutionGameSettings;
+import fr.keyser.evolution.model.PlayersScoreBoard;
 import fr.keyser.evolution.model.TraitsPackCollections;
 import fr.keyser.fsm.AutomatLogic;
 import fr.keyser.fsm.impl.AutomatEngine;
@@ -72,5 +73,9 @@ public class GameBuilder {
 
 	public boolean isTerminated(AutomatEngine engine) {
 		return graphBuilder.isTerminated(engine);
+	}
+
+	public PlayersScoreBoard getScoreBoards(AutomatEngine engine) {
+		return engine.get().getRoot().getGlobal(EvolutionGraphBuilder.SCOREBOARDS);
 	}
 }

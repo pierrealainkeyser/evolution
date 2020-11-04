@@ -319,7 +319,8 @@ public class TestPlayArea {
 		assertThat(violations.isPossible(p.getHandSize())).isTrue();
 
 		run(area,
-				new AttackCommand(violations, Map.of("hard_shell", p.getHands().get(0).getId())).resolve(violations, p),
+				new AttackCommand(violations, Map.of("hard_shell", p.getHands().get(0).getId())).resolve(violations, p,
+						null),
 				true);
 
 		Event attacked = area.handleCommand(new PlayerCommand(0, new AttackCommand(violations,

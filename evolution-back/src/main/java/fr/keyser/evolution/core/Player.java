@@ -23,6 +23,8 @@ import fr.keyser.evolution.event.Scored;
 import fr.keyser.evolution.event.SizeIncreased;
 import fr.keyser.evolution.event.SpecieAdded;
 import fr.keyser.evolution.event.TraitAdded;
+import fr.keyser.evolution.exception.IllegalCardException;
+import fr.keyser.evolution.exception.IllegalCommandException;
 import fr.keyser.evolution.model.CardId;
 import fr.keyser.evolution.model.SpecieId;
 
@@ -53,14 +55,14 @@ public class Player {
 	public SizeIncreased handleIncreaseSize(IncreaseSizeCommand command, Specie target) {
 		int size = target.getSize() + 1;
 		if (size > 6)
-			throw new IllegalArgumentException("size too big");
+			throw new IllegalCommandException("too", command);
 		return new SizeIncreased(target.getId(), size, inHand(command.getCard()));
 	}
 
 	public PopulationIncreased handleIncreasePopulation(IncreasePopulationCommand command, Specie target) {
 		int population = target.getPopulation() + 1;
 		if (population > 6)
-			throw new IllegalArgumentException("population too big");
+			throw new IllegalCommandException("population too big", command);
 		return new PopulationIncreased(target.getId(), population, inHand(command.getCard()));
 	}
 
@@ -79,7 +81,8 @@ public class Player {
 	}
 
 	public Card inHand(CardId id) {
-		return hands.stream().filter(c -> c.getId().equals(id)).findFirst().orElseThrow();
+		return hands.stream().filter(c -> c.getId().equals(id)).findFirst()
+				.orElseThrow(() -> new IllegalCardException(id));
 	}
 
 	public Player addCards(CardDealed dealed) {

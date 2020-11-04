@@ -5,12 +5,15 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import fr.keyser.evolution.exception.JacksonException;
+import fr.keyser.evolution.exception.UnresolvedGameIdException;
 import fr.keyser.evolution.fsm.ActiveGame;
 import fr.keyser.evolution.fsm.AuthenticatedPlayer;
 import fr.keyser.evolution.fsm.GameBuilder;
@@ -20,6 +23,8 @@ import fr.keyser.evolution.fsm.PlayerRef;
 import fr.keyser.evolution.fsm.ResolvedRef;
 import fr.keyser.evolution.model.EvolutionGameParameters;
 import fr.keyser.evolution.model.EvolutionGameSettings;
+import fr.keyser.evolution.model.PlayerScoreBoard;
+import fr.keyser.evolution.model.PlayersScoreBoard;
 import fr.keyser.fsm.impl.AutomatEngine;
 import fr.keyser.fsm.impl.AutomatInstanceContainerValue;
 
@@ -40,7 +45,13 @@ public class JdbcGameResolver implements GameResolver {
 	@Override
 	public ResolvedRef findByUuid(String uuid) {
 
-		String game = jdbc.queryForObject("select game from player where player=?", String.class, uuid);
+		String game = null;
+
+		try {
+			game = jdbc.queryForObject("select game from player where player=?", String.class, uuid);
+		} catch (EmptyResultDataAccessException d) {
+			throw new UnresolvedGameIdException(uuid);
+		}
 
 		String sql = "select p.player, u.uid, u.name, p.index from player p inner join user u on u.uid=p.user where p.game =? order by p.index";
 		List<PlayerRef> players = jdbc.query(sql, new Object[] { game }, this::toRef);
@@ -74,7 +85,7 @@ public class JdbcGameResolver implements GameResolver {
 		try {
 			value = objectMapper.readValue(content, type);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException("illegal content format", e);
+			throw new JacksonException(e);
 		}
 		return value;
 	}
@@ -89,7 +100,16 @@ public class JdbcGameResolver implements GameResolver {
 				encode(internal), terminated, ref.getUuid());
 
 		if (terminated) {
-			// TODO update score
+			PlayersScoreBoard scoreBoards = gameBuilder.getScoreBoards(engine);
+
+			String sql = "update player set score=?, alpha=? where game=? and index=?";
+			List<PlayerScoreBoard> boards = scoreBoards.getBoards();
+			jdbc.batchUpdate(sql, boards, boards.size(), (ps, s) -> {
+				ps.setInt(1, s.getScore().getScore());
+				ps.setBoolean(2, s.isAlpha());
+				ps.setString(3, ref.getUuid());
+				ps.setInt(4, s.getPlayer());
+			});
 		}
 
 	}
@@ -100,7 +120,7 @@ public class JdbcGameResolver implements GameResolver {
 			encode = objectMapper.writeValueAsString(internal);
 
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException("illegal content format", e);
+			throw new JacksonException(e);
 		}
 		return encode;
 	}
