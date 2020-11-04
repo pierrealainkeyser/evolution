@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +15,11 @@ import fr.keyser.evolution.CoreConfiguration;
 import fr.keyser.evolution.JacksonConfiguration;
 import fr.keyser.evolution.JdbcConfiguration;
 import fr.keyser.evolution.fsm.ActiveGame;
-import fr.keyser.evolution.fsm.AuthenticatedPlayer;
 import fr.keyser.evolution.fsm.GameBuilder;
 import fr.keyser.evolution.fsm.jdbc.JdbcGameResolver;
 import fr.keyser.evolution.model.EvolutionGameSettings;
+import fr.keyser.security.AuthenticatedPlayer;
+import fr.keyser.security.AuthenticatedPlayerRepository;
 
 @JdbcTest
 @ContextConfiguration(classes = { JacksonAutoConfiguration.class, CoreConfiguration.class, JacksonConfiguration.class,
@@ -35,22 +35,23 @@ public class TestJdbcGameOverviewRepositoryIT {
 	private GameBuilder gameBuilder;
 
 	@Autowired
-	private JdbcOperations jdbc;
+	private AuthenticatedPlayerRepository playerRepository;
 
 	@Transactional
 	@Test
 	void nominal() {
+		AuthenticatedPlayer owner = new AuthenticatedPlayer("pak", "PAK");
+		AuthenticatedPlayer other = new AuthenticatedPlayer("jmm", "JMM");
 
-		jdbc.update("insert into user(uid,name) values(?,?)", "pak", "PAK");
-		jdbc.update("insert into user(uid,name)  values(?,?)", "jmm", "JMM");
+		playerRepository.add(owner);
+		playerRepository.add(other);
 
-		EvolutionGameSettings settings = new EvolutionGameSettings(
-				Arrays.asList(new AuthenticatedPlayer("pak", "PAK"), new AuthenticatedPlayer("jmm", "JMM")), true);
+		EvolutionGameSettings settings = new EvolutionGameSettings(Arrays.asList(owner, other), true);
 		ActiveGame created = gameBuilder.create(settings);
 
-		jdbcGameResolver.addGame(created);
+		jdbcGameResolver.addGame(created, owner);
 
-		assertThat(repository.myGames("pak"))
+		assertThat(repository.myGames(owner))
 				.hasSize(1)
 				.anySatisfy(go -> {
 					assertThat(go.isTerminated()).isFalse();

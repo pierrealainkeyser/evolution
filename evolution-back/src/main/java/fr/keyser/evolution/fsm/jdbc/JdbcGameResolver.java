@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.keyser.evolution.exception.JacksonException;
 import fr.keyser.evolution.exception.UnresolvedGameIdException;
 import fr.keyser.evolution.fsm.ActiveGame;
-import fr.keyser.evolution.fsm.AuthenticatedPlayer;
 import fr.keyser.evolution.fsm.GameBuilder;
 import fr.keyser.evolution.fsm.GameRef;
 import fr.keyser.evolution.fsm.GameResolver;
@@ -27,8 +28,11 @@ import fr.keyser.evolution.model.PlayerScoreBoard;
 import fr.keyser.evolution.model.PlayersScoreBoard;
 import fr.keyser.fsm.impl.AutomatEngine;
 import fr.keyser.fsm.impl.AutomatInstanceContainerValue;
+import fr.keyser.security.AuthenticatedPlayer;
 
 public class JdbcGameResolver implements GameResolver {
+
+	private static final Logger logger = LoggerFactory.getLogger(JdbcGameResolver.class);
 
 	private final JdbcOperations jdbc;
 
@@ -127,7 +131,7 @@ public class JdbcGameResolver implements GameResolver {
 
 	@Override
 	@Transactional
-	public void addGame(ActiveGame active) {
+	public void addGame(ActiveGame active, AuthenticatedPlayer owner) {
 		EvolutionGameSettings settings = active.getSettings();
 
 		String sql = "insert into game(uuid, content, traits,quickplay, terminated) values (?,?,?,?,?)";
@@ -142,6 +146,9 @@ public class JdbcGameResolver implements GameResolver {
 				ref.getPlayers().stream()
 						.map(p -> new Object[] { p.getUuid(), p.getUserId(), ref.getUuid(), p.getIndex() })
 						.collect(Collectors.toList()));
+
+		logger.info("Creating game {} with {}", ref.getUuid(), settings);
+
 	}
 
 }

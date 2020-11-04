@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fr.keyser.fsm.impl.AutomatEngine;
+import fr.keyser.security.AuthenticatedPlayer;
 
 public class CachedGameResolver implements GameResolver {
 
@@ -70,10 +71,9 @@ public class CachedGameResolver implements GameResolver {
 	}
 
 	@Override
-	public void addGame(ActiveGame active) {
-		delegated.addGame(active);
+	public void addGame(ActiveGame active, AuthenticatedPlayer owner) {
+		delegated.addGame(active, owner);
 		cacheGame.put(active.getRef().getUuid(), active);
 
 	}
-
 }

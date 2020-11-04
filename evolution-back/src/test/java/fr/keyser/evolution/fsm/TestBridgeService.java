@@ -35,6 +35,7 @@ import fr.keyser.fsm.impl.AutomatEngine;
 import fr.keyser.fsm.impl.AutomatInstanceContainerValue;
 import fr.keyser.fsm.impl.AutomatInstanceValue;
 import fr.keyser.fsm.impl.graph.AutomatGraph;
+import fr.keyser.security.AuthenticatedPlayer;
 
 public class TestBridgeService {
 
@@ -80,8 +81,9 @@ public class TestBridgeService {
 		deck.card(Trait.FERTILE);
 		deck.card(Trait.FERTILE);
 
+		AuthenticatedPlayer owner = new AuthenticatedPlayer("pak", "PAK");
 		ActiveGame created = builder.create(new EvolutionGameSettings(Arrays.asList(ap0, ap1), true), deck.deck());
-		resolver.addGame(created);
+		resolver.addGame(created, owner);
 
 		String p0 = created.getPlayers().get(0).getUuid();
 		String p1 = created.getPlayers().get(1).getUuid();
@@ -186,7 +188,7 @@ public class TestBridgeService {
 		GameResolver resolver = new GameResolver() {
 
 			@Override
-			public void addGame(ActiveGame active) {
+			public void addGame(ActiveGame active, AuthenticatedPlayer owner) {
 
 			}
 

@@ -11,9 +11,15 @@ import fr.keyser.evolution.fsm.CachedGameResolver;
 import fr.keyser.evolution.fsm.GameBuilder;
 import fr.keyser.evolution.fsm.jdbc.JdbcGameResolver;
 import fr.keyser.evolution.overview.JdbcGameOverviewRepository;
+import fr.keyser.security.AuthenticatedPlayerRepository;
 
 @Configuration
 public class JdbcConfiguration {
+
+	@Bean
+	public AuthenticatedPlayerRepository authenticatedPlayerRepository(JdbcOperations jdbc) {
+		return new AuthenticatedPlayerRepository(jdbc);
+	}
 
 	@Bean
 	public JdbcGameOverviewRepository jdbcGameOverviewRepository(JdbcOperations jdbc, ObjectMapper objectMapper) {

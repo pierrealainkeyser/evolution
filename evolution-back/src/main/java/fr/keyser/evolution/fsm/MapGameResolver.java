@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import fr.keyser.fsm.impl.AutomatEngine;
+import fr.keyser.security.AuthenticatedPlayer;
 
 public class MapGameResolver implements GameResolver {
 
@@ -58,7 +59,7 @@ public class MapGameResolver implements GameResolver {
 	}
 
 	@Override
-	public void addGame(ActiveGame active) {
+	public void addGame(ActiveGame active, AuthenticatedPlayer owner) {
 		GameRef ref = active.getRef();
 		games.put(ref.getUuid(), new BoundGame(active));
 	}

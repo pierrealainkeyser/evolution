@@ -30,6 +30,7 @@ import fr.keyser.fsm.AutomatInstance;
 import fr.keyser.fsm.impl.AutomatEngine;
 import fr.keyser.fsm.impl.NoTransitionFound;
 import fr.keyser.fsm.impl.graph.AutomatGraph;
+import fr.keyser.security.AuthenticatedPlayer;
 
 public class TestEvolutionGraphBuilder {
 

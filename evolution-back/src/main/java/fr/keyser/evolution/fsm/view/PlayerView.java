@@ -2,8 +2,8 @@ package fr.keyser.evolution.fsm.view;
 
 import java.util.List;
 
-import fr.keyser.evolution.fsm.AuthenticatedPlayer;
 import fr.keyser.evolution.model.PlayerInputStatus;
+import fr.keyser.security.AuthenticatedPlayer;
 
 public class PlayerView {
 

@@ -1,5 +1,7 @@
 package fr.keyser.evolution.fsm;
 
+import fr.keyser.security.AuthenticatedPlayer;
+
 public class PlayerRef {
 
 	private final int index;

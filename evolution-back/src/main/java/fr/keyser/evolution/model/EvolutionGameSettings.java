@@ -3,7 +3,10 @@ package fr.keyser.evolution.model;
 import java.util.Collections;
 import java.util.List;
 
-import fr.keyser.evolution.fsm.AuthenticatedPlayer;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import fr.keyser.security.AuthenticatedPlayer;
 
 public class EvolutionGameSettings {
 
@@ -17,7 +20,9 @@ public class EvolutionGameSettings {
 		this(players, quickplay, Collections.emptyList());
 	}
 
-	public EvolutionGameSettings(List<AuthenticatedPlayer> players, boolean quickplay, List<Trait> traits) {
+	@JsonCreator
+	public EvolutionGameSettings(@JsonProperty("players") List<AuthenticatedPlayer> players,
+			@JsonProperty("quickplay") boolean quickplay, @JsonProperty("traits") List<Trait> traits) {
 		this.players = players;
 		this.quickplay = quickplay;
 		this.traits = traits;
@@ -45,5 +50,10 @@ public class EvolutionGameSettings {
 
 	public List<Trait> getTraits() {
 		return traits;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("players=%s, quickplay=%s, traits=%s", players, quickplay, traits);
 	}
 }

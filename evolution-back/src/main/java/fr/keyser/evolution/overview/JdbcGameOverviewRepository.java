@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.keyser.evolution.model.Trait;
+import fr.keyser.security.AuthenticatedPlayer;
 
 public class JdbcGameOverviewRepository implements GameOverviewRepository {
 
@@ -39,7 +40,9 @@ public class JdbcGameOverviewRepository implements GameOverviewRepository {
 	}
 
 	@Override
-	public List<GameOverview> myGames(String userId) {
+	public List<GameOverview> myGames(AuthenticatedPlayer player) {
+
+		String userId = player.getId();
 
 		String sql = "select  g.uuid, g.created, g.quickplay, g.traits, g.terminated,p.player,  p.score, p.alpha  from game g inner join player p on g.uuid=p.game where p.user=?";
 
