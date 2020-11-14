@@ -2,6 +2,7 @@ package fr.keyser.evolution.model;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +26,8 @@ public class EvolutionGameSettings {
 			@JsonProperty("quickplay") boolean quickplay, @JsonProperty("traits") List<Trait> traits) {
 		this.players = players;
 		this.quickplay = quickplay;
-		this.traits = traits;
+		this.traits = Optional.ofNullable(traits)
+				.orElseGet(Collections::emptyList);
 	}
 
 	public List<AuthenticatedPlayer> getPlayers() {

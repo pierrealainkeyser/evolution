@@ -1,4 +1,4 @@
 /.gradle/
 /.vagrant/
 *.log
-/iaww.mv.db
+/*.mv.db
