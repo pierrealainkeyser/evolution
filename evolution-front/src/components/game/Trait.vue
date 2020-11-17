@@ -5,7 +5,7 @@
           <TraitIcon :trait="trait" :color="traitColor"  v-bind="attrs" v-on="on"/>
         </template>
         <span>{{traitTooltip}}</span>
-      </v-tooltip>
+</v-tooltip>
 </span>
 </template>
 
@@ -38,7 +38,7 @@ export default {
   mixins: [boundingBox],
   computed: {
     ...mapGetters({
-      current: 'action/current',
+      currents: 'action/currents',
     }),
     traitId() {
       return `${this.specie}-${this.trait}`;
@@ -48,9 +48,14 @@ export default {
     },
 
     traitColor() {
-      const act = this.current;
+      const theme = this.$vuetify.theme.defaults.dark;
+      if (this.additional)
+        return theme.success;
+
+
+      const act = this.currents && this.currents.length ? this.currents[0] : null;
       if (act) {
-        const theme = this.$vuetify.theme.defaults.dark;
+
         if (act.violations && act.violations.some(v => 'trait' === v.type && v.trait === this.traitId && v.disabled))
           return theme.warning;
 

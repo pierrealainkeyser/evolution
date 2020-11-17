@@ -7,13 +7,13 @@
 
 <span class="internal">
       <span class="traits">
-        <Trait ref="traits" :key="`trait-${i}`" v-for="(t,i) in traits" :specie="id" :index="t.index" :trait="t.trait" :additional="t.additional || false" @enter="enterTrait" @leave="leaveTrait" />
+        <Trait ref="traits" :key="`trait-${i}`" v-for="(t,i) in effectiveTraits" :specie="id" :index="t.index" :trait="t.trait" :additional="t.additional || false" @enter="enterTrait" @leave="leaveTrait" />
       </span>
 
 <span class="stats">
-        <span ref="size" @mouseenter="enterStat('size')" @mouseleave="leaveStat('size')" :class="sizeColor?`${sizeColor}--text`:null"><v-icon :color="sizeColor">mdi-ruler</v-icon>{{size}}</span>
+        <span ref="SIZE" @mouseenter="enterStat('SIZE')" @mouseleave="leaveStat('SIZE')" :class="sizeColor?`${sizeColor}--text`:null"><v-icon :color="sizeColor">mdi-ruler</v-icon>{{effectiveSize}}</span>
 <span class="spacer"></span>
-<span ref="population"  @mouseenter="enterStat('population')" @mouseleave="leaveStat('population')" :class="populationColor?`${populationColor}--text`:null"><v-icon :color="populationColor">mdi-sigma</v-icon>{{effectivePopulation}}</span>
+<span ref="POPULATION"  @mouseenter="enterStat('POPULATION')" @mouseleave="leaveStat('POPULATION')" :class="populationColor?`${populationColor}--text`:null"><v-icon :color="populationColor">mdi-sigma</v-icon>{{effectivePopulation}}</span>
 </span>
 
 <span class="food">
@@ -33,7 +33,8 @@
 <script>
 import {
   mapActions,
-  mapGetters
+  mapGetters,
+  mapState
 } from 'vuex';
 import colors from 'vuetify/lib/util/colors';
 import boundingBox from '@/mixins/boundingBox';
@@ -66,17 +67,19 @@ export default {
   mixins: [boundingBox],
   computed: {
     carnivorous() {
-      return this.traits.some(t => t.trait === 'CARNIVOROUS');
+      return this.effectiveTraits.some(t => t.trait === 'CARNIVOROUS');
     },
+
     fatTissue() {
-      return this.traits.some(t => t.trait === 'FAT_TISSUE');
+      return this.effectiveTraits.some(t => t.trait === 'FAT_TISSUE');
     },
+
     eaten() {
       const out = [];
       const additional = this.food + this.deltaFood;
       for (var i = 0; i < 6; ++i) {
         const index = i + 1;
-        const enabled = index <= this.population;
+        const enabled = index <= this.effectivePopulation;
         const filled = index <= this.food;
 
         if (enabled || filled) {
@@ -101,12 +104,13 @@ export default {
       }
       return out;
     },
+
     fatEaten() {
       const out = [];
       const additional = (this.fat + this.deltaFat);
       for (var i = 0; i < 6; ++i) {
         const index = i + 1;
-        const enabled = index <= this.size;
+        const enabled = index <= this.effectiveSize;
         const filled = index <= this.fat;
         const altered = index > this.fat && index <= additional;
         const icon = (filled || altered) ? 'mdi-peanut' : 'mdi-peanut-outline';
@@ -118,107 +122,178 @@ export default {
       }
       return out;
     },
+
     wrapperStyle() {
       const theme = this.$vuetify.theme.defaults.dark;
-      if (this.currentOrStartedOnSelf) {
+      if (this.possibleSource) {
         return {
           backgroundColor: colors.grey.darken3,
           borderColor: theme.primary
         };
-
-      } else if (this.currentTargetOnSelf) {
+      } else if (this.currentTarget) {
         return {
           backgroundColor: colors.grey.darken3,
-          borderColor: (this.currentTargetOnSelf.valid ? theme.success : theme.error)
+          borderColor: (this.currentInteraction.valid ? theme.success : theme.error)
         };
-      } else if (this.startOnSelf) {
+      } else if (this.possibleTarget) {
         return {
           borderColor: colors.grey.darken3,
+          backgroundColor: colors.grey.darken4
         };
       }
+
       return null;
     },
+
     iconColor() {
-      if (this.currentOrStartedOnSelf)
+      if (this.possibleSource)
         return 'primary';
-      else if (this.currentTargetOnSelf)
-        if (this.currentTargetOnSelf.valid)
+      else if (this.currentTarget) {
+        if (['target-size', 'target-population', 'target-trait'].includes(this.currentInteraction.interaction))
+          return colors.grey.darken4;
+
+        if (this.currentInteraction.valid)
           return 'success';
         else
           return 'error';
-      else
+      } else
         return colors.grey.darken3;
     },
-    startOnSelf() {
-      return this.startOnSpecie === this.id;
-    },
+
     iconStyle() {
       const style = {};
-      if (this.onSelf) {
-        if (this.startOnSelf) {
-          style.transform = 'scale(1.5)';
-        } else if (this.currentTargetOnSelf && this.current.valid) {
-          style.transform = 'scale(1.5)';
-        }
-      }
+      if (this.possibleSource || this.currentTarget || this.possibleStart)
+        style.transform = 'scale(1.5)';
       return style;
     },
-    effectsOnSelf() {
-      const act = this.current;
-      var found = null;
-      if (act && act.valid && act.effects) {
-        found = act.effects.filter(e => e.specie === this.id);
+
+    interactionEffects() {
+      const inter = this.currentInteraction;
+      if (inter && inter.effects)
+        return inter.effects;
+      return [];
+    },
+
+    effectiveTraits() {
+      if (this.currentTarget) {
+        if (this.currentInteraction.type === 'add-trait') {
+          return [...this.traits, {
+            index: this.traits.length,
+            trait: this.currentInteraction.trait,
+            additional: true
+          }];
+        }
+
+        if (this.currentInteraction.type === 'replace-trait') {
+          const out = [...this.traits];
+          const index = this.currentInteraction.index;
+          out[index] = {
+            index: index,
+            trait: this.currentInteraction.trait,
+            additional: true
+          }
+          return out;
+        }
       }
 
-      return found || [];
+      return this.traits;
     },
+
+    effectiveSize() {
+      const found = this.interactionEffects.find(e => e.size > -1);
+      if (found)
+        return found.size;
+
+      if (this.currentInteraction && ['target-size'].includes(this.currentInteraction.interaction))
+        return this.currentInteraction.size;
+
+      return this.size;
+    },
+
     effectivePopulation() {
-      const found = this.effectsOnSelf.find(e => e.population > -1);
+      const found = this.interactionEffects.find(e => e.population > -1);
       if (found)
         return found.population;
+
+      if (this.currentInteraction && ['target-population'].includes(this.currentInteraction.interaction))
+        return this.currentInteraction.population;
+
       return this.population;
     },
+
     populationColor() {
+      if (this.currentInteraction && ['target-population'].includes(this.currentInteraction.interaction))
+        return 'success';
+
       if (this.effectivePopulation != this.population)
         return 'primary';
+
       return null;
     },
+
     sizeColor() {
-      if (this.currentTargetOnSelf && this.current.violations && this.current.violations.some(v => 'size' === v.type))
+      if (this.currentInteraction && this.currentTarget && this.currentInteraction.violations && this.currentInteraction.violations.some(v => 'size' === v.type))
         return 'error';
+
+      if (this.currentInteraction && ['target-size'].includes(this.currentInteraction.interaction))
+        return 'success';
+
       return null;
     },
+
     deltaFat() {
-      const found = this.effectsOnSelf.find(e => e.deltaFat > 0);
+      const found = this.interactionEffects.find(e => e.deltaFat > 0);
       if (found)
         return found.deltaFat;
       return 0;
     },
+
     deltaFood() {
-      const found = this.effectsOnSelf.find(e => e.deltaFood > 0);
+      const found = this.interactionEffects.find(e => e.deltaFood > 0);
       if (found)
         return found.deltaFood;
 
       return 0;
     },
-    onSelf() {
-      return this.id === this.specieId;
-    },
-    currentOrStartedOnSelf() {
-      return this.id === this.specieSource || (this.current && this.current.specie === this.id);
-    },
-    currentTargetOnSelf() {
-      if (this.current && this.current.target === this.id)
-        return this.current;
+
+    currentInteraction() {
+      if (this.currents)
+        return this.findFirstInteraction(this.currents);
 
       return null;
     },
+
+    possibleInteraction() {
+      if (this.starteds)
+        return this.findFirstInteraction(this.starteds);
+
+      return null;
+    },
+
+    possibleStart() {
+      return this.startOnSpecie === this.id;
+    },
+
+    possibleSource() {
+      return this.possibleInteraction && this.possibleInteraction.interaction === 'source-specie';
+    },
+
+    possibleTarget() {
+      return this.possibleInteraction && this.possibleInteraction.valid && ['target-specie', 'target-size', 'target-population', 'target-trait'].includes(this.possibleInteraction.interaction);
+    },
+
+    currentTarget() {
+      return this.currentInteraction && ['target-specie', 'target-size', 'target-population', 'target-trait'].includes(this.currentInteraction.interaction);
+    },
+
+    ...mapState({
+      starteds: state => state.action.starteds
+    }),
+
     ...mapGetters({
-      startOnSpecie: 'action/startOnSpecie',
-      specieSource: 'action/specieSource',
-      current: 'action/current',
-      specieId: 'selection/specieId'
-    })
+      currents: 'action/currents',
+      startOnSpecie: 'action/startOnSpecie'
+    }),
   },
   methods: {
     ...mapActions({
@@ -229,6 +304,74 @@ export default {
       doEnterStat: 'selection/enterStat',
       doLeaveStat: 'selection/leaveStat'
     }),
+
+    findFirstInteraction(actions) {
+      const mapped = actions.flatMap(a => {
+        const inter = this.computeInteraction(a);
+        if (inter) {
+          return [inter];
+        }
+        return [];
+      });
+      if (mapped.length > 0)
+        return mapped[0];
+
+      return null;
+    },
+
+    computeInteraction(action) {
+      const id = this.id;
+      const sizeId = `SIZE-${id}`;
+      const populationId = `POPULATION-${id}`;
+
+      function init(more) {
+
+        const effects = action.effects ? action.effects.filter(e => e.specie === id) : null;
+        const out = {
+          ...more,
+          type: action.type,
+          valid: action.valid,
+          violations: action.violations,
+          effects
+        };
+
+        if ('add-trait' === action.type)
+          out.trait = action.trait;
+
+        return out;
+      }
+
+      if (action.specie === id) {
+        const traitsId = this.traits.map(t => `${id}-${t.trait}`);
+        if (traitsId.includes(action.target)) {
+          return init({
+            interaction: 'target-trait',
+            index: action.index,
+            trait: action.trait
+          });
+        }
+
+        return init({
+          interaction: 'source-specie'
+        });
+      } else if (action.target === id) {
+        return init({
+          interaction: 'target-specie'
+        });
+      } else if (action.target === sizeId) {
+        return init({
+          interaction: 'target-size',
+          size: action.size
+        });
+      } else if (action.target === populationId) {
+        return init({
+          interaction: 'target-population',
+          population: action.population
+        });
+      }
+
+      return null;
+    },
 
     leave() {
       this.leaveSpecie(this.prepareBox());

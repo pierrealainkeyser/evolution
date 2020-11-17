@@ -1,5 +1,5 @@
 <template>
-<v-container @mousemove="mousemove" @mousedown="mousedown" @mouseup="mouseup" @mouseleave="mouseup" fluid class="area pa-0" ref="container" :style="containerStyle">
+<v-container  @mousedown="mousedown" @mouseup="mouseup" fluid class="area pa-0" ref="container" :style="containerStyle">
   <v-btn icon small @click="incRotation(1)">
     <v-icon>mdi-rotate-left</v-icon>
   </v-btn>
@@ -12,6 +12,8 @@
 
 
   <Pool ref="pool" class="pool" :style="poolStyle" />
+
+  <Hand/>
 </v-container>
 </template>
 
@@ -23,13 +25,15 @@ import {
 } from 'vuex';
 
 import Player from '@/components/game/Player';
+import Hand from '@/components/game/Hand';
 import Pool from '@/components/game/Pool';
 
 export default {
-  name: 'HelloWorld',
+  name: 'GameView',
   components: {
     Player,
-    Pool
+    Pool,
+    Hand
   },
   data() {
     return {
@@ -65,13 +69,13 @@ export default {
       const style = {};
       if (this.activable) {
         if (this.activable.valid)
-          style.cursor = 'crosshair';
+          style.cursor = 'pointer';
         else
-          style.cursor = 'move';
+          style.cursor = 'grab';
       } else if (this.startable) {
         style.cursor = 'pointer';
       } else if (this.started) {
-        style.cursor = 'move';
+        style.cursor = 'grab';
       }
 
       return style;

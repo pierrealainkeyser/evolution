@@ -1,7 +1,11 @@
 <template>
 <div>
-  <div :style="playerStyle" class="playerWrapper">
-    <v-icon>{{playerIcon}}</v-icon> {{player.name}}
+  <div class="playerWrapper">
+    <div class="d-flex header" :class="playerClass">
+      <v-icon>{{playerIcon}}</v-icon> <span>{{player.name}}</span>
+      <v-spacer />
+      <v-icon small v-if="!isMyself">{{player.connected?'mdi-wifi':'mdi-wifi-off'}}</v-icon>
+    </div>
   </div>
   <transition-group name="specie" tag="div" class="d-flex">
     <Specie v-for="s in species" :key="s.id" :id="s.id" :size="s.size" :population="s.population" :food="s.food" :fat="s.fat" :traits="s.traits" />
@@ -14,7 +18,6 @@ import {
   mapGetters,
   mapState
 } from 'vuex';
-import colors from 'vuetify/lib/util/colors';
 import Specie from '@/components/game/Specie';
 
 export default {
@@ -49,15 +52,14 @@ export default {
 
       return 'mdi-account-outline';
     },
-    playerStyle() {
-      const style = {};
+    playerClass() {
+      const classes = [];
       if (this.isMyself) {
-        style['border-top'] = '1px solid white';
-        style['border-left'] = '2px solid white';
-        style.backgroundColor = colors.grey.darken3;
+        classes.push('myself');
       }
+      classes.push(this.player.status);
+      return classes.join(" ");
 
-      return style;
     }
   }
 }
@@ -68,7 +70,38 @@ export default {
   user-select: none;
   padding-left: 2px;
   padding-top: 2px;
-  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.header.myself {
+  border-top: 1px solid white;
+  border-left: 2px solid white;
+}
+
+.header {
+  position: relative;
+  padding: 2px;
+}
+
+.header > span{
+  z-index: 1;
+}
+
+.header::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0%;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+  background: rgb(66, 66, 66);
+  z-index: 0;
+}
+
+.header.active::before {
+  width: 100%;
 }
 
 .specie-enter-active {

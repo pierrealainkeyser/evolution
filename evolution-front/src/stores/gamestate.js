@@ -108,32 +108,52 @@ const species = [{
 ];
 
 const players = [{
-    name: 'Player 1'
+    name: 'Player 1',
+    status:'active',
+    connected: true
   },
   {
-    name: 'Player 2'
+    name: 'Player 2',
+    status:'idle',
+    connected: true
   },
   {
-    name: 'Player 3'
+    name: 'Player 3',
+    status:'idle',
+    connected: true
   },
   {
-    name: 'Player 4'
+    name: 'Player 4',
+    status:'idle',
+    connected: true
   },
   {
-    name: 'Player 5'
+    name: 'Player 5',
+    status:'idle',
+    connected: true
   }
 ];
 
 const hands = [{
-
-}];
+    id: "c1",
+    trait: "CARNIVOROUS",
+    food: 2
+  },
+  {
+    id: "c2",
+    trait: "INTELLIGENT",
+    food: 4
+  }
+];
 
 export default {
   namespaced: true,
   state: {
+    loaded: true,
     species: species,
     players: players,
     hands: hands,
+    phase: 'Feeding',
     pool: {
       food: 5,
       cards: 0,

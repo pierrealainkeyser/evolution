@@ -7,6 +7,7 @@ export default {
   state: {
     id: null,
     name: null,
+    connected: false,
     to: null
   },
   mutations: {

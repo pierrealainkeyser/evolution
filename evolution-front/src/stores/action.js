@@ -19,9 +19,22 @@ const possibles = [{
   {
     type: 'intelligent-feed',
     specie: '1p0',
+    valid: true,
+    card: 'c1',
     effects: [{
       specie: '1p0',
-      traits: ['INTELIGENT', 'FORAGING'],
+      traits: ['INTELLIGENT', 'FORAGING'],
+      deltaFood: 3,
+    }]
+  },
+  {
+    type: 'intelligent-feed',
+    specie: '1p0',
+    valid: true,
+    card: 'c2',
+    effects: [{
+      specie: '1p0',
+      traits: ['INTELLIGENT', 'FORAGING'],
       deltaFood: 3,
     }]
   },
@@ -135,6 +148,8 @@ export default {
     starteds: null,
     playing: null,
     type: 'FEEDING',
+    //type: 'PLAY_CARD',
+    //type: 'SELECT_FOOD'
   },
   mutations: {
     setStarteds: (state, starteds) => {
@@ -143,8 +158,14 @@ export default {
   },
   actions: {
     mouseup: ({
-      commit
+      commit,
+      getters
     }) => {
+
+      const act = getters.activable;
+      if (act && act.valid)
+        console.log('activate', JSON.parse(JSON.stringify(act)));
+
       commit('setStarteds', null);
     },
     mousedown: ({
@@ -152,13 +173,76 @@ export default {
       state,
       commit,
       getters,
-      //rootGetters
+      rootGetters,
+      rootState
     }) => {
       if (!state.starteds) {
         const startOnSpecie = getters.startOnSpecie;
+        const startOnCard = getters.startOnCard;
         if (startOnSpecie) {
           const starteds = state.possibles.filter(p => startOnSpecie === p.specie);
           commit('setStarteds', starteds);
+        } else if (startOnCard) {
+          if ('SELECT_FOOD' === state.type) {
+            // TODO
+          } else {
+            // TODO
+            const myself = rootState.gamestate.myself;
+            const species = rootGetters['gamestate/players'][myself].species;
+            const starteds = [];
+
+            species.filter(s => s.size < 6)
+              .forEach(s => {
+                starteds.push({
+                  type: 'increase-size',
+                  card: startOnCard.id,
+                  target: `SIZE-${s.id}`,
+                  size: s.size + 1,
+                  valid: true
+                });
+              });
+
+            species.filter(s => s.population < 6)
+              .forEach(s => {
+                starteds.push({
+                  type: 'increase-population',
+                  card: startOnCard.id,
+                  target: `POPULATION-${s.id}`,
+                  population: s.population + 1,
+                  valid: true
+                });
+              });
+
+            species.forEach(s => {
+              if (!s.traits.some(t => t.trait === startOnCard.trait)) {
+                const len = s.traits.length;
+                for (var i = 0; i < len; ++i) {
+                  starteds.push({
+                    type: 'replace-trait',
+                    card: startOnCard.id,
+                    index: i,
+                    trait: startOnCard.trait,
+                    target: `${s.id}-${s.traits[i].trait}`,
+                    specie: s.id,
+                    valid: true
+                  });
+                }
+
+                if (len < 3) {
+                  starteds.push({
+                    type: 'add-trait',
+                    card: startOnCard.id,
+                    trait: startOnCard.trait,
+                    target: s.id,
+                    valid: true
+                  });
+                }
+              }
+            });
+
+
+            commit('setStarteds', starteds);
+          }
         }
       }
     },
@@ -176,32 +260,62 @@ export default {
       }
       return null;
     },
-    current: (state, getters) => {
+    startOnCard: (state, getters, rootState) => {
+      if (('SELECT_FOOD' === state.type || 'PLAY_CARD' === state.type) && !state.starteds && state.possibles) {
+        return rootState.selection.card;
+      }
+      return null;
+    },
+
+    currents: (state, getters) => {
       if (getters.activable)
-        return getters.activable;
+        return [getters.activable];
 
       return state.playing;
     },
-    activable: (state, getters, rootState, rootGetters) => {
-      if ('FEEDING' === state.type && state.starteds) {
-        if (getters.startedsType.includes('attack'))
-          return findSpecieAction(state.starteds, rootGetters, false);
 
-        if (getters.startedsType.includes('feed')) {
-          if (rootGetters['selection/pool']) {
-            return state.starteds.find(s => s.type === 'feed');
+    activable: (state, getters, rootState, rootGetters) => {
+      if (state.starteds) {
+        if ('FEEDING' === state.type) {
+          if (getters.startedsType.includes('attack'))
+            return findSpecieAction(state.starteds, rootGetters, false);
+
+          if (getters.startedsType.includes('feed')) {
+            if (rootGetters['selection/pool']) {
+              return state.starteds.find(s => s.type === 'feed');
+            }
           }
+
+          if (getters.startedsType.includes('intelligent-feed')) {
+            const cardId = rootGetters['selection/cardId'];
+            if (cardId) {
+              return state.starteds.find(s => s.type === 'intelligent-feed' && s.card === cardId);
+            }
+
+          }
+        } else if ('PLAY_CARD' === state.type) {
+          const onStat = rootState.selection.stat;
+          if (onStat) {
+            const specieId = rootGetters['selection/specieId'];
+            const target = `${onStat.name}-${specieId}`;
+            return state.starteds.find(s => s.target === target);
+          }
+
+          const onlySpecieId = rootGetters['selection/onlySpecieId'];
+          if (onlySpecieId)
+            return state.starteds.find(p => onlySpecieId === p.target);
+
+
+          const traitId = rootGetters['selection/traitId'];
+          if (traitId)
+            return state.starteds.find(p => traitId === p.target);
         }
+
+
       }
       return null;
     },
-    specieSource: (state) => {
-      const starteds = state.starteds;
-      if (starteds && starteds.length) {
-        return starteds[0].specie;
-      }
-      return null;
-    },
+
     startedsType: (state) => {
       const starteds = state.starteds;
       if (starteds) {

@@ -5,6 +5,7 @@ export default {
     specie: null,
     trait: null,
     stat: null,
+    card: null,
     pool: false,
     mouse: {
       x: 0,
@@ -23,6 +24,9 @@ export default {
     },
     setStat: (state, stat) => {
       state.stat = stat;
+    },
+    setCard: (state, card) => {
+      state.card = card;
     },
     setRotation: (state, rotation) => {
       state.rotation = rotation;
@@ -46,6 +50,20 @@ export default {
         x: evt.clientX,
         y: evt.clientY
       });
+    },
+    enterCard: ({
+      commit
+    }, evt) => {
+      commit('setCard', {
+        id: evt.card,
+        trait: evt.trait,
+        food: evt.food,
+      });
+    },
+    leaveCard: ({
+      commit
+    }) => {
+      commit('setCard', null);
     },
     enterSpecie: ({
       commit
@@ -101,12 +119,12 @@ export default {
     },
   },
   getters: {
-    pool: state=>{
+    pool: state => {
       return state.pool;
     },
-    
+
     onlySpecieId: state => {
-      if (state.specie && !state.trait && !state.stat) {
+      if (state.specie && (!state.trait) && (!state.stat)) {
         return state.specie.id;
       }
       return null;
@@ -115,6 +133,20 @@ export default {
     specieId: state => {
       if (state.specie) {
         return state.specie.id;
+      }
+      return null;
+    },
+
+    traitId: state => {
+      if (state.specie && state.trait) {
+        return state.specie.id+'-'+state.trait.name;
+      }
+      return null;
+    },
+
+    cardId: state => {
+      if (state.card) {
+        return state.card.id;
       }
       return null;
     }

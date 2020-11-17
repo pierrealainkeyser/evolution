@@ -1,14 +1,14 @@
-import HelloWorld from '@/views/HelloWorld';
+import GameView from '@/views/GameView';
 import LoginView from '@/views/LoginView';
 
 
 
 export default [{
     path: '/',
-    component: HelloWorld
+    component: GameView
   },
   {
     path: '/login',
     component: LoginView
-  }  
+  }
 ];
