@@ -11,7 +11,7 @@
     </div>
   </div>
   <transition-group name="specie" tag="div" class="d-flex">
-    <AddSpecieArea v-if="isMyself" key="l" position="left" :playerId="playerId" />
+    <AddSpecieArea v-if="isMyself" key="l" position="left" class="left" :playerId="playerId" />
     <Specie v-for="s in species" :key="s.id" :id="s.id" :size="s.size" :population="s.population" :food="s.food" :fat="s.fat" :traits="s.traits" />
     <AddSpecieArea v-if="isMyself" key="r" position="right" :playerId="playerId" />
   </transition-group>
@@ -41,8 +41,9 @@ export default {
       myself: state => state.gamestate.myself
     }),
     ...mapGetters({
-      players: 'gamestate/players'
+      players: 'gamestate/players',
     }),
+
     player() {
       return this.players[this.playerId];
     },
@@ -67,7 +68,9 @@ export default {
       if (this.isMyself) {
         classes.push('myself');
       }
-      classes.push(this.player.status);
+      const status = this.player.status;
+      if (['select_food', 'play_cards', 'feeding'].includes(status))
+        classes.push('active');
       return classes.join(" ");
 
     }
@@ -78,7 +81,6 @@ export default {
 <style scoped>
 .playerWrapper {
   user-select: none;
-  padding-left: 2px;
   padding-top: 2px;
   transition: background-color 0.2s ease-in-out;
 }
@@ -86,11 +88,14 @@ export default {
 .header.myself {
   border-top: 1px solid white;
   border-left: 2px solid white;
+
 }
 
 .header {
   position: relative;
   padding: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .header>span {
@@ -114,13 +119,15 @@ export default {
   width: 100%;
 }
 
-.specie-enter-active {
+.specie.specie-enter-active {
   animation: specie 0.2s ease-in-out;
 }
 
-.specie-leave-active {
+.specie.specie-leave-active {
   animation: specie 0.2s reverse;
 }
+
+
 
 @keyframes specie {
   0% {

@@ -1,15 +1,20 @@
 <template>
 <v-system-bar class="text-uppercase">
-
+  <template  v-if="connecting">
+      <v-icon>mdi-cloud-sync-outline</v-icon>
+  </template>
   <template v-if="loaded">
-    <span>{{phase}}</span>
+    <span>{{stepLabel}}</span>
     <v-icon>mdi-chevron-right</v-icon>
 
-    <v-chip v-for="(a,i) in actions" :key="`action-${i}`" label x-small :color="a.color" class="mr-1">
-      <v-avatar left>
-        <v-icon small>{{a.icon}}</v-icon>
-      </v-avatar>{{a.label}}
-    </v-chip>
+
+
+      <v-chip v-for="(a) in actions" :key="`action-${a.label}`" label x-small :color="a.color" class="action mr-1">
+        <v-avatar left>
+          <v-icon small>{{a.icon}}</v-icon>
+        </v-avatar>{{a.label}}
+      </v-chip>
+
   </template>
   <v-spacer></v-spacer>
   <v-icon>{{connected?'mdi-wifi':'mdi-wifi-off'}}</v-icon>
@@ -61,14 +66,18 @@ function iconFor(actionType) {
 export default {
   computed: {
     ...mapState({
-      loaded: state => state.gamestate.loaded,
-      phase: state => state.gamestate.phase,
+      loaded: state => state.io.loaded,
+      connecting: state => state.io.connecting,
+      step: state => state.gamestate.step,
       connected: state => state.user.connected
     }),
     ...mapGetters({
       currents: 'action/currents',
       startedsType: 'action/startedsType'
     }),
+    stepLabel() {
+      return this.step.replace(/_/g, ' ');
+    },
     current() {
       if (this.currents && this.currents.length) {
         return this.currents[0];

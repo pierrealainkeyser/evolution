@@ -90,7 +90,9 @@ export default {
       this.$emit('leave', this.prepareEvent());
     },
     enter() {
-      this.$emit('enter', this.prepareEvent());
+      if (!this.additional) {
+        this.$emit('enter', this.prepareEvent());
+      }
     }
   }
 }

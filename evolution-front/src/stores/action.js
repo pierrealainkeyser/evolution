@@ -6,7 +6,7 @@ function findSpecieAction(actions, rootGetters, specie = true) {
   return null;
 }
 
-const possibles = [{
+var possibles = [{
     type: 'feed',
     specie: '1p0',
     valid: true,
@@ -141,11 +141,14 @@ const possibles = [{
   }
 ];
 
+possibles = null;
+
 const getDefaultState = () => ({
   possibles: possibles,
   starteds: null,
   playing: null,
-  type: 'PLAY_CARD'
+  //type: 'PLAY_CARDS'
+  type: 'FEEDING'
   //type: 'SELECT_FOOD'
 });
 
@@ -160,42 +163,53 @@ export default {
     },
     resetState: (state) => {
       Object.assign(state, getDefaultState());
+    },
+    loadComplete: (state, evt) => {
+      state.possibles = evt.user.actions;
+
+      const game = evt.game;
+      const player = game.players[evt.user.myself];
+      state.type = player.status;
+    },
+    resetAction: (state) => {
+      state.type = null;
+      state.possibles = null;
     }
   },
   actions: {
-    mouseup: ({
+    mouseup({
       commit,
+      dispatch,
       getters
-    }) => {
-
-      return new Promise((resolve) => {
-        const act = getters.activable;
-        const performs = (act && act.valid) ? JSON.parse(JSON.stringify(act)) : null;
-        if (performs)
-          console.log('performs', performs);
-
-        commit('setStarteds', null);
-
-        resolve();
-      });
+    }) {
+      const act = getters.activable;
+      const performs = (act && act.valid) ? JSON.parse(JSON.stringify(act)) : null;
+      commit('setStarteds', null);
+      if (performs) {
+        return dispatch('io/emit', performs, {
+          root: true
+        });
+      } else {
+        return Promise.resolve(null);
+      }
     },
-    mousedown: ({
+    mousedown({
       //dispatch,
       state,
       commit,
       getters,
       rootGetters,
       rootState
-    }) => {
+    }) {
       if (!state.starteds) {
         const startOnSpecie = getters.startOnSpecie;
         const startOnCard = getters.startOnCard;
+
+
         if (startOnSpecie) {
           const starteds = state.possibles.filter(p => startOnSpecie === p.specie);
           commit('setStarteds', starteds);
         } else if (startOnCard) {
-
-
           if ('SELECT_FOOD' === state.type) {
             const starteds = [{
               type: 'select-food',
@@ -205,7 +219,7 @@ export default {
             commit('setStarteds', starteds);
 
 
-          } else if ('PLAY_CARD' === state.type) {
+          } else if ('PLAY_CARDS' === state.type) {
 
             const myself = rootState.gamestate.myself;
             const species = rootGetters['gamestate/players'][myself].species;
@@ -230,6 +244,7 @@ export default {
                   card: startOnCard.id,
                   target: `SIZE-${s.id}`,
                   size: s.size + 1,
+                  targetSpecie: s.id,
                   valid: true
                 });
               });
@@ -241,6 +256,7 @@ export default {
                   card: startOnCard.id,
                   target: `POPULATION-${s.id}`,
                   population: s.population + 1,
+                  targetSpecie: s.id,
                   valid: true
                 });
               });
@@ -256,6 +272,7 @@ export default {
                     trait: startOnCard.trait,
                     target: `${s.id}-${s.traits[i].trait}`,
                     specie: s.id,
+                    targetSpecie: s.id,
                     valid: true
                   });
                 }
@@ -267,12 +284,12 @@ export default {
                     trait: startOnCard.trait,
                     position: len,
                     target: s.id,
+                    targetSpecie: s.id,
                     valid: true
                   });
                 }
               }
             });
-
 
             commit('setStarteds', starteds);
           }
@@ -281,6 +298,10 @@ export default {
     },
   },
   getters: {
+    playcard: (state) => {
+      return 'PLAY_CARDS' === state.type;
+    },
+
     startable: (state, getters) => {
       return !!getters.startOnSpecie;
     },
@@ -294,7 +315,7 @@ export default {
       return null;
     },
     startOnCard: (state, getters, rootState) => {
-      if (('SELECT_FOOD' === state.type || 'PLAY_CARD' === state.type) && !state.starteds && state.possibles) {
+      if (('SELECT_FOOD' === state.type || 'PLAY_CARDS' === state.type) && !state.starteds) {
         return rootState.selection.card;
       }
       return null;
@@ -326,7 +347,7 @@ export default {
             }
 
           }
-        } else if ('PLAY_CARD' === state.type) {
+        } else if ('PLAY_CARDS' === state.type) {
           const onStat = rootState.selection.stat;
           if (onStat) {
             const specieId = rootGetters['selection/specieId'];

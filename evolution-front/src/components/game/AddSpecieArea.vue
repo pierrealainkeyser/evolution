@@ -22,21 +22,21 @@ export default {
     wrapperStyle() {
       const theme = this.$vuetify.theme.defaults.dark;
       const style = {}
-      if (this.position === 'left')
-        style.marginRight = '2px';
-      else
-        style.marginLeft = '2px';
 
       if (this.currentTarget || this.possibleTarget) {
         if (this.currentTarget) {
           style.backgroundColor = colors.grey.darken3;
+          style.borderLeft = "2px solid";
           style.borderColor = (this.currentInteraction.valid ? theme.success : theme.error);
         } else if (this.possibleTarget) {
-          style.borderColor = colors.grey.darken3;
           style.backgroundColor = colors.grey.darken4;
+          style.borderLeft = "2px solid";
+          style.borderColor = colors.grey.darken3;
         }
       } else {
         style.visibility = 'hidden';
+        if ('left' === this.position)
+          style.marginRight = '0px';
         style.width = '0px';
       }
       return style;
@@ -140,9 +140,12 @@ export default {
 <style scoped>
 .addSpecieArea {
   border-radius: 0px 0px 8px 0px;
-  border-left: 3px solid #121212;
   overflow: hidden;
   width: 32px;
   transition: background-color 0.2s cubic-bezier(0.4, 0, 0.6, 1), border .2ms cubic-bezier(0.4, 0, 0.6, 1), width 0.2s ease-in-out;
+}
+
+.addSpecieArea.left {
+  margin-right: 2px;
 }
 </style>

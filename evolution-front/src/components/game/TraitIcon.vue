@@ -33,8 +33,11 @@
           return 'mdi-rabbit';
 
 
-      if ('COLLABORATIVE' === this.trait)
+      if ('COOPERATION' === this.trait)
           return 'mdi-bee';
+
+        if ('DEFENSIVE_HERDING' === this.trait)
+              return 'mdi-human-queue ';
 
 
       if ('SCAVENGER' === this.trait)

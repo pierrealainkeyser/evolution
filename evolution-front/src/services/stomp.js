@@ -73,7 +73,7 @@ class StompService {
     callback(this);
   }
 
-  publish(destination, action) {
+  publish(destination, action) {    
     const msg = {
       destination,
       headers: {

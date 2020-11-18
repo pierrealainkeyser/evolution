@@ -1,4 +1,4 @@
-const species = [{
+var species = [{
     id: "0p0",
     size: 3,
     population: 4,
@@ -107,7 +107,7 @@ const species = [{
   }
 ];
 
-const players = [{
+var players = [{
     name: 'Player 1',
     status: 'active',
     connected: true,
@@ -140,7 +140,7 @@ const players = [{
   }
 ];
 
-const hands = [{
+var hands = [{
     id: "c1",
     trait: "CARNIVOROUS",
     food: 2
@@ -152,14 +152,23 @@ const hands = [{
   }
 ];
 
+var food = 5;
+
+species = [];
+players = [];
+hands = [];
+food = 0;
+
+
+
 const getDefaultState = () => ({
-  loaded: true,
   species: species,
   players: players,
   hands: hands,
-  phase: 'Feeding',
+  step: 'Feeding',
+  lastTurn: false,
   pool: {
-    food: 5,
+    food: food,
     cards: 0,
   },
   myself: 0
@@ -173,10 +182,28 @@ export default {
   mutations: {
     resetState: (state) => {
       Object.assign(state, getDefaultState());
-    }
-  },
-  actions: {
+    },
+    resetAction: (state) => {
+      state.players[state.myself].status = 'idle';
+    },
+    loadComplete: (state, evt) => {
+      const game = evt.game;
+      state.step = game.step;
+      state.lastTurn = game.lastTurn;
+      state.pool.food = game.foodPool.food;
+      state.pool.cards = game.foodPool.waiting;
+      state.species = game.players.flatMap(p => (p.species));
+      state.players = game.players.map(p => ({
+        name: p.player.name,
+        status: p.status.toLowerCase(),
+        connected: true, //TODO ailleurs
+        hands: p.inHands,
+      }));
 
+      const user = evt.user;
+      state.myself = user.myself;
+      state.hands = user.hand;
+    },
   },
   getters: {
     food: (state) => {

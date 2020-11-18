@@ -206,7 +206,7 @@ export default {
   width: 90px;
   padding: 17px 10px 10px 2px;
   border-radius: 0px 0px 8px 0px;
-  border-left: 3px solid #121212;
+  border-left: 2px solid #121212;
   overflow: hidden;
   transition: background-color 0.2s cubic-bezier(0.4, 0, 0.6, 1), border .2ms cubic-bezier(0.4, 0, 0.6, 1), width 0.2s ease-in-out;
 }

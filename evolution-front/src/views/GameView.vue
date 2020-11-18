@@ -1,19 +1,24 @@
 <template>
-<v-container  @mousedown="mousedown" @mouseup="mouseup" fluid class="area pa-0" ref="container" :style="containerStyle">
-  <v-btn icon small @click="incRotation(1)">
-    <v-icon>mdi-rotate-left</v-icon>
-  </v-btn>
-  <v-btn icon small @click="incRotation(-1)">
-    <v-icon>mdi-rotate-right</v-icon>
-  </v-btn>
+<v-container @mousedown="mousedown" @mouseup="mouseup" fluid class="area pa-0" ref="container" :style="containerStyle">
 
+  <v-fade-transition mode="out-in">
+    <div class="area" v-if="loaded">
+      <v-btn icon small @click="incRotation(1)">
+        <v-icon>mdi-rotate-left</v-icon>
+      </v-btn>
+      <v-btn icon small @click="incRotation(-1)">
+        <v-icon>mdi-rotate-right</v-icon>
+      </v-btn>
 
-  <Player ref="player" :playerId="index" class="player" v-for="(p,index) in players" :key="index" :style="computeStyle(index)" />
+      <Player ref="player" :playerId="index" class="player" v-for="(p,index) in players" :key="index" :style="computeStyle(index)" />
+      <Pool ref="pool" class="pool" :style="poolStyle" />
+      <Hand />
+    </div>
+    <v-progress-circular v-else class="loading" :style="poolStyle" indeterminate :size="100">
+      <v-icon large>mdi-cloud-sync-outline</v-icon>
+    </v-progress-circular>
+  </v-fade-transition>
 
-
-  <Pool ref="pool" class="pool" :style="poolStyle" />
-
-  <Hand/>
 </v-container>
 </template>
 
@@ -56,7 +61,9 @@ export default {
     ...mapState({
       players: state => state.gamestate.players,
       rotation: state => state.selection.rotation,
-      started: state => !!state.action.starteds
+      started: state => !!state.action.starteds,
+      loaded: state => state.io.loaded,
+      connecting: state => state.io.connecting,
     }),
     ...mapGetters({
       startable: 'action/startable',
@@ -103,6 +110,7 @@ export default {
         };
 
         this.$refs.player.forEach(e => {
+
           const w = e.$el.clientWidth;
           const h = e.$el.clientHeight;
           maxSizes.width = Math.max(maxSizes.width, w);
@@ -133,12 +141,15 @@ export default {
 
       if (Array.isArray(this.$refs.player)) {
         locations = locations.map((location, index) => {
-          const elem = this.$refs.player[index].$el;
-          if (elem.clientWidth && elem.clientHeight) {
-            return {
-              left: location.left - (elem.clientWidth / 2),
-              top: location.top - (elem.clientHeight / 2)
-            };
+          const player = this.$refs.player[index];
+          if (player) {
+            const elem = player.$el;
+            if (elem.clientWidth && elem.clientHeight) {
+              return {
+                left: location.left - (elem.clientWidth / 2),
+                top: location.top - (elem.clientHeight / 2)
+              };
+            }
           }
           return location;
         });
@@ -180,9 +191,11 @@ export default {
       this.container.height = container.clientHeight;
       this.container.width = container.clientWidth;
 
-      const pool = this.$refs.pool.$el;
-      this.pool.height = pool.clientHeight;
-      this.pool.width = pool.clientWidth;
+      if (this.$refs.pool) {
+        const pool = this.$refs.pool.$el;
+        this.pool.height = pool.clientHeight;
+        this.pool.width = pool.clientWidth;
+      }
     },
     updatingContainers() {
       this.$nextTick(() => this.updateContainers());
@@ -203,6 +216,10 @@ export default {
   height: 100%;
   overflow: hidden;
   position: relative;
+}
+
+.area>.loading {
+  position: absolute;
 }
 
 .player,
