@@ -109,28 +109,34 @@ const species = [{
 
 const players = [{
     name: 'Player 1',
-    status:'active',
-    connected: true
+    status: 'active',
+    connected: true,
+    hands: 2,
   },
   {
     name: 'Player 2',
-    status:'idle',
-    connected: true
+    status: 'idle',
+    connected: true,
+    hands: 3,
+
   },
   {
     name: 'Player 3',
-    status:'idle',
-    connected: true
+    status: 'idle',
+    connected: true,
+    hands: 4,
   },
   {
     name: 'Player 4',
-    status:'idle',
-    connected: true
+    status: 'idle',
+    connected: true,
+    hands: 1,
   },
   {
     name: 'Player 5',
-    status:'idle',
-    connected: true
+    status: 'idle',
+    connected: true,
+    hands: 0,
   }
 ];
 
@@ -146,22 +152,28 @@ const hands = [{
   }
 ];
 
+const getDefaultState = () => ({
+  loaded: true,
+  species: species,
+  players: players,
+  hands: hands,
+  phase: 'Feeding',
+  pool: {
+    food: 5,
+    cards: 0,
+  },
+  myself: 0
+});
+
+const state = getDefaultState();
+
 export default {
   namespaced: true,
-  state: {
-    loaded: true,
-    species: species,
-    players: players,
-    hands: hands,
-    phase: 'Feeding',
-    pool: {
-      food: 5,
-      cards: 0,
-    },
-    myself: 0
-  },
+  state,
   mutations: {
-
+    resetState: (state) => {
+      Object.assign(state, getDefaultState());
+    }
   },
   actions: {
 

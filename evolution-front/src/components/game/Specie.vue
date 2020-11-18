@@ -346,7 +346,7 @@ export default {
         if (traitsId.includes(action.target)) {
           return init({
             interaction: 'target-trait',
-            index: action.index,
+            index: action.position,
             trait: action.trait
           });
         }

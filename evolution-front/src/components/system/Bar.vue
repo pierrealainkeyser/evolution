@@ -47,6 +47,14 @@ function iconFor(actionType) {
     return 'mdi-pencil-plus-outline';
   }
 
+  if (actionType === 'select-food') {
+    return 'mdi-barley';
+  }
+
+  if (actionType === 'add-new-specie') {
+    return 'mdi-plus';
+  }
+
   return null;
 }
 

@@ -141,19 +141,25 @@ const possibles = [{
   }
 ];
 
+const getDefaultState = () => ({
+  possibles: possibles,
+  starteds: null,
+  playing: null,
+  type: 'PLAY_CARD'
+  //type: 'SELECT_FOOD'
+});
+
+const state = getDefaultState();
+
 export default {
   namespaced: true,
-  state: {
-    possibles: possibles,
-    starteds: null,
-    playing: null,
-    type: 'FEEDING',
-    //type: 'PLAY_CARD',
-    //type: 'SELECT_FOOD'
-  },
+  state,
   mutations: {
     setStarteds: (state, starteds) => {
       state.starteds = starteds;
+    },
+    resetState: (state) => {
+      Object.assign(state, getDefaultState());
     }
   },
   actions: {
@@ -162,11 +168,16 @@ export default {
       getters
     }) => {
 
-      const act = getters.activable;
-      if (act && act.valid)
-        console.log('activate', JSON.parse(JSON.stringify(act)));
+      return new Promise((resolve) => {
+        const act = getters.activable;
+        const performs = (act && act.valid) ? JSON.parse(JSON.stringify(act)) : null;
+        if (performs)
+          console.log('performs', performs);
 
-      commit('setStarteds', null);
+        commit('setStarteds', null);
+
+        resolve();
+      });
     },
     mousedown: ({
       //dispatch,
@@ -183,13 +194,34 @@ export default {
           const starteds = state.possibles.filter(p => startOnSpecie === p.specie);
           commit('setStarteds', starteds);
         } else if (startOnCard) {
+
+
           if ('SELECT_FOOD' === state.type) {
-            // TODO
-          } else {
-            // TODO
+            const starteds = [{
+              type: 'select-food',
+              card: startOnCard.id,
+              valid: true
+            }];
+            commit('setStarteds', starteds);
+
+
+          } else if ('PLAY_CARD' === state.type) {
+
             const myself = rootState.gamestate.myself;
             const species = rootGetters['gamestate/players'][myself].species;
-            const starteds = [];
+            const starteds = [{
+                type: 'add-new-specie',
+                card: startOnCard.id,
+                position: 'left',
+                valid: true
+              },
+              {
+                type: 'add-new-specie',
+                card: startOnCard.id,
+                position: 'right',
+                valid: true
+              }
+            ];
 
             species.filter(s => s.size < 6)
               .forEach(s => {
@@ -220,7 +252,7 @@ export default {
                   starteds.push({
                     type: 'replace-trait',
                     card: startOnCard.id,
-                    index: i,
+                    position: i,
                     trait: startOnCard.trait,
                     target: `${s.id}-${s.traits[i].trait}`,
                     specie: s.id,
@@ -233,6 +265,7 @@ export default {
                     type: 'add-trait',
                     card: startOnCard.id,
                     trait: startOnCard.trait,
+                    position: len,
                     target: s.id,
                     valid: true
                   });
@@ -309,10 +342,19 @@ export default {
           const traitId = rootGetters['selection/traitId'];
           if (traitId)
             return state.starteds.find(p => traitId === p.target);
+
+          const newSpecie = rootGetters['selection/newSpecie'];
+          if (newSpecie) {
+            return state.starteds.find(s => s.type === 'add-new-specie' && s.position === newSpecie);
+          }
+
+        } else if ('SELECT_FOOD' === state.type) {
+          if (rootGetters['selection/pool']) {
+            return state.starteds.find(s => s.type === 'select-food');
+          }
         }
-
-
       }
+
       return null;
     },
 

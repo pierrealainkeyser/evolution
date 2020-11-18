@@ -49,7 +49,7 @@ export default {
       return null;
     },
     cards() {
-      if (this.current && this.current.type === 'selectFood' && this.current.valid) {
+      if (this.current && this.current.type === 'select-food' && this.current.valid) {
         return this.cardsPool + 1;
       }
 
@@ -57,12 +57,12 @@ export default {
     },
     wrapperStyle() {
       const theme = this.$vuetify.theme.defaults.dark;
-      if (this.current && (this.current.type === 'feed' || this.current.type === 'selectFood')) {
+      if (this.current && (this.current.type === 'feed' || this.current.type === 'select-food' )) {
         return {
           backgroundColor: colors.grey.darken3,
           borderColor: (this.current.valid ? theme.success : theme.error)
         };
-      } else if (this.startedsType && (this.startedsType.includes('feed') || this.startedsType.includes('selectFood'))) {
+      } else if (this.startedsType && (this.startedsType.includes('feed') || this.startedsType.includes('select-food'))) {
         return {
           borderColor: colors.grey.darken3,
           backgroundColor: colors.grey.darken4

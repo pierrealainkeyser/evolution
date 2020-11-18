@@ -1,18 +1,26 @@
+const getDefaultState = () => ({
+  rotation: 0,
+  specie: null,
+  trait: null,
+  stat: null,
+  card: null,
+  newspecie: null,
+  pool: false,
+  mouse: {
+    x: 0,
+    y: 0
+  }
+});
+
+const state = getDefaultState();
+
 export default {
   namespaced: true,
-  state: {
-    rotation: 0,
-    specie: null,
-    trait: null,
-    stat: null,
-    card: null,
-    pool: false,
-    mouse: {
-      x: 0,
-      y: 0
-    }
-  },
+  state,
   mutations: {
+    resetState: (state) => {
+      Object.assign(state, getDefaultState());
+    },
     setPool: (state, pool) => {
       state.pool = pool;
     },
@@ -27,6 +35,9 @@ export default {
     },
     setCard: (state, card) => {
       state.card = card;
+    },
+    setNewspecie: (state, newspecie) => {
+      state.newspecie = newspecie;
     },
     setRotation: (state, rotation) => {
       state.rotation = rotation;
@@ -78,6 +89,7 @@ export default {
     }) => {
       commit('setSpecie', null);
     },
+
     enterTrait: ({
       commit
     }, evt) => {
@@ -117,6 +129,18 @@ export default {
     }) => {
       commit('setPool', false);
     },
+
+    enterSpecieArea: ({
+      commit
+    }, newspecie) => {
+      commit('setNewspecie', newspecie);
+    },
+    leaveSpecieArea: ({
+      commit
+    }) => {
+      commit('setNewspecie', null);
+    },
+
   },
   getters: {
     pool: state => {
@@ -130,6 +154,10 @@ export default {
       return null;
     },
 
+    newSpecie: state => {
+      return state.newspecie;
+    },
+
     specieId: state => {
       if (state.specie) {
         return state.specie.id;
@@ -139,7 +167,7 @@ export default {
 
     traitId: state => {
       if (state.specie && state.trait) {
-        return state.specie.id+'-'+state.trait.name;
+        return state.specie.id + '-' + state.trait.name;
       }
       return null;
     },

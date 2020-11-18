@@ -4,11 +4,16 @@
     <div class="d-flex header" :class="playerClass">
       <v-icon>{{playerIcon}}</v-icon> <span>{{player.name}}</span>
       <v-spacer />
-      <v-icon small v-if="!isMyself">{{player.connected?'mdi-wifi':'mdi-wifi-off'}}</v-icon>
+      <template v-if="!isMyself">
+        <v-icon small class="ml-2" color="grey lighten-1">mdi-cards</v-icon><span class="grey--text--lighten-1" > {{handSize}}</span>
+        <v-icon small class="ml-1" color="grey lighten-1">{{player.connected?'mdi-wifi':'mdi-wifi-off'}}</v-icon>
+    </template>
     </div>
   </div>
   <transition-group name="specie" tag="div" class="d-flex">
+    <AddSpecieArea v-if="isMyself" key="l" position="left" :playerId="playerId" />
     <Specie v-for="s in species" :key="s.id" :id="s.id" :size="s.size" :population="s.population" :food="s.food" :fat="s.fat" :traits="s.traits" />
+    <AddSpecieArea v-if="isMyself" key="r" position="right" :playerId="playerId" />
   </transition-group>
 </div>
 </template>
@@ -19,10 +24,12 @@ import {
   mapState
 } from 'vuex';
 import Specie from '@/components/game/Specie';
+import AddSpecieArea from '@/components/game/AddSpecieArea';
 
 export default {
   components: {
-    Specie
+    Specie,
+    AddSpecieArea
   },
   props: {
     playerId: {
@@ -41,6 +48,9 @@ export default {
     },
     species() {
       return this.player.species;
+    },
+    handSize() {
+      return this.player.hands;
     },
     isMyself() {
       return this.myself == this.playerId;
@@ -83,7 +93,7 @@ export default {
   padding: 2px;
 }
 
-.header > span{
+.header>span {
   z-index: 1;
 }
 

@@ -2,15 +2,22 @@ import stomp from '@/services/stomp';
 import axios from '@/services/axios';
 import router from '@/plugins/router';
 
+const getDefaultState = () => ({
+  id: null,
+  name: null,
+  connected: false,
+  to: null
+});
+
+const state = getDefaultState();
+
 export default {
   namespaced: true,
-  state: {
-    id: null,
-    name: null,
-    connected: false,
-    to: null
-  },
+  state,
   mutations: {
+    resetState: (state) => {
+      Object.assign(state, getDefaultState());
+    },
     set: (state, user) => {
       const v = user || {}
       state.id = v.id;
