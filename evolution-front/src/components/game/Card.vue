@@ -49,7 +49,7 @@ export default {
   mixins: [boundingBox],
   computed: {
     traitTooltip() {
-      return this.trait.replace(/_/g, ' ');
+      return this.$t(`game.trait.${this.trait}`);
     },
     wrapperStyle() {
       const theme = this.$vuetify.theme.defaults.dark;

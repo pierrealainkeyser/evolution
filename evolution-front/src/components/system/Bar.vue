@@ -1,19 +1,14 @@
 <template>
-<v-system-bar class="text-uppercase">
-  <template  v-if="connecting">
-      <v-icon>mdi-cloud-sync-outline</v-icon>
-  </template>
+<v-system-bar class="text-uppercase">  
   <template v-if="loaded">
     <span>{{stepLabel}}</span>
     <v-icon>mdi-chevron-right</v-icon>
 
-
-
-      <v-chip v-for="(a) in actions" :key="`action-${a.label}`" label x-small :color="a.color" class="action mr-1">
-        <v-avatar left>
-          <v-icon small>{{a.icon}}</v-icon>
-        </v-avatar>{{a.label}}
-      </v-chip>
+    <v-chip v-for="(a) in actions" :key="`action-${a.label}`" label x-small :color="a.color" class="action mr-1">
+      <v-avatar left>
+        <v-icon small>{{a.icon}}</v-icon>
+      </v-avatar>{{a.label}}
+    </v-chip>
 
   </template>
   <v-spacer></v-spacer>
@@ -67,7 +62,6 @@ export default {
   computed: {
     ...mapState({
       loaded: state => state.io.loaded,
-      connecting: state => state.io.connecting,
       step: state => state.gamestate.step,
       connected: state => state.user.connected
     }),
@@ -76,7 +70,7 @@ export default {
       startedsType: 'action/startedsType'
     }),
     stepLabel() {
-      return this.step.replace(/_/g, ' ');
+      return this.$t(`game.step.${this.step}`);
     },
     current() {
       if (this.currents && this.currents.length) {
@@ -106,7 +100,7 @@ export default {
   },
   methods: {
     formatAction(type) {
-      return type.replace(/-/g, ' ');
+      return this.$t(`game.action.${type}`);
     }
   }
 };

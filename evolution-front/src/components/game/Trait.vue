@@ -44,7 +44,7 @@ export default {
       return `${this.specie}-${this.trait}`;
     },
     traitTooltip() {
-      return this.trait.replace(/_/g, ' ');
+      return this.$t(`game.trait.${this.trait}`);
     },
 
     traitColor() {

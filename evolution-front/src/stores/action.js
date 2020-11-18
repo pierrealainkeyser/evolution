@@ -303,7 +303,7 @@ export default {
     },
 
     startable: (state, getters) => {
-      return !!getters.startOnSpecie;
+      return (!!getters.startOnSpecie) || (!!getters.startOnCard);
     },
     startOnSpecie: (state, getters, rootState, rootGetters) => {
       if ('FEEDING' === state.type && !state.starteds && state.possibles) {

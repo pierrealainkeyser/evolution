@@ -165,7 +165,7 @@ const getDefaultState = () => ({
   species: species,
   players: players,
   hands: hands,
-  step: 'Feeding',
+  step: 'FEEDING',
   lastTurn: false,
   pool: {
     food: food,

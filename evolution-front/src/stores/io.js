@@ -1,10 +1,12 @@
 import stomp from '@/services/stomp';
+import Vue from 'vue';
 
 const getDefaultState = () => ({
   gameId: null,
   subs: [],
   loaded: false,
   connecting: false,
+  sendingData: false,
   draw: -1,
 });
 
@@ -29,7 +31,11 @@ export default {
     draw: (state, draw) => {
       state.draw = draw;
       state.connecting = false;
+      state.sendingData = false;
       state.loaded = draw >= 0;
+    },
+    sendingData: (state, sendingData) => {
+      state.sendingData = sendingData;
     },
     resetState: (state) => {
       Object.assign(state, getDefaultState());
@@ -80,7 +86,10 @@ export default {
         commit('draw', draw);
         commit('gamestate/loadComplete', evt, ROOT);
         commit('action/loadComplete', evt, ROOT);
-        commit('selection/setRotation', evt.game.players.length, ROOT);
+
+        Vue.nextTick(() => {
+          commit('selection/setRotation', evt.game.players.length, ROOT);
+        });
 
       } else if ('partial' === evt.type) {
         if (state.draw < draw) {
@@ -134,6 +143,8 @@ export default {
 
         commit('action/resetAction', null, ROOT);
         commit('gamestate/resetAction', null, ROOT);
+
+        commit('sendingData', true);
 
         if (stomp.status) {
           stomp.publish(to, command);

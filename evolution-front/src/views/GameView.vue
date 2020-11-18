@@ -13,8 +13,15 @@
       <Player ref="player" :playerId="index" class="player" v-for="(p,index) in players" :key="index" :style="computeStyle(index)" />
       <Pool ref="pool" class="pool" :style="poolStyle" />
       <Hand />
+
+
+      <v-fade-transition>
+        <v-progress-circular v-if="sendingData" class="working" indeterminate :width="2" :value="0" :size="28" color="accent">
+          <v-icon small color="grey darken-1">mdi-cloud-upload-outline</v-icon>
+        </v-progress-circular>
+      </v-fade-transition>
     </div>
-    <v-progress-circular v-else class="loading" :style="poolStyle" indeterminate :size="100">
+    <v-progress-circular v-else class="loading" indeterminate :size="100" color="accent">
       <v-icon large>mdi-cloud-sync-outline</v-icon>
     </v-progress-circular>
   </v-fade-transition>
@@ -42,7 +49,6 @@ export default {
   },
   data() {
     return {
-      fab: false,
       container: {
         width: 0,
         height: 0
@@ -63,6 +69,7 @@ export default {
       started: state => !!state.action.starteds,
       loaded: state => state.io.loaded,
       connecting: state => state.io.connecting,
+      sendingData: state => state.io.sendingData
     }),
     ...mapGetters({
       startable: 'action/startable',
@@ -229,8 +236,18 @@ export default {
   position: relative;
 }
 
+.area>.working {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
 .area>.loading {
   position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -50px;
+  margin-top: -50px;
 }
 
 .player,
