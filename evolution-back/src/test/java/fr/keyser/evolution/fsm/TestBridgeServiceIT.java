@@ -7,12 +7,18 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import fr.keyser.evolution.CoreConfiguration;
 import fr.keyser.evolution.ServiceConfiguration;
@@ -31,6 +37,8 @@ import fr.keyser.security.AuthenticatedPlayer;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { InnerConf.class, CoreConfiguration.class, ServiceConfiguration.class })
 public class TestBridgeServiceIT {
+	
+	private static final Logger logger = LoggerFactory.getLogger(TestBridgeServiceIT.class);
 
 	@Configuration
 	public static class InnerConf {
@@ -55,7 +63,10 @@ public class TestBridgeServiceIT {
 	private GameResolver resolver;
 
 	@Test
-	void nominal() {
+	void nominal() throws JsonProcessingException {
+		
+		ObjectMapper om = new ObjectMapper();
+		ObjectWriter pp = om.writerWithDefaultPrettyPrinter();
 
 		AuthenticatedPlayer ap0 = new AuthenticatedPlayer("p1", "Joueur 1");
 		AuthenticatedPlayer ap1 = new AuthenticatedPlayer("p2", "Joueur 2");
@@ -106,6 +117,8 @@ public class TestBridgeServiceIT {
 				.allSatisfy(pv -> {
 					assertThat(pv.getStatus()).isEqualTo(PlayerInputStatus.PLAY_CARDS);
 				});
+		
+		logger.info("--->\n{}", pp.writeValueAsString(complete));
 
 	}
 

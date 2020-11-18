@@ -59,7 +59,6 @@ export default {
   },
   computed: {
     ...mapState({
-      players: state => state.gamestate.players,
       rotation: state => state.selection.rotation,
       started: state => !!state.action.starteds,
       loaded: state => state.io.loaded,
@@ -67,7 +66,8 @@ export default {
     }),
     ...mapGetters({
       startable: 'action/startable',
-      activable: 'action/activable'
+      activable: 'action/activable',
+      players: 'gamestate/players'
     }),
     degForPlayer() {
       return 360.0 / this.players.length;
@@ -101,7 +101,7 @@ export default {
 
 
       var paddingL = 160;
-      var paddingT = 80;
+      var paddingT = 60;
       if (Array.isArray(this.$refs.player)) {
 
         const maxSizes = {
@@ -110,7 +110,6 @@ export default {
         };
 
         this.$refs.player.forEach(e => {
-
           const w = e.$el.clientWidth;
           const h = e.$el.clientHeight;
           maxSizes.width = Math.max(maxSizes.width, w);
@@ -150,6 +149,18 @@ export default {
                 top: location.top - (elem.clientHeight / 2)
               };
             }
+          }
+          return location;
+        });
+      } else {
+        locations = locations.map((location, index) => {
+          const pl = this.players[index];
+          if (pl) {
+            const estimated = pl.species.length * 120;
+            return {
+              left: location.left - (estimated / 2),
+              top: location.top - (125 / 2)
+            };
           }
           return location;
         });

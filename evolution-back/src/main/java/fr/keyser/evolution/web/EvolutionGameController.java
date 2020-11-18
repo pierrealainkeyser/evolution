@@ -48,7 +48,7 @@ public class EvolutionGameController {
 		bridgeService.feed(uuid, cmd);
 	}
 
-	@MessageMapping("/game/{uuid}/feed-intelligent")
+	@MessageMapping("/game/{uuid}/intelligent-feed")
 	public void intelligentFeed(@DestinationVariable String uuid, @Payload IntelligentFeedCommand cmd) {
 		bridgeService.feed(uuid, cmd);
 	}
