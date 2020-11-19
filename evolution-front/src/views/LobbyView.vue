@@ -13,8 +13,6 @@
           <v-col cols="12">
             <v-checkbox v-model="quickplay" :label="$t('lobby.newGame.quickplay')" />
           </v-col>
-
-
         </v-row>
       </v-card-text>
       <v-card-actions>
@@ -42,7 +40,7 @@
         </thead>
         <tbody>
           <tr v-for="g in games" :key="g.game" @click="toGame(g)">
-            <td>{{g.created}}</td>
+            <td>{{formatDate(g.created)}}</td>
             <td>{{formatPlayers(g)}}</td>
             <td>
               <v-icon>{{g.terminated?'checkbox-marked-circle-outline':'mdi-motion-play-outline'}}</v-icon>
@@ -73,6 +71,7 @@ import {
   mapGetters
 } from 'vuex';
 import axios from '@/services/axios';
+import moment from 'moment';
 
 
 export default {
@@ -118,7 +117,10 @@ export default {
     },
     formatPlayers(g) {
       return g.players.join(', ');
-    }
+    },
+    formatDate(date) {
+      return moment(date).format('YYYY/MM/DD HH:mm:ss');
+    },
   }
 };
 </script>

@@ -1,5 +1,8 @@
 package fr.keyser.evolution.core;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.event.PlayerStateChanged;
 import fr.keyser.evolution.model.PlayerInputStatus;
 
@@ -8,7 +11,8 @@ public class PlayerState {
 
 	private final PlayerInputStatus state;
 
-	private PlayerState(PlayerInputStatus state) {
+	@JsonCreator
+	public PlayerState(@JsonProperty("state") PlayerInputStatus state) {
 		this.state = state;
 	}
 

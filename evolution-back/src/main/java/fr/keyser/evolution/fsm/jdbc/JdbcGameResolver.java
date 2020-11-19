@@ -89,6 +89,7 @@ public class JdbcGameResolver implements GameResolver {
 		try {
 			value = objectMapper.readValue(content, type);
 		} catch (JsonProcessingException e) {
+			e.printStackTrace();
 			throw new JacksonException(e);
 		}
 		return value;

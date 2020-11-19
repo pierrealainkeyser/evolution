@@ -202,13 +202,17 @@ export default {
     this.updatingContainers();
     this.connectGame(this.gameId);
   },
+  beforeDestroy() {
+    this.resetGame();
+  },
   methods: {
     ...mapActions({
       mousedown: 'action/mousedown',
       mouseup: 'action/mouseup',
       mousemove: 'selection/mouseMove',
       incRotation: 'selection/incRotation',
-      connectGame: 'io/connect'
+      connectGame: 'io/connect',
+      resetGame: 'io/reset'
     }),
     updateContainers() {
       const container = this.$refs.container;

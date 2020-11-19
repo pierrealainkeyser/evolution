@@ -1,5 +1,6 @@
 <template>
 <v-app-bar dense app>
+  <v-app-bar-nav-icon @click="toHome"><v-icon>mdi-paw-outline</v-icon></v-app-bar-nav-icon>
   <v-toolbar-items class="align-center" v-if="loaded">
     <span class="text-uppercase">{{stepLabel}}</span>
     <v-icon>mdi-chevron-right</v-icon>
@@ -101,6 +102,9 @@ export default {
     }
   },
   methods: {
+    toHome(){
+      this.$router.push('/');
+    },
     formatAction(type) {
       return this.$t(`game.action.${type}`);
     }
