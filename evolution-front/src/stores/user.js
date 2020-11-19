@@ -5,8 +5,7 @@ import router from '@/plugins/router';
 const getDefaultState = () => ({
   id: null,
   name: null,
-  connected: false,
-  to: null
+  to: '/'
 });
 
 const state = getDefaultState();
@@ -28,6 +27,7 @@ export default {
     },
   },
   actions: {
+
     login: ({
       commit,
       state
@@ -37,6 +37,7 @@ export default {
       commit('set', user);
       router.push(state.to);
     },
+
     logout: ({
       commit
     }) => {
@@ -45,8 +46,8 @@ export default {
     }
   },
   getters: {
-    connected: state => {
-      return !!state.label;
+    logged: state => {
+      return !!state.name;
     },
     get: state => {
       return state.name;

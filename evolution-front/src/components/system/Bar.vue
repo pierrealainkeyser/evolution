@@ -1,19 +1,20 @@
 <template>
-<v-system-bar class="text-uppercase">  
-  <template v-if="loaded">
-    <span>{{stepLabel}}</span>
+<v-app-bar dense app>
+  <v-toolbar-items class="align-center" v-if="loaded">
+    <span class="text-uppercase">{{stepLabel}}</span>
     <v-icon>mdi-chevron-right</v-icon>
-
-    <v-chip v-for="(a) in actions" :key="`action-${a.label}`" label x-small :color="a.color" class="action mr-1">
+    <v-chip v-for="(a) in actions" :key="`action-${a.label}`" label small :color="a.color" class="action mr-1">
       <v-avatar left>
         <v-icon small>{{a.icon}}</v-icon>
       </v-avatar>{{a.label}}
     </v-chip>
-
-  </template>
+  </v-toolbar-items>
   <v-spacer></v-spacer>
-  <v-icon>{{connected?'mdi-wifi':'mdi-wifi-off'}}</v-icon>
-</v-system-bar>
+  <v-toolbar-items class="align-center">
+    <span class="mr-2">{{username}}</span>
+    <v-icon small>{{connected?'mdi-wifi':'mdi-wifi-off'}}</v-icon>
+  </v-toolbar-items>
+</v-app-bar>
 </template>
 
 <script>
@@ -63,11 +64,12 @@ export default {
     ...mapState({
       loaded: state => state.io.loaded,
       step: state => state.gamestate.step,
-      connected: state => state.user.connected
+      connected: state => state.ws.connected
     }),
     ...mapGetters({
       currents: 'action/currents',
-      startedsType: 'action/startedsType'
+      startedsType: 'action/startedsType',
+      username: 'user/get'
     }),
     stepLabel() {
       return this.$t(`game.step.${this.step}`);

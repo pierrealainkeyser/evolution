@@ -1,5 +1,5 @@
 <template>
-<v-container @mousedown="mousedown" @mouseup="mouseup" fluid class="area pa-0" ref="container" :style="containerStyle">
+<v-container @mousedown="mousedown" @mouseup="mouseup" fluid class="area pa-1" ref="container" :style="containerStyle">
 
   <v-fade-transition mode="out-in">
     <div class="area" v-if="loaded">
@@ -13,7 +13,6 @@
       <Player ref="player" :playerId="index" class="player" v-for="(p,index) in players" :key="index" :style="computeStyle(index)" />
       <Pool ref="pool" class="pool" :style="poolStyle" />
       <Hand />
-
 
       <v-fade-transition>
         <v-progress-circular v-if="sendingData" class="working" indeterminate :width="2" :value="0" :size="28" color="accent">

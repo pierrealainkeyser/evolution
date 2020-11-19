@@ -68,7 +68,7 @@ export default {
     }, gameId) {
 
       const receive = (data) => dispatch('receive', data);
-      const subs = [`/app/game/${gameId}`, `/user/game/${this.gameId}`]
+      const subs = [`/app/game/${gameId}`, `/user/game/${gameId}`]
         .map((topic) => stomp.subscribe(topic, receive));
 
       commit('setGame', {

@@ -10,15 +10,11 @@ import i18n from '@/plugins/i18n';
 
 Vue.config.productionTip = false;
 
-var check=false;
-
 // add router guard with store
 router.beforeEach((to, from, next) => {
-
-
-  if (check && to.path !== '/login' && !store.getters['user/connected']) {
+  if (to.path !== '/login' && !store.getters['user/logged']) {
     store.commit('user/afterlogin', to);
-    next('/login');
+    router.push('/login');
   } else {
     next();
   }

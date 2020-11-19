@@ -27,14 +27,13 @@ export default {
   methods: {
     ...mapActions({
       receive: 'io/receive',
-      connect: 'io/connect'
+      connect: 'io/connect',
+      bindStore:'ws/bind'
     })
   },
 
   mounted() {
-
-
-    this.connect('1561654651');
+    //this.connect('1561654651');
 
     const input = {
       "draw": 2,
@@ -144,13 +143,14 @@ export default {
       }],
       "type": "complete"
     };
-    var fal =true;
+    var fal = false;
     if (fal)
       this.receive(input);
   },
 
   created() {
-    this.$vuetify.theme.dark = true
+    this.$vuetify.theme.dark = true;
+    this.bindStore();    
   }
 };
 </script>

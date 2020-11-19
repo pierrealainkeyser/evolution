@@ -1,15 +1,12 @@
 package fr.keyser.evolution.web;
 
 import java.security.Principal;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import fr.keyser.security.AuthenticatedPlayer;
 import fr.keyser.security.AuthenticatedPlayerConverter;
+import fr.keyser.security.AuthorizedClients;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,14 +22,14 @@ public class AuthController {
 
 	private final AuthenticatedPlayerConverter converter;
 
-	private final Iterable<ClientRegistration> clientRegistrations;
+	private final AuthorizedClients authorizedClients;
 
 	private final CsrfTokenRepository csrfTokenRepository;
 
-	public AuthController(AuthenticatedPlayerConverter converter, Iterable<ClientRegistration> clientRegistrations,
+	public AuthController(AuthenticatedPlayerConverter converter, AuthorizedClients authorizedClients,
 			CsrfTokenRepository csrfTokenRepository) {
 		this.converter = converter;
-		this.clientRegistrations = clientRegistrations;
+		this.authorizedClients = authorizedClients;
 		this.csrfTokenRepository = csrfTokenRepository;
 	}
 
@@ -45,11 +43,10 @@ public class AuthController {
 		return status.body(converter.convert(principal));
 	}
 
-	@GetMapping("/clients")
-	public ResponseEntity<Map<String, String>> clients() {
-		Map<String, String> out = new LinkedHashMap<>();
-		clientRegistrations.forEach(c -> out.put(c.getClientName(), "oauth2/authorization/" + c.getRegistrationId()));
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(out);
+	@GetMapping("/login")
+	public ResponseEntity<AuthorizedClients> login() {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				.body(authorizedClients);
 
 	}
 

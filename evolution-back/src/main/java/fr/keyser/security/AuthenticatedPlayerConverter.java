@@ -2,6 +2,7 @@ package fr.keyser.security;
 
 import java.security.Principal;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -19,6 +20,13 @@ public class AuthenticatedPlayerConverter {
 			OAuth2LoginAuthenticationToken token = (OAuth2LoginAuthenticationToken) principal;
 			String client = token.getClientRegistration().getRegistrationId();
 			return convert(client, token.getPrincipal());
+		}
+
+		if (principal instanceof UsernamePasswordAuthenticationToken) {
+			UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
+			String name = token.getName();
+
+			return new AuthenticatedPlayer(name + "@form", name);
 		}
 
 		if (principal instanceof AuthenticatedPlayer) {

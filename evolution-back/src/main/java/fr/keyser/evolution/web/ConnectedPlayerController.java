@@ -3,9 +3,11 @@ package fr.keyser.evolution.web;
 import java.util.Map;
 
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
+import org.springframework.stereotype.Controller;
 
 import fr.keyser.security.ConnectedAuthenticatedPlayerRepository;
 
+@Controller
 public class ConnectedPlayerController {
 
 	private final ConnectedAuthenticatedPlayerRepository repository;

@@ -4,6 +4,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
+import org.springframework.stereotype.Controller;
 
 import fr.keyser.evolution.command.AddCardToPoolCommand;
 import fr.keyser.evolution.command.AddSpeciesCommand;
@@ -16,6 +17,7 @@ import fr.keyser.evolution.command.IntelligentFeedCommand;
 import fr.keyser.evolution.fsm.BridgeService;
 import fr.keyser.evolution.fsm.view.CompleteRender;
 
+@Controller
 public class EvolutionGameController {
 
 	private final BridgeService bridgeService;

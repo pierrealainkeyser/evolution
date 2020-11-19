@@ -28,10 +28,12 @@ class StompService {
     this[LISTENERS] = [];
     this[XCSRF] = null;
 
-
-    const hostport = location.hostname + ":" + location.port;
-    const protocol = location.protocol.replace(/^http/, 'ws')
-    const  brokerURL = protocol + "//" + hostport + "/ws";
+    var brokerURL = process.env.VUE_APP_BACKEND_WS;
+    if (!brokerURL) {
+      const hostport = location.hostname + ":" + location.port;
+      const protocol = location.protocol.replace(/^http/, 'ws')
+      brokerURL = protocol + "//" + hostport + "/ws";
+    }
 
     this[BROKER_URL] = brokerURL;
 
@@ -73,7 +75,7 @@ class StompService {
     callback(this);
   }
 
-  publish(destination, action) {    
+  publish(destination, action) {
     const msg = {
       destination,
       headers: {

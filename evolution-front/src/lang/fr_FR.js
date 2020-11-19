@@ -1,4 +1,13 @@
 export default {
+  login: {
+    title: 'Identification',
+    chooseOpenId: 'Choissisez un fournisseur OpenID Connect pour vous identifier.',
+    form: 'Choissisez un nom d\'utilisateur',
+    formSubmit: 'Se connecter',
+    user: 'Nom d\'utilisateur',
+    retry: 'Réssayer',
+    error: 'Erreur durant l\'identifiation'
+  },
   game: {
     step: {
       SELECT_FOOD: 'Sélectioner nourriture',

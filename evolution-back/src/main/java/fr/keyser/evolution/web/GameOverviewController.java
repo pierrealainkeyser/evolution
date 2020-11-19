@@ -4,12 +4,14 @@ import java.security.Principal;
 import java.util.List;
 
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
+import org.springframework.stereotype.Controller;
 
 import fr.keyser.evolution.overview.GameOverview;
 import fr.keyser.evolution.overview.GameOverviewRepository;
 import fr.keyser.security.AuthenticatedPlayer;
 import fr.keyser.security.AuthenticatedPlayerConverter;
 
+@Controller
 public class GameOverviewController {
 
 	private final GameOverviewRepository gameOverviewRepository;
