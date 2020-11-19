@@ -42,21 +42,12 @@ export default {
     },
   },
   actions: {
-    disconnect({
+
+    reset({
       commit,
       state
     }) {
       state.subs.forEach(s => s.unsubscribe());
-
-      commit('setGame', {
-        gameId: null,
-        subs: []
-      });
-    },
-
-    reset({
-      commit
-    }) {
       commit('gamestate/resetState', null, ROOT);
       commit('action/resetState', null, ROOT);
       commit('selection/resetState', null, ROOT);

@@ -3,6 +3,8 @@ package fr.keyser.evolution.overview;
 import java.time.Instant;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import fr.keyser.evolution.model.Trait;
 
 public class GameOverview {
@@ -10,6 +12,8 @@ public class GameOverview {
 	private final Instant created;
 
 	private final String game;
+
+	private final String user;
 
 	private final String playerUUID;
 
@@ -25,9 +29,11 @@ public class GameOverview {
 
 	private final Boolean alpha;
 
-	public GameOverview(Instant created, String game, String playerUUID, boolean quickplay, List<Trait> traits,
+	public GameOverview(Instant created, String game, String user, String playerUUID, boolean quickplay,
+			List<Trait> traits,
 			List<String> players, boolean terminated, Integer score, Boolean alpha) {
 		this.created = created;
+		this.user = user;
 		this.game = game;
 		this.playerUUID = playerUUID;
 		this.quickplay = quickplay;
@@ -36,6 +42,11 @@ public class GameOverview {
 		this.terminated = terminated;
 		this.score = score;
 		this.alpha = alpha;
+	}
+
+	@JsonIgnore
+	public String getUser() {
+		return user;
 	}
 
 	public String getGame() {

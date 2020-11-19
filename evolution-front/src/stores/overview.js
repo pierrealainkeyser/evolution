@@ -53,7 +53,7 @@ export default {
 
       const subs = [];
       ['/topic/users', '/app/users'].forEach((item) => subs.push(stomp.subscribe(item, userEvent)));
-      subs.push(stomp.subscribe('/topic/my-games', gameEvent));
+      subs.push(stomp.subscribe('/user/my-games', gameEvent));
       subs.push(stomp.subscribe('/app/my-games', (e) => commit('setGames', e)));
 
       commit('subs', subs);

@@ -110,7 +110,10 @@ export default {
         traits: []
       }
       this.openDialog = false;
-      axios.post('/game/bootstrap', game);
+      axios.post('/game/bootstrap', game)
+        .then(response => {
+          this.toGame(response.data);
+        });
     },
     toGame(g) {
       this.$router.push(`/play/${g.playerUUID}`);

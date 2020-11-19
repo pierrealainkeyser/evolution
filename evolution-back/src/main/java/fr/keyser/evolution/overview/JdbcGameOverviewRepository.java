@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.JdbcOperations;
@@ -13,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import fr.keyser.evolution.fsm.GameRef;
 import fr.keyser.evolution.model.Trait;
 import fr.keyser.security.AuthenticatedPlayer;
 
@@ -40,16 +40,23 @@ public class JdbcGameOverviewRepository implements GameOverviewRepository {
 	}
 
 	@Override
+	public List<GameOverview> overview(GameRef ref) {
+		return loadOverviews("p.game=?", ref.getUuid());
+	}
+
+	@Override
 	public List<GameOverview> myGames(AuthenticatedPlayer player) {
+		return loadOverviews("p.user=?", player.getName());
+	}
 
-		String userId = player.getName();
-
-		String sql = "select  g.uuid, g.created, g.quickplay, g.traits, g.terminated,p.player,  p.score, p.alpha  from game g inner join player p on g.uuid=p.game where p.user=?";
-
-		List<GameOverview> games = jdbc.query(sql, new Object[] { userId }, (rs, i) -> {
+	private List<GameOverview> loadOverviews(String filter, Object... filterValue) {
+		String sql = "select  g.uuid, g.created, g.quickplay, g.traits, g.terminated,p.player,p.user,  p.score, p.alpha  from game g inner join player p on g.uuid=p.game where "
+				+ filter;
+		List<GameOverview> games = jdbc.query(sql, filterValue, (rs, i) -> {
 
 			Instant created = rs.getTimestamp("created").toInstant();
 			String game = rs.getString("uuid");
+			String user = rs.getString("user");
 			String playerUUID = rs.getString("player");
 			boolean quickplay = rs.getBoolean("quickplay");
 			List<Trait> traits = traits(rs.getString("traits"));
@@ -63,20 +70,22 @@ public class JdbcGameOverviewRepository implements GameOverviewRepository {
 				alpha = rs.getBoolean("alpha");
 			}
 
-			return new GameOverview(created, game, playerUUID, quickplay, traits, players, terminated, score, alpha);
+			return new GameOverview(created, game, user, playerUUID, quickplay, traits, players, terminated, score,
+					alpha);
 		});
 
-		Map<String, GameOverview> byId = games.stream()
-				.collect(Collectors.toMap(GameOverview::getGame, Function.identity()));
+		Map<String, List<GameOverview>> byId = games.stream()
+				.collect(Collectors.groupingBy(GameOverview::getGame));
 
-		sql = "select g.uuid, u.name from game g inner join player p on g.uuid=p.game inner join user u on p.user=u.uid where g.uuid in (select game from player where user=?)";
-		jdbc.query(sql, new Object[] { userId }, rs -> {
+		sql = "select g.uuid, u.name from game g inner join player p on g.uuid=p.game inner join user u on p.user=u.uid where g.uuid in (select game from player p where "
+				+ filter + ")";
+		jdbc.query(sql, filterValue, rs -> {
 			String game = rs.getString("uuid");
 			String name = rs.getString("name");
 
-			GameOverview go = byId.get(game);
-			if (go != null)
-				go.getPlayers().add(name);
+			List<GameOverview> gos = byId.get(game);
+			if (gos != null)
+				gos.forEach(go -> go.getPlayers().add(name));
 		});
 
 		return games;

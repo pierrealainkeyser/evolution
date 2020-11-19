@@ -1,6 +1,7 @@
 package fr.keyser.evolution.web;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,8 +14,9 @@ import fr.keyser.evolution.fsm.ActiveGame;
 import fr.keyser.evolution.fsm.GameBuilder;
 import fr.keyser.evolution.fsm.GameRef;
 import fr.keyser.evolution.fsm.GameResolver;
-import fr.keyser.evolution.fsm.ResolvedRef;
 import fr.keyser.evolution.model.EvolutionGameSettings;
+import fr.keyser.evolution.overview.GameOverview;
+import fr.keyser.evolution.overview.GameOverviewRepository;
 import fr.keyser.security.AuthenticatedPlayer;
 import fr.keyser.security.AuthenticatedPlayerConverter;
 
@@ -26,17 +28,20 @@ public class GameBootstrapController {
 
 	private final GameBuilder gameBuilder;
 
+	private final GameOverviewRepository gameOverviewRepository;
+
 	private final AuthenticatedPlayerConverter authenticatedPlayerConverter;
 
 	public GameBootstrapController(GameResolver resolver, GameBuilder gameBuilder,
-			AuthenticatedPlayerConverter authenticatedPlayerConverter) {
+			GameOverviewRepository gameOverviewRepository, AuthenticatedPlayerConverter authenticatedPlayerConverter) {
 		this.resolver = resolver;
 		this.gameBuilder = gameBuilder;
+		this.gameOverviewRepository = gameOverviewRepository;
 		this.authenticatedPlayerConverter = authenticatedPlayerConverter;
 	}
 
 	@PostMapping("/bootstrap")
-	public ResolvedRef bootstrap(@RequestBody EvolutionGameSettings bootstrap, Principal principal) {
+	public GameOverview bootstrap(@RequestBody EvolutionGameSettings bootstrap, Principal principal) {
 		ActiveGame created = gameBuilder.create(bootstrap);
 
 		AuthenticatedPlayer authen = authenticatedPlayerConverter.convert(principal);
@@ -44,15 +49,16 @@ public class GameBootstrapController {
 		resolver.addGame(created, authen);
 
 		GameRef ref = created.getRef();
-		return new ResolvedRef(
-				ref.getPlayers().stream().filter(p -> p.getUser().equals(authen)).findFirst().get(),
-				ref);
+
+		List<GameOverview> overviews = gameOverviewRepository.overview(ref);
+
+		return overviews.stream().filter(g -> g.getUser().equals(authen.getName())).findFirst().get();
 
 	}
 
 	@DeleteMapping("/{gameId}")
 	public void remove(@PathVariable String gameId, Principal principal) {
-
+		AuthenticatedPlayer authen = authenticatedPlayerConverter.convert(principal);
 	}
 
 }

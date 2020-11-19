@@ -3,6 +3,7 @@ package fr.keyser.evolution.overview;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,16 +52,30 @@ public class TestJdbcGameOverviewRepositoryIT {
 
 		jdbcGameResolver.addGame(created, owner);
 
-		assertThat(repository.myGames(owner))
+		List<GameOverview> myGames = repository.myGames(owner);
+		assertThat(myGames)
 				.hasSize(1)
-				.anySatisfy(go -> {
-					assertThat(go.isTerminated()).isFalse();
-					assertThat(go.getTraits()).isEmpty();
-					assertThat(go.getPlayers())
-							.hasSize(2)
-							.contains("PAK", "JMM");
+				.anySatisfy(TestJdbcGameOverviewRepositoryIT::validate);
 
+		List<GameOverview> allGames = repository.overview(created.getRef());
+		assertThat(allGames)
+				.hasSize(2)
+				.anySatisfy(go->{
+					assertThat(go.getUser()).isEqualTo(owner.getName());
+					validate(go);
+				})
+				.anySatisfy(go->{
+					assertThat(go.getUser()).isEqualTo(other.getName());
+					validate(go);
 				});
 
+	}
+
+	private static void validate(GameOverview go) {
+		assertThat(go.isTerminated()).isFalse();
+		assertThat(go.getTraits()).isEmpty();
+		assertThat(go.getPlayers())
+				.hasSize(2)
+				.contains("PAK", "JMM");
 	}
 }

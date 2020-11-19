@@ -6,7 +6,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import fr.keyser.evolution.fsm.GameResolver;
 import fr.keyser.evolution.fsm.ResolvedRef;
 
-
 public class GameAccessManager {
 
 	private final GameResolver gameResolver;
@@ -26,7 +25,7 @@ public class GameAccessManager {
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				AuthenticatedPlayer player = converter.convert(auth);
 				if (player != null) {
-					return found.getPlayers().stream().anyMatch(p -> p.getUser().getName().equals(player.getName()));
+					return found.getMyself().getUser().equals(player);
 				}
 
 			}

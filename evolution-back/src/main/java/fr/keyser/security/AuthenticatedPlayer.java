@@ -45,7 +45,7 @@ public class AuthenticatedPlayer implements Principal, Authentication {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(label, name);
+		return Objects.hash(name);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class AuthenticatedPlayer implements Principal, Authentication {
 		if (!(obj instanceof AuthenticatedPlayer))
 			return false;
 		AuthenticatedPlayer other = (AuthenticatedPlayer) obj;
-		return Objects.equals(label, other.label) && Objects.equals(name, other.name);
+		return Objects.equals(name, other.name);
 	}
 
 	@Override
