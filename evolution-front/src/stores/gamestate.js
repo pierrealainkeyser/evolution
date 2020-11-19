@@ -108,34 +108,40 @@ var species = [{
 ];
 
 var players = [{
-    name: 'Player 1',
+    user: {
+      name: 'pak',
+      id:'pak@form'
+    },
     status: 'active',
-    connected: true,
     hands: 2,
   },
   {
-    name: 'Player 2',
+    user: {
+      name: 'Player 2',
+    },
     status: 'idle',
-    connected: true,
     hands: 3,
 
   },
   {
-    name: 'Player 3',
+    user: {
+      name: 'Player 3',
+    },
     status: 'idle',
-    connected: true,
     hands: 4,
   },
   {
-    name: 'Player 4',
+    user: {
+      name: 'Player 4',
+    },
     status: 'idle',
-    connected: true,
     hands: 1,
   },
   {
-    name: 'Player 5',
+    user: {
+      name: 'Player 5',
+    },
     status: 'idle',
-    connected: true,
     hands: 0,
   }
 ];
@@ -154,9 +160,9 @@ var hands = [{
 
 var food = 5;
 
-species = [];
-players = [];
-hands = [];
+// species = [];
+// players = [];
+// hands = [];
 food = 0;
 
 
@@ -194,9 +200,8 @@ export default {
       state.pool.cards = game.foodPool.waiting;
       state.species = game.players.flatMap(p => (p.species));
       state.players = game.players.map(p => ({
-        name: p.player.name,
+        user: p.player,
         status: p.status.toLowerCase(),
-        connected: true, //TODO ailleurs
         hands: p.inHands,
       }));
 
@@ -212,7 +217,7 @@ export default {
     cards: (state) => {
       return state.pool.cards;
     },
-    players: (state) => {
+    players: (state, getters, rootState, rootGetters) => {
       const byPlayers = [];
       for (var i in state.species) {
         const specie = state.species[i];
@@ -221,7 +226,13 @@ export default {
         to.push(specie);
       }
 
-      return state.players.map((p, index) => ({ ...p,
+      const connectedUsers = rootGetters['overview/users'];
+
+      return state.players.map((p, index) => ({
+        connected: connectedUsers.some((cu) => cu.name === p.user.name),
+        name: p.user.label,
+        status: p.status,
+        hands: p.hands,
         index,
         species: byPlayers[index]
       }));

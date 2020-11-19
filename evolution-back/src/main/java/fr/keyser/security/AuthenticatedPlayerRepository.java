@@ -18,7 +18,7 @@ public class AuthenticatedPlayerRepository {
 	@Transactional
 	public void add(AuthenticatedPlayer user) {
 		jdbc.update("insert into user(uid, name) select ?,? where not exists (select * from user where uid=?)",
-				user.getId(), user.getName(), user.getId());
+				user.getName(), user.getLabel(), user.getName());
 
 		logger.info("Adding user : {}", user);
 	}

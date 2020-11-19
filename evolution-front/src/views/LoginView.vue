@@ -123,7 +123,7 @@ export default {
       this.reset();
       axios.get("auth/principal").then(r => {
           this.login({
-            id: r.data.id,
+            label: r.data.label,
             name: r.data.name,
             xcsrf: r.headers['x-csrf-token']
           });

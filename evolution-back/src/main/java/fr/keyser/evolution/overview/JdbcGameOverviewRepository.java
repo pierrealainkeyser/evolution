@@ -42,7 +42,7 @@ public class JdbcGameOverviewRepository implements GameOverviewRepository {
 	@Override
 	public List<GameOverview> myGames(AuthenticatedPlayer player) {
 
-		String userId = player.getId();
+		String userId = player.getName();
 
 		String sql = "select  g.uuid, g.created, g.quickplay, g.traits, g.terminated,p.player,  p.score, p.alpha  from game g inner join player p on g.uuid=p.game where p.user=?";
 

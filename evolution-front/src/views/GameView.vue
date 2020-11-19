@@ -46,6 +46,11 @@ export default {
     Pool,
     Hand
   },
+  props: {
+    gameId: {
+      type: String,
+    }
+  },
   data() {
     return {
       container: {
@@ -195,13 +200,15 @@ export default {
   },
   mounted() {
     this.updatingContainers();
+    this.connectGame(this.gameId);
   },
   methods: {
     ...mapActions({
       mousedown: 'action/mousedown',
       mouseup: 'action/mouseup',
       mousemove: 'selection/mouseMove',
-      incRotation: 'selection/incRotation'
+      incRotation: 'selection/incRotation',
+      connectGame: 'io/connect'
     }),
     updateContainers() {
       const container = this.$refs.container;

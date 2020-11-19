@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import fr.keyser.evolution.core.PlayerState;
 import fr.keyser.evolution.core.json.CoreModule;
 import fr.keyser.evolution.fsm.PlayAreaMonitor;
 import fr.keyser.evolution.model.PlayersScoreBoard;
@@ -19,7 +20,8 @@ public class JacksonConfiguration {
 	@Bean
 	public SimpleModule automatsModule() {
 		JsonDataMapAdapter adapter = new JsonDataMapAdapter(
-				Arrays.asList(PlayAreaMonitor.class, PlayersScoreBoard.class, FeedingActionSummaries.class));
+				Arrays.asList(PlayAreaMonitor.class, PlayersScoreBoard.class, PlayerState.class,
+						FeedingActionSummaries.class));
 		return adapter.asModule();
 	}
 

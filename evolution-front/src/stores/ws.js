@@ -27,7 +27,7 @@ export default {
         commit('setConnected', st.status);
       });
 
-      dispatch('users/bind', null, ROOT);
+      dispatch('overview/bind', null, ROOT);
     },
   }
 }

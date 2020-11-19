@@ -26,7 +26,7 @@ public class GameAccessManager {
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				AuthenticatedPlayer player = converter.convert(auth);
 				if (player != null) {
-					return found.getPlayers().stream().anyMatch(p -> p.getUser().getId().equals(player.getId()));
+					return found.getPlayers().stream().anyMatch(p -> p.getUser().getName().equals(player.getName()));
 				}
 
 			}

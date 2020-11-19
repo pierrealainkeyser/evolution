@@ -8,6 +8,25 @@ export default {
     retry: 'Réssayer',
     error: 'Erreur durant l\'identifiation'
   },
+  lobby: {
+    newGame: {
+      'new': 'Nouvelle partie',
+      title: 'Créer une nouvelle partie',
+      quickplay: 'Jeu rapide',
+      players: 'Joueurs',
+      start: 'Démarrer',
+      cancel: 'Annuler',
+    },
+    game: {
+      date: 'Créée le',
+      players: 'Joueurs',
+      status: 'Progression',
+      results: 'Résultat',
+      score: 'Score',
+      winner: 'Espèce dominante',
+      looser: 'Perdu',
+    }
+  },
   game: {
     step: {
       SELECT_FOOD: 'Sélectioner nourriture',
@@ -15,9 +34,14 @@ export default {
       FEEDING: 'Nourrire'
     },
     trait: {
+      '?': 'Masqué pour le moment',
       CARNIVOROUS: 'Carnivore',
       BURROWING: 'Fouisseur',
       DEFENSIVE_HERDING: 'Horde défensive',
+      HORNS: 'Cornes',
+      COOPERATION: 'Coopération',
+      SCAVENGER: 'Charognard',
+      FERTILE: 'Fertile',
     },
     action: {
       'add-new-specie': 'Ajouter une espèce',
@@ -28,6 +52,7 @@ export default {
       'feed': 'Nourrire',
       'attack': 'Attaquer',
       'intelligent-feed': 'Nourrire (Intelligence)',
+      'select-food': 'Sélection de la nourriture'
     },
   }
 };

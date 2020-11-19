@@ -12,6 +12,8 @@
       if ('CARNIVOROUS' === this.trait)
         return 'mdi-paw';
 
+        if ('SYMBIOSIS' === this.trait)
+          return 'mdi-bacteria-outline';
 
       if ('FAT_TISSUE' === this.trait)
         return  'mdi-pig';
@@ -53,7 +55,7 @@
           return 'mdi-turtle';
 
 
-      if ('HORNED' === this.trait)
+      if ('HORNS' === this.trait)
           return 'mdi-unicorn-variant';
 
 
@@ -64,7 +66,7 @@
       if ('FORAGING' === this.trait)
           return 'mdi-excavator';
 
-          return null;
+          return 'mdi-variable';
         }
       }
 }

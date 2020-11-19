@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import user from '@/stores/user';
-import users from '@/stores/users';
+import overview from '@/stores/overview';
 import selection from '@/stores/selection';
 import action from '@/stores/action';
 import gamestate from '@/stores/gamestate';
@@ -15,7 +15,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   modules: {
     user,
-    users,
+    overview,
     selection,
     action,
     gamestate,

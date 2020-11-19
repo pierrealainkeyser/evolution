@@ -34,6 +34,6 @@ public class PlayerRef {
 	}
 
 	public String getUserId() {
-		return user.getId();
+		return user.getName();
 	}
 }

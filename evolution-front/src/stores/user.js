@@ -3,7 +3,7 @@ import axios from '@/services/axios';
 import router from '@/plugins/router';
 
 const getDefaultState = () => ({
-  id: null,
+  label: null,
   name: null,
   to: '/'
 });
@@ -19,8 +19,8 @@ export default {
     },
     set: (state, user) => {
       const v = user || {}
-      state.id = v.id;
       state.name = v.name;
+      state.label = v.label;
     },
     afterlogin: (state, to) => {
       state.to = to;
@@ -49,11 +49,17 @@ export default {
     logged: state => {
       return !!state.name;
     },
+    myself: state => {
+      return {
+        label: state.label,
+        name: state.name
+      };
+    },
     get: state => {
-      return state.name;
+      return state.label;
     },
     uid: state => {
-      return state.id;
+      return state.name;
     }
   }
 }
