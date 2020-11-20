@@ -33,6 +33,7 @@
           <tr>
             <td>{{$t('lobby.game.date')}}</td>
             <td>{{$t('lobby.game.players')}}</td>
+            <td>{{$t('lobby.game.mode')}}</td>
             <td>{{$t('lobby.game.status')}}</td>
             <td>{{$t('lobby.game.results')}}</td>
             <td>{{$t('lobby.game.score')}}</td>
@@ -42,6 +43,7 @@
           <tr v-for="g in games" :key="g.game" @click="toGame(g)">
             <td>{{formatDate(g.created)}}</td>
             <td>{{formatPlayers(g)}}</td>
+            <td>{{g.quickplay?$t('lobby.game.quickplay'):$t('lobby.game.standard')}}</td>
             <td>
               <v-icon>{{g.terminated?'checkbox-marked-circle-outline':'mdi-motion-play-outline'}}</v-icon>
             </td>
@@ -85,7 +87,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      games: 'overview/games',
+      rawGames: 'overview/games',
       users: 'overview/users',
       myself: 'user/myself'
     }),
@@ -100,6 +102,11 @@ export default {
           users.push(user);
       });
       return users;
+    },
+    games() {
+      const games = [...this.rawGames];
+      games.sort((l, r) => -l.created.localeCompare(r.created));
+      return games;
     }
   },
   methods: {

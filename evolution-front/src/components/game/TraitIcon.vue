@@ -50,6 +50,8 @@
           return 'mdi-pine-tree';
 
 
+      if ('LONGNECK' === this.trait)
+            return 'mdi-ladder';
 
       if ('HARD_SHELL' === this.trait)
           return 'mdi-turtle';
@@ -62,12 +64,15 @@
       if ('INTELLIGENT' === this.trait)
           return 'mdi-face-shimmer';
 
+      if ('FERTILE' === this.trait)
+            return 'mdi-egg';
+
 
       if ('FORAGING' === this.trait)
           return 'mdi-excavator';
 
-          return 'mdi-variable';
-        }
+        return 'mdi-variable';
       }
+  }
 }
 </script>

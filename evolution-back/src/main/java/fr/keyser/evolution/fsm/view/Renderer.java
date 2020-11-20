@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -206,9 +207,16 @@ public class Renderer {
 	}
 
 	private RenderedEvent render(TraitsRevealed revealed) {
+
+		Map<Integer, CardView> traits = new HashMap<>();
+		for (Entry<Integer, Card> e : revealed.getTraits().entrySet()) {
+			traits.put(e.getKey(), new CardView(e.getValue()));
+		}
+
 		RenderedEvent evt = new RenderedEvent("traits-revealed")
-				.put("specie", revealed.getSrc());
-		revealed.getTraits().entrySet().forEach(e -> evt.put("traits[" + e.getKey() + "]", new CardView(e.getValue())));
+				.put("specie", revealed.getSrc())
+				.put("traits", traits);
+
 		return evt;
 	}
 
@@ -232,10 +240,13 @@ public class Renderer {
 	}
 
 	private RenderedEvent render(PopulationReduced reduced) {
-		return new RenderedEvent("specie-population-reduced")
+		RenderedEvent re = new RenderedEvent("specie-population-reduced")
 				.put("specie", reduced.getSrc())
-				.put("population", reduced.getTo())
-				.put("trait", new UsedTraitView(reduced.getTrait()));
+				.put("population", reduced.getTo());
+
+		if (reduced.getTrait() != null)
+			re.put("trait", new UsedTraitView(reduced.getTrait()));
+		return re;
 	}
 
 	private RenderedEvent render(SpecieExtincted extincted) {
@@ -245,6 +256,7 @@ public class Renderer {
 
 	private RenderedEvent render(PopulationIncreased increased) {
 		return new RenderedEvent("specie-population-increased")
+				.put("player", increased.getPlayer())
 				.put("specie", increased.getSrc())
 				.put("population", increased.getTo())
 				.put("discarded", new CardView(increased.getCard()));
@@ -252,6 +264,7 @@ public class Renderer {
 
 	private RenderedEvent render(SizeIncreased increased) {
 		return new RenderedEvent("specie-size-increased")
+				.put("player", increased.getPlayer())
 				.put("specie", increased.getSrc())
 				.put("size", increased.getTo())
 				.put("discarded", new CardView(increased.getCard()));
@@ -259,6 +272,7 @@ public class Renderer {
 
 	private RenderedEvent render(SpecieAdded added) {
 		RenderedEvent evt = new RenderedEvent("specie-added")
+				.put("player", added.getPlayer())
 				.put("specie", added.getSrc())
 				.put("position", added.getPosition());
 		Card card = added.getCard();

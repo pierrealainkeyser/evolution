@@ -9,8 +9,7 @@ function findSpecieAction(actions, rootGetters, specie = true) {
 const getDefaultState = () => ({
   possibles: null,
   starteds: null,
-  playing: null,
-  type: null
+  playing: null
 });
 
 const state = getDefaultState();
@@ -25,15 +24,44 @@ export default {
     resetState: (state) => {
       Object.assign(state, getDefaultState());
     },
-    loadComplete: (state, evt) => {
-      state.possibles = evt.user.actions;
+    loadActions: (state, actions) => {
 
-      const game = evt.game;
-      const player = game.players[evt.user.myself];
-      state.type = player.status;
+      console.log("loadActions", actions);
+
+      state.possibles = actions ? actions.map(a => {
+
+        const valid = !a.violations || !a.violations.length;
+        const effects = [];
+
+        if (a.events) {
+          a.events.forEach(event => {
+            if ('specie-food-eaten' === event.type) {
+
+              const effect = {
+                specie: event.specie,
+                deltaFat: event.fat,
+                deltaFood: event.food
+              };
+
+              if (event.traits) {
+                effect.traits = event.traits.map(t => t.trait);
+              }
+
+              effects.push(effect);
+            }
+          });
+        }
+
+        return {
+          type: a.type,
+          specie: a.specie,
+          effects,
+          valid
+        };
+      }) : null;
     },
+
     resetAction: (state) => {
-      state.type = null;
       state.possibles = null;
     }
   },
@@ -47,15 +75,12 @@ export default {
       const performs = (act && act.valid) ? JSON.parse(JSON.stringify(act)) : null;
       commit('setStarteds', null);
       if (performs) {
-        return dispatch('io/emit', performs, {
+        dispatch('io/emit', performs, {
           root: true
         });
-      } else {
-        return Promise.resolve(null);
       }
     },
     mousedown({
-      //dispatch,
       state,
       commit,
       getters,
@@ -71,7 +96,7 @@ export default {
           const starteds = state.possibles.filter(p => startOnSpecie === p.specie);
           commit('setStarteds', starteds);
         } else if (startOnCard) {
-          if ('SELECT_FOOD' === state.type) {
+          if (getters.selectFood) {
             const starteds = [{
               type: 'select-food',
               card: startOnCard.id,
@@ -80,7 +105,7 @@ export default {
             commit('setStarteds', starteds);
 
 
-          } else if ('PLAY_CARDS' === state.type) {
+          } else if (getters.playcard) {
 
             const myself = rootState.gamestate.myself;
             const species = rootGetters['gamestate/players'][myself].species;
@@ -159,15 +184,26 @@ export default {
     },
   },
   getters: {
-    playcard: (state) => {
-      return 'PLAY_CARDS' === state.type;
+    playcard: (state, getters, rootState, rootGetters) => {
+      const myStatus = rootGetters['gamestate/myStatus'];
+      return 'PLAY_CARDS' === myStatus;
+    },
+
+    feeding: (state, getters, rootState, rootGetters) => {
+      const myStatus = rootGetters['gamestate/myStatus'];
+      return 'FEEDING' === myStatus;
+    },
+
+    selectFood: (state, getters, rootState, rootGetters) => {
+      const myStatus = rootGetters['gamestate/myStatus'];
+      return 'SELECT_FOOD' === myStatus;
     },
 
     startable: (state, getters) => {
       return (!!getters.startOnSpecie) || (!!getters.startOnCard);
     },
     startOnSpecie: (state, getters, rootState, rootGetters) => {
-      if ('FEEDING' === state.type && !state.starteds && state.possibles) {
+      if (getters.feeding && !state.starteds && state.possibles) {
         const found = findSpecieAction(state.possibles, rootGetters, true);
         if (found)
           return found.specie;
@@ -176,7 +212,7 @@ export default {
       return null;
     },
     startOnCard: (state, getters, rootState) => {
-      if (('SELECT_FOOD' === state.type || 'PLAY_CARDS' === state.type) && !state.starteds) {
+      if ((getters.selectFood || getters.playcard) && !state.starteds) {
         return rootState.selection.card;
       }
       return null;
@@ -191,7 +227,7 @@ export default {
 
     activable: (state, getters, rootState, rootGetters) => {
       if (state.starteds) {
-        if ('FEEDING' === state.type) {
+        if (getters.feeding) {
           if (getters.startedsType.includes('attack'))
             return findSpecieAction(state.starteds, rootGetters, false);
 
@@ -208,7 +244,7 @@ export default {
             }
 
           }
-        } else if ('PLAY_CARDS' === state.type) {
+        } else if (getters.playcard) {
           const onStat = rootState.selection.stat;
           if (onStat) {
             const specieId = rootGetters['selection/specieId'];
@@ -230,7 +266,7 @@ export default {
             return state.starteds.find(s => s.type === 'add-new-specie' && s.position === newSpecie);
           }
 
-        } else if ('SELECT_FOOD' === state.type) {
+        } else if (getters.selectFood) {
           if (rootGetters['selection/pool']) {
             return state.starteds.find(s => s.type === 'select-food');
           }

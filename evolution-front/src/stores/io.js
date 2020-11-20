@@ -71,13 +71,14 @@ export default {
 
     receive({
       commit,
+      dispatch,
       state
     }, evt) {
       const draw = evt.draw;
       if ('complete' === evt.type) {
         commit('draw', draw);
         commit('gamestate/loadComplete', evt, ROOT);
-        commit('action/loadComplete', evt, ROOT);
+        commit('action/loadActions', evt.user.actions, ROOT);
 
         Vue.nextTick(() => {
           commit('selection/setRotation', evt.game.players.length, ROOT);
@@ -86,8 +87,43 @@ export default {
       } else if ('partial' === evt.type) {
         if (state.draw < draw) {
           commit('draw', draw);
+          dispatch('processPartial', evt);
         }
       }
+    },
+
+    async processPartial({
+      commit
+    }, partial) {
+
+      partial.events.forEach((event) => {
+        if (['player-state-changed',
+            'player-card-added-to-pool',
+            'new-step',
+            'specie-trait-added',
+            'traits-revealed',
+            'specie-added',
+            'specie-population-increased',
+            'specie-size-increased',
+            'specie-extincted',
+            'pool-revealed',
+            'specie-food-eaten' 
+          ].includes(event.type)) {
+          commit(`gamestate/${event.type}`, event, ROOT);
+        }
+      });
+
+      if (partial.actions) {
+        commit('action/loadActions', partial.actions, ROOT);
+      }
+    },
+
+    pass({
+      dispatch
+    }) {
+      dispatch('emit', {
+        type: 'pass'
+      })
     },
 
     emit({
@@ -97,7 +133,9 @@ export default {
 
       var name = null;
       const command = {};
-      if ('select-food' === action.type) {
+      if ('pass' === action.type) {
+        name = action.type;
+      } else if ('select-food' === action.type) {
         name = action.type;
         command.card = action.card;
       } else if ('add-new-specie' === action.type) {
@@ -134,7 +172,6 @@ export default {
         const to = `/app/game/${state.gameId}/${name}`;
 
         commit('action/resetAction', null, ROOT);
-        commit('gamestate/resetAction', null, ROOT);
 
         commit('sendingData', true);
 

@@ -1,5 +1,13 @@
 import stomp from '@/services/stomp';
 
+function userPredicate(user) {
+  return u => u.name === user.name;
+}
+
+function gamePredicate(game) {
+  return g => g.game === game.game;
+}
+
 export default {
   namespaced: true,
   state: {
@@ -9,18 +17,33 @@ export default {
   },
   mutations: {
     addUser: (state, user) => {
-      if (!state.users.find(u => u.name === user.name)) {
+      if (!state.users.find(userPredicate(user))) {
         state.users.push(user);
       }
     },
     removeUser: (state, user) => {
-      const index = state.users.findIndex(u => u.name === user.name);
+      const index = state.users.findIndex(userPredicate(user));
       if (index >= 0)
         state.users.splice(index, 1);
     },
     setUsers: (state, users) => {
       state.users.splice(0, state.users.length);
       Array.prototype.push.apply(state.users, users);
+    },
+    updateGame: (state, game) => {
+      const index = state.games.findIndex(gamePredicate(game));
+      if (index >= 0)
+        state.games.splice(index, 1, game);
+    },
+    addGame: (state, game) => {
+      if (!state.games.find(gamePredicate(game))) {
+        state.games.push(game);
+      }
+    },
+    removeGame: (state, game) => {
+      const index = state.games.findIndex(gamePredicate(game));
+      if (index >= 0)
+        state.games.splice(index, 1);
     },
     setGames: (state, games) => {
       state.games.splice(0, state.games.length);
@@ -41,6 +64,16 @@ export default {
         commit('removeUser', event.user);
       } else if ('all' === event.type) {
         commit('setUsers', event.users);
+      }
+    },
+
+    gameEvent({
+      commit
+    }, event) {
+      if ('terminated' === event.type) {
+        commit('updateGame', event.game);
+      } else if ('started' === event.type) {
+        commit('addGame', event.game);
       }
     },
 
