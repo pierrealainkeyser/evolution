@@ -116,6 +116,17 @@ export default {
       --state.players[evt.player].hands;
       removeCardFromHand(state, evt.discarded);
     },
+
+    'specie-population-reduced': (state, evt) => {
+      const target = state.species.find(idPredicate(evt.specie));
+      target.population = evt.population;
+    },
+
+    'specie-population-growed': (state, evt) => {
+      const target = state.species.find(idPredicate(evt.specie));
+      target.population = evt.population;
+    },
+
     'specie-size-increased': (state, evt) => {
       const target = state.species.find(idPredicate(evt.specie));
       target.size = evt.size;
@@ -124,13 +135,23 @@ export default {
       removeCardFromHand(state, evt.discarded);
     },
 
+    'specie-fat-moved': (state, evt) => {
+      const target = state.species.find(idPredicate(evt.specie));
+      target.food += evt.fat;
+      target.fat -= evt.fat;
+    },
+
+    'specie-food-scored': (state, evt) => {
+      const target = state.species.find(idPredicate(evt.specie));
+      target.food = 0;
+    },
+
     'specie-food-eaten': (state, evt) => {
       const target = state.species.find(idPredicate(evt.specie));
       target.fat += evt.fat;
       target.food += evt.food;
 
-      const delta = evt.delta;
-      if (delta) {
+      if ('POOL'===evt.source) {
         state.pool.food += evt.delta;
       }
 
@@ -150,6 +171,14 @@ export default {
     'pool-revealed': (sate, evt) => {
       state.pool.food += evt.delta;
       state.pool.cards = 0;
+    },
+
+    'player-card-dealed': (state, evt) => {
+      state.players[evt.player].hands += evt.count;
+
+      const cards = evt.cards;
+      if (cards)
+        cards.forEach(card => state.hands.push(card));
     }
   },
   getters: {

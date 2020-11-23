@@ -99,15 +99,20 @@ export default {
       partial.events.forEach((event) => {
         if (['player-state-changed',
             'player-card-added-to-pool',
+            'player-card-dealed',
             'new-step',
-            'specie-trait-added',
+            'pool-revealed',
             'traits-revealed',
+            'specie-trait-added',
             'specie-added',
+            'specie-population-growed',
             'specie-population-increased',
+            'specie-population-reduced',
             'specie-size-increased',
             'specie-extincted',
-            'pool-revealed',
-            'specie-food-eaten' 
+            'specie-food-scored',
+            'specie-fat-moved',
+            'specie-food-eaten'
           ].includes(event.type)) {
           commit(`gamestate/${event.type}`, event, ROOT);
         }

@@ -130,6 +130,26 @@ public class TestPlayArea {
 	}
 
 	@Test
+	void fertile() {
+		DeckBuilder builder = new DeckBuilder();
+
+		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
+
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.FORAGING), SpeciePosition.LEFT);
+		area = run(area, s1);
+
+		area = run(area, new TraitAdded(s1.getSrc(), builder.card(Trait.FERTILE), 0, null));
+		area = run(area, new CardAddedToPool(0, builder.card(Trait.FORAGING, 5)));
+		area = run(area, area.handlePoolReveal());
+		assertThat(area.getPool().getFood()).isEqualTo(5);
+
+		area = run(area, area.handleFertiles(), true);
+
+		Specie loaded = area.getSpecie(s1.getSrc());
+		assertThat(loaded.getPopulation()).isEqualTo(2);
+	}
+
+	@Test
 	void summary() {
 		DeckBuilder builder = new DeckBuilder();
 		PlayArea area = PlayArea.with(Players.players(3), builder.deck());
@@ -239,8 +259,8 @@ public class TestPlayArea {
 
 		// check the intelligent foraging
 		assertThat(area.actionsForPlayer(0))
-				.hasSize(1)
-				.anySatisfy(s -> {
+				.hasSize(2)
+				.allSatisfy(s -> {
 					assertThat(s).isInstanceOfSatisfying(IntelligentFeedSummary.class, f -> {
 						assertThat(f.getSpecie()).isEqualTo(s1.getSrc());
 						assertThat(f.getCost()).isEqualTo(1);

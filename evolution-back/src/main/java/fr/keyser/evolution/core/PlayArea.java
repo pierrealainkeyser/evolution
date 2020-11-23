@@ -241,9 +241,13 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		List<FeedingActionSummary> summary = new ArrayList<FeedingActionSummary>();
 		Player player = getPlayer(specieId);
 		if (specie.isIntelligent() && player.getHandSize() > 0) {
-			summary.add(
-					new IntelligentFeedSummary(specieId, specie.usedTrait(Trait.INTELLIGENT),
-							process(intelligentPlantEat(specieId, player.getHands().get(0))).getEvents(), 1));
+
+			player.getHands().forEach(card -> {
+				summary.add(
+						new IntelligentFeedSummary(specieId, card.getId(), specie.usedTrait(Trait.INTELLIGENT),
+								process(intelligentPlantEat(specieId, card)).getEvents(), 1));
+			});
+
 		}
 
 		plantEat(specieId)
@@ -666,8 +670,8 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		List<PopulationGrow> grow = Collections.emptyList();
 
 		if (pool.getFood() > 0) {
-			grow = species.stream().filter(s -> s.isFertile() && s.getSize() < 6)
-					.map(s -> new PopulationGrow(s.getId(), s.getSize() + 1, s.usedTrait(Trait.FERTILE)))
+			grow = species.stream().filter(s -> s.isFertile() && s.getPopulation() < 6)
+					.map(s -> new PopulationGrow(s.getId(), s.getPopulation() + 1, s.usedTrait(Trait.FERTILE)))
 					.collect(Collectors.toList());
 		}
 

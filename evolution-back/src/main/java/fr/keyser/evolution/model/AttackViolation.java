@@ -1,5 +1,8 @@
 package fr.keyser.evolution.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AttackViolation {
 
 	private final String type;
@@ -10,7 +13,10 @@ public class AttackViolation {
 
 	private final AttackViolationStatus status;
 
-	public AttackViolation(String type, UsedTrait trait, AttackViolationStatus status, UsedTrait bypass) {
+	
+	@JsonCreator
+	public AttackViolation(@JsonProperty("type") String type,@JsonProperty("trait") UsedTrait trait,
+			@JsonProperty("status") AttackViolationStatus status, @JsonProperty("bypass") UsedTrait bypass) {
 		this.type = type;
 		this.trait = trait;
 		this.bypass = bypass;

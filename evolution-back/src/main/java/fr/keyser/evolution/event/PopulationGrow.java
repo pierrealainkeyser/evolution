@@ -11,13 +11,19 @@ public class PopulationGrow extends PopulationChanged {
 	private final UsedTrait trait;
 
 	@JsonCreator
-	public PopulationGrow(@JsonProperty("src") SpecieId src, @JsonProperty("to") int to,@JsonProperty("trait") UsedTrait trait) {
+	public PopulationGrow(@JsonProperty("src") SpecieId src, @JsonProperty("to") int to,
+			@JsonProperty("trait") UsedTrait trait) {
 		super(src, to);
 		this.trait = trait;
 	}
 
 	public UsedTrait getTrait() {
 		return trait;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("PopulationGrow [species=%s, population=%s, trait=%s]", getSrc(), getTo(), trait);
 	}
 
 }

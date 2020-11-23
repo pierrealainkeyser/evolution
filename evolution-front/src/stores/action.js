@@ -12,6 +12,40 @@ const getDefaultState = () => ({
   playing: null
 });
 
+function mapTraits(t){
+  return `${t.specie}-${t.trait}`;
+}
+
+function flatMapEffects(events) {
+  return events.flatMap(event => {
+    if ('specie-food-eaten' === event.type) {
+      const effect = {
+        specie: event.specie,
+        deltaFat: event.fat,
+        deltaFood: event.food
+      };
+      if (event.traits) {
+        effect.traits = event.traits.map(mapTraits);
+      }
+
+      return [effect];
+    }
+    else if ('specie-population-reduced' === event.type) {
+      const effect = {
+        specie: event.specie,
+        population: event.population
+      };
+      if (event.traits) {
+        effect.traits = event.traits.map(mapTraits);
+      }
+
+      return [effect];
+    }
+
+    return [];
+  });
+}
+
 const state = getDefaultState();
 
 export default {
@@ -25,40 +59,36 @@ export default {
       Object.assign(state, getDefaultState());
     },
     loadActions: (state, actions) => {
+      if (!actions)
+        return;
 
-      console.log("loadActions", actions);
+      state.possibles = actions.flatMap(a => {
+        if ('feed' === a.type) {
+          const effects = flatMapEffects(a.events);
+          return [{
+            type: a.type,
+            specie: a.specie,
+            effects,
+            valid: true
+          }];
+        } else if ('attack' === a.type) {
+          const core = {
+            type: a.type,
+            specie: a.specie,
+            target: a.target,
+            valid: a.possible
+          };
 
-      state.possibles = actions ? actions.map(a => {
 
-        const valid = !a.violations || !a.violations.length;
-        const effects = [];
-
-        if (a.events) {
-          a.events.forEach(event => {
-            if ('specie-food-eaten' === event.type) {
-
-              const effect = {
-                specie: event.specie,
-                deltaFat: event.fat,
-                deltaFood: event.food
-              };
-
-              if (event.traits) {
-                effect.traits = event.traits.map(t => t.trait);
-              }
-
-              effects.push(effect);
-            }
+          return a.outcomes.map(out => {
+            return { ...core,
+              effects: flatMapEffects(out.events)
+            };
           });
         }
 
-        return {
-          type: a.type,
-          specie: a.specie,
-          effects,
-          valid
-        };
-      }) : null;
+        return [];
+      });
     },
 
     resetAction: (state) => {

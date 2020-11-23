@@ -133,7 +133,7 @@ public class Renderer {
 
 		else if (in instanceof IntelligentFeedSummary) {
 			IntelligentFeedSummary feed = (IntelligentFeedSummary) in;
-			return new IntelligentFeedSumaryView(feed.getSpecie(), new UsedTraitView(feed.getTrait()),
+			return new IntelligentFeedSumaryView(feed.getSpecie(), feed.getCard(), new UsedTraitView(feed.getTrait()),
 					renderAll(player, feed.getEvents()));
 		} else if (in instanceof AttackSummary) {
 			AttackSummary attack = (AttackSummary) in;

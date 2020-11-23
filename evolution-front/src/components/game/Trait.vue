@@ -65,7 +65,7 @@ export default {
         if (act.violations && act.violations.some(v => 'trait' === v.type && v.disabled === this.traitId))
           return theme.primary;
 
-        if (act.effects && act.effects.some(e => e.specie === this.specie && e.traits && e.traits.includes(this.trait)))
+        if (act.effects && act.effects.some(e => e.traits && e.traits.includes(this.traitId)))
           return theme.primary;
       }
 

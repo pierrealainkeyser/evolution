@@ -2,6 +2,10 @@ package fr.keyser.evolution.summary;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import fr.keyser.evolution.model.AttackViolation;
 import fr.keyser.evolution.model.SpecieId;
 
@@ -14,14 +18,17 @@ public class AttackSummary implements FeedingActionSummary {
 
 	private final List<AttackOutcome> outcomes;
 
-	public AttackSummary(SpecieId specie, SpecieId target, List<AttackViolation> violations,
-			List<AttackOutcome> outcomes) {
+	@JsonCreator
+	public AttackSummary(@JsonProperty("specie") SpecieId specie, @JsonProperty("target") SpecieId target,
+			@JsonProperty("violations") List<AttackViolation> violations,
+			@JsonProperty("outcomes") List<AttackOutcome> outcomes) {
 		this.specie = specie;
 		this.target = target;
 		this.violations = violations;
 		this.outcomes = outcomes;
 	}
 
+	@JsonIgnore
 	public boolean isPossible() {
 		return !outcomes.isEmpty();
 	}

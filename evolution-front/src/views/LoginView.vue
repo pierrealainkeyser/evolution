@@ -140,7 +140,7 @@ export default {
       form.append('password', 'evolution');
       axios.post(this.formLoginPage, form).then(r => {
           this.login({
-            id: r.data.id,
+            label: r.data.label,
             name: r.data.name,
             xcsrf: r.headers['x-csrf-token']
           });

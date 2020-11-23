@@ -13,6 +13,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.keyser.evolution.model.CardId;
+import fr.keyser.evolution.model.SpecieId;
+import fr.keyser.evolution.summary.FeedSummary;
+import fr.keyser.evolution.summary.FeedingActionSummaries;
 import fr.keyser.fsm.InstanceId;
 import fr.keyser.fsm.State;
 import fr.keyser.fsm.impl.AutomatInstanceContainerValue;
@@ -44,7 +47,8 @@ public class TestJsonDataMapAdapter {
 	@Test
 	void automatInstanceContainerValue() throws JsonProcessingException {
 
-		JsonDataMapAdapter adapter = new JsonDataMapAdapter(Arrays.asList(InstanceId.class, CardId.class));
+		JsonDataMapAdapter adapter = new JsonDataMapAdapter(
+				Arrays.asList(InstanceId.class, FeedingActionSummaries.class));
 
 		AutomatInstanceValue aiv = AutomatInstanceValue.create(new InstanceId("root"), new State("yes", "no"),
 				new InstanceId("parent"), 1,
@@ -52,7 +56,8 @@ public class TestJsonDataMapAdapter {
 				Map.of("first", new InstanceId("i1")));
 
 		AutomatInstanceContainerValue in = AutomatInstanceContainerValue.create(Arrays.asList(aiv),
-				Map.of("card", new CardId(56)));
+				Map.of("actions", new FeedingActionSummaries(
+						Arrays.asList(new FeedSummary(new SpecieId(0, 0), Arrays.asList())))));
 
 		ObjectMapper om = new ObjectMapper().registerModule(adapter.asModule());
 

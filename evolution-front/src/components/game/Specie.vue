@@ -168,9 +168,14 @@ export default {
     },
 
     interactionEffects() {
-      const inter = this.currentInteraction;
-      if (inter && inter.effects)
-        return inter.effects;
+      if (this.currents) {
+        return this.currents.flatMap(c => {
+          if (c.effects)
+            return c.effects.filter(e => e.specie === this.id);
+          return [];
+        })
+      }
+
       return [];
     },
 
