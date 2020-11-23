@@ -82,7 +82,6 @@ export default {
 .playerWrapper {
   user-select: none;
   padding-top: 2px;
-  transition: background-color 0.2s ease-in-out;
 }
 
 .header.myself {
@@ -111,7 +110,7 @@ export default {
   height: 100%;
   width: 0%;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.6, 1);
-  background: rgb(66, 66, 66);
+  background: #2196f3 ;
   z-index: 0;
 }
 

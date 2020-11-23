@@ -53,7 +53,6 @@ public class AutomatEngine implements Supplier<AutomatInstanceContainer> {
 	public static AutomatEngine start(AutomatLogic logic, Object payload) {
 		AutomatEngine engine = new AutomatEngine(EMPTY, logic);
 		engine.start(payload);
-		;
 		return engine;
 	}
 

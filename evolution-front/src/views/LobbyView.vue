@@ -45,11 +45,11 @@
             <td>{{formatPlayers(g)}}</td>
             <td>{{g.quickplay?$t('lobby.game.quickplay'):$t('lobby.game.standard')}}</td>
             <td>
-              <v-icon>{{g.terminated?'checkbox-marked-circle-outline':'mdi-motion-play-outline'}}</v-icon>
+              <v-icon>{{g.terminated?'mdi-checkbox-marked-circle-outline':'mdi-motion-play-outline'}}</v-icon>
             </td>
             <td>
               <template v-if="g.terminated">
-                    {{$t(alpha?'lobby.game.winner':'lobby.game.looser')}}
+                    {{$t(g.alpha?'lobby.game.winner':'lobby.game.looser')}}
                   </template>
             </td>
             <td>

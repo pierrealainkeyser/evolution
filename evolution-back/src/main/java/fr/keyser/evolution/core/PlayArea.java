@@ -437,39 +437,39 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		}
 
 		int hardShellBonus = 3;
-		if (source.getSize() <= target.getSize()) {
-			if (source.isPackHunting()) {
-				int strenght = source.getSize() + source.getPopulation();
-				if (strenght > target.getSize()) {
-					UsedTrait packHunting = source.usedTrait(Trait.PACK_HUNTING);
-					if (target.isHardShell()) {
-						UsedTrait hardShell = target.usedTrait(Trait.HARD_SHELL);
-						if (strenght > target.getSize() + hardShellBonus) {
-							return Stream.of(new AttackViolation("hard_shell", hardShell,
-									AttackViolationStatus.BYPASS, packHunting));
-						} else {
-							if (source.isIntelligent()) {
-								return Stream.of(new AttackViolation("hard_shell", hardShell,
-										AttackViolationStatus.MUST_PAY, source.usedTrait(Trait.INTELLIGENT)),
-										new AttackViolation("size", null, AttackViolationStatus.BYPASS, packHunting));
-							} else {
-								return Stream.of(new AttackViolation("hard_shell", hardShell,
-										AttackViolationStatus.BLOCK, null));
-							}
+		int targetSize = target.getSize();
+		int sourceSize = source.getSize();
 
-						}
+		if (source.isPackHunting()) {
+			int strenght = sourceSize + source.getPopulation();
+			if (strenght > targetSize) {
+				UsedTrait packHunting = source.usedTrait(Trait.PACK_HUNTING);
+				if (target.isHardShell()) {
+					UsedTrait hardShell = target.usedTrait(Trait.HARD_SHELL);
+					if (strenght > targetSize + hardShellBonus) {
+						return Stream.of(new AttackViolation("hard_shell", hardShell,
+								AttackViolationStatus.BYPASS, packHunting));
 					} else {
-						return Stream.of(new AttackViolation("size", null, AttackViolationStatus.BYPASS, packHunting));
+						if (source.isIntelligent()) {
+							return Stream.of(new AttackViolation("hard_shell", hardShell,
+									AttackViolationStatus.MUST_PAY, source.usedTrait(Trait.INTELLIGENT)),
+									new AttackViolation("size", null, AttackViolationStatus.BYPASS, packHunting));
+						} else {
+							return Stream.of(new AttackViolation("hard_shell", hardShell,
+									AttackViolationStatus.BLOCK, null));
+						}
+
 					}
+				} else {
+
+					return Stream.of(new AttackViolation("size", null, AttackViolationStatus.BYPASS, packHunting));
 				}
-			} else {
-				return Stream.of(new AttackViolation("size", null, AttackViolationStatus.BLOCK, null));
 			}
 		}
 
 		if (target.isHardShell()) {
 			UsedTrait hardShell = target.usedTrait(Trait.HARD_SHELL);
-			if (source.getSize() <= target.getSize() + hardShellBonus) {
+			if (sourceSize <= targetSize + hardShellBonus) {
 				if (source.isIntelligent()) {
 					return Stream.of(new AttackViolation("hard_shell", hardShell,
 							AttackViolationStatus.MUST_PAY, source.usedTrait(Trait.INTELLIGENT)));
@@ -479,6 +479,10 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 				}
 
 			}
+		}
+
+		if (targetSize >= sourceSize) {
+			return Stream.of(new AttackViolation("size", null, AttackViolationStatus.BLOCK, null));
 		}
 
 		return Stream.empty();

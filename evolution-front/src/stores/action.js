@@ -12,7 +12,7 @@ const getDefaultState = () => ({
   playing: null
 });
 
-function mapTraits(t){
+function mapTraits(t) {
   return `${t.specie}-${t.trait}`;
 }
 
@@ -29,8 +29,7 @@ function flatMapEffects(events) {
       }
 
       return [effect];
-    }
-    else if ('specie-population-reduced' === event.type) {
+    } else if ('specie-population-reduced' === event.type) {
       const effect = {
         specie: event.specie,
         population: event.population
@@ -44,6 +43,27 @@ function flatMapEffects(events) {
 
     return [];
   });
+}
+
+function mapViolations(violations) {
+  return violations ? violations.map(v => {
+    const out = {};
+
+    if (v.bypass) {
+      out.disabled = mapTraits(v.bypass);
+    }
+
+    if (v.trait) {
+      out.type = 'trait';
+      out.trait = mapTraits(v.trait);
+    }
+
+    if ('size' === v.type) {
+      out.type = 'size';
+    }
+
+    return out;
+  }) : null;
 }
 
 const state = getDefaultState();
@@ -71,20 +91,33 @@ export default {
             effects,
             valid: true
           }];
+        } else if ('intelligent-feed' === a.type) {
+          const effects = flatMapEffects(a.events);
+          return [{
+            type: a.type,
+            specie: a.specie,
+            card: a.card,
+            effects,
+            valid: true
+          }];
         } else if ('attack' === a.type) {
           const core = {
             type: a.type,
             specie: a.specie,
             target: a.target,
-            valid: a.possible
+            valid: a.possible,
+            violations: mapViolations(a.violations)
           };
 
+          if (a.possible) {
+            return a.outcomes.map(out => {
+              return { ...core,
+                effects: flatMapEffects(out.events)
+              };
+            });
+          }
 
-          return a.outcomes.map(out => {
-            return { ...core,
-              effects: flatMapEffects(out.events)
-            };
-          });
+          return [core];
         }
 
         return [];

@@ -517,6 +517,31 @@ public class TestPlayArea {
 		summary = area.summarize(area.attack(area.getSpecie(attackerId), area.getSpecie(defender)));
 		assertThat(summary.isPossible()).isTrue();
 	}
+	
+	@Test
+	void packHunting() {
+		DeckBuilder builder = new DeckBuilder();
+
+		PlayArea area = PlayArea.with(Players.players(2), builder.deck());
+
+		SpecieAdded s1 = area.addSpecie(0, builder.card(Trait.AMBUSH), SpeciePosition.LEFT);
+		area = run(area, s1);
+		SpecieAdded s2 = area.addSpecie(1, builder.card(Trait.AMBUSH), SpeciePosition.RIGHT);
+		area = run(area, s2);
+
+		SpecieId attackerId = s1.getSrc();
+		SpecieId defender = s2.getSrc();
+		area = run(area, new SizeIncreased(defender, 3, builder.card(Trait.FORAGING)));
+		area = run(area, new PopulationIncreased(attackerId, 6, builder.card(Trait.FORAGING)));
+
+		area = run(area, new TraitAdded(attackerId, builder.card(Trait.CARNIVOROUS), 0, null));
+		area = run(area, new TraitAdded(attackerId, builder.card(Trait.PACK_HUNTING), 1, null));
+		
+		area = run(area, new TraitAdded(defender, builder.card(Trait.HARD_SHELL), 1, null));
+
+		AttackSummary summary = area.summarize(area.attack(area.getSpecie(attackerId), area.getSpecie(defender)));
+		assertThat(summary.isPossible()).isTrue();
+	}
 
 	@Test
 	void quills() {

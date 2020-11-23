@@ -35,7 +35,8 @@ export default {
     step: {
       SELECT_FOOD: 'Sélectioner nourriture',
       PLAY_CARDS: 'Jouer des cartes',
-      FEEDING: 'Nourrire'
+      FEEDING: 'Nourrire',
+      ENDED: 'Terminée',
     },
     trait: {
       '?': 'Masqué pour le moment',

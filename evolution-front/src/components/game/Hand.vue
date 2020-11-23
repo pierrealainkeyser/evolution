@@ -41,7 +41,13 @@ export default {
   position: absolute;
   bottom: 5px;
   right: 5px;
+  height: 55px;
   border-top: 1px solid white;
+}
+
+
+.cardsWrapper>div{
+  height: 100%;
 }
 
 .pass.cards-enter-active {

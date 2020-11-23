@@ -78,9 +78,7 @@ public class BridgeService {
 				int index = p.getIndex();
 				PartialRender partial = renderer.partial(index, root.getChilds().get(index), events);
 				dispatcher.dispatch(p, partial);
-			}
-			
-			//TODO dispatch status if ended
+			}			
 
 		});
 	}

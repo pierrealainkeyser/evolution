@@ -1,4 +1,5 @@
 import stomp from '@/services/stomp';
+import router from '@/plugins/router';
 
 const getDefaultState = () => ({
   connected: false
@@ -21,10 +22,16 @@ export default {
   actions: {
     bind({
       commit,
-      dispatch
+      dispatch,
+      rootState
     }) {
       stomp.addListener((st) => {
         commit('setConnected', st.status);
+
+        if (!st.status && rootState.io.connecting) {
+          router.push('/');
+          //TODO alerte
+        }
       });
 
       dispatch('overview/bind', null, ROOT);

@@ -90,6 +90,9 @@ public class SpecieStat {
 	}
 
 	public int hungryNess(Traits traits) {
+		if(population==0)
+			return 0;
+		
 		int max = Math.max(0, population - food);
 		if (traits.isFatTissue()) {
 			max += Math.max(0, size - fat);

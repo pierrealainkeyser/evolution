@@ -237,8 +237,12 @@ export default {
     },
 
     sizeColor() {
-      if (this.currentInteraction && this.currentTarget && this.currentInteraction.violations && this.currentInteraction.violations.some(v => 'size' === v.type))
-        return 'error';
+      if (this.currentInteraction && this.currentTarget && this.currentInteraction.violations) {
+        if (this.currentInteraction.violations.some(v => 'size' === v.type && !v.disabled))
+          return 'error';
+        else if (this.currentInteraction.violations.some(v => 'size' === v.type && v.disabled))
+          return 'warning';
+      }
 
       if (this.currentInteraction && ['target-size'].includes(this.currentInteraction.interaction))
         return 'success';
@@ -247,18 +251,15 @@ export default {
     },
 
     deltaFat() {
-      const found = this.interactionEffects.find(e => e.deltaFat > 0);
-      if (found)
-        return found.deltaFat;
-      return 0;
+      const delta = this.interactionEffects.filter(e => e.deltaFat > 0)
+        .map(e => e.deltaFat).reduce((a, c) => a + c, 0);
+      return delta;
     },
 
     deltaFood() {
-      const found = this.interactionEffects.find(e => e.deltaFood > 0);
-      if (found)
-        return found.deltaFood;
-
-      return 0;
+      const delta = this.interactionEffects.filter(e => e.deltaFood > 0)
+        .map(e => e.deltaFood).reduce((a, c) => a + c, 0);
+      return delta;
     },
 
     currentInteraction() {
