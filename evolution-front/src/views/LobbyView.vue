@@ -34,17 +34,17 @@
             <td>{{$t('lobby.game.date')}}</td>
             <td>{{$t('lobby.game.players')}}</td>
             <td>{{$t('lobby.game.mode')}}</td>
-            <td>{{$t('lobby.game.status')}}</td>
+            <td class="text-center">{{$t('lobby.game.status')}}</td>
             <td>{{$t('lobby.game.results')}}</td>
-            <td>{{$t('lobby.game.score')}}</td>
+            <td class="text-center">{{$t('lobby.game.score')}}</td>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="g in games" :key="g.game" @click="toGame(g)">
+          <tr v-for="g in games" :key="g.game" @click="toGame(g)" class="clickable">
             <td>{{formatDate(g.created)}}</td>
             <td>{{formatPlayers(g)}}</td>
             <td>{{g.quickplay?$t('lobby.game.quickplay'):$t('lobby.game.standard')}}</td>
-            <td>
+            <td class="text-center">
               <v-icon>{{g.terminated?'mdi-checkbox-marked-circle-outline':'mdi-motion-play-outline'}}</v-icon>
             </td>
             <td>
@@ -52,7 +52,7 @@
                     {{$t(g.alpha?'lobby.game.winner':'lobby.game.looser')}}
                   </template>
             </td>
-            <td>
+            <td class="text-center">
               <template v-if="g.terminated">
                     {{g.score}}
                   </template>
@@ -134,3 +134,9 @@ export default {
   }
 };
 </script>
+
+<style>
+tr.clickable {
+  cursor: pointer;
+}
+</style>

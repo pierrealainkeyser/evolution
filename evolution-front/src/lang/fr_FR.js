@@ -32,6 +32,14 @@ export default {
   },
   game: {
     pass: 'Passer',
+    score: {
+      player: 'Joueur',
+      title: 'Fin de partie',
+      food: 'Nourriture',
+      population: 'Population',
+      traits: 'Traits',
+      close: 'Fermer'
+    },
     step: {
       SELECT_FOOD: 'Sélectioner nourriture',
       PLAY_CARDS: 'Jouer des cartes',
@@ -69,5 +77,26 @@ export default {
       'intelligent-feed': 'Nourrire (Intelligence)',
       'select-food': 'Sélection de la nourriture'
     },
+    cards: '{count} carte | {count} cartes',
+    position: {
+      RIGHT: 'droite',
+      LEFT: 'gauche'
+    },
+    'pool-added': 'aucune nourriture n\'est rajoutée au bassin | 1 nourriture est rajoutée au bassin | {count} nourritures sont rajoutées au bassin',
+    'pool-removed': '1 nourriture est retirée du bassin | {count} nourritures sont retirées du bassin',
+    eat: {
+      meat: '1 morceau de viande | {count} morceaux de viandes',
+      plant: '1 plante | {count} plantes',
+    },
+    events: {
+      'player-card-dealed': '{player} pioche {cards}',
+      'player-card-added-to-pool': '{player} place une nourriture dans le bassin',
+      'specie-added': '{player} rajoute une espèce à {position}',
+      'specie-trait-added': '{player} rajoute un nouveau trait {trait} à {specieName}',
+      'pool-revealed': '{pool-revealed}',
+      'specie-food-eaten': '{specieName} mange {foodConsumption}',
+      'specie-attacked': '{attackerName} attaque {specieName}',
+      'specie-extincted': '{specieName} s\'éteint',
+    }
   }
 };

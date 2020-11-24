@@ -38,8 +38,7 @@
       <div v-else-if="form">
         <v-card-text>{{$t('login.form')}}</v-card-text>
         <v-card-text>
-          <v-text-field outlined :label="$t('login.user')" v-model.trim="username" />
-
+          <v-text-field outlined :label="$t('login.user')" v-model.trim="username" @keyup.enter="tryFormLogin" />
         </v-card-text>
         <v-card-actions>
           <v-btn :disabled="!username" @click="tryFormLogin">
@@ -133,6 +132,9 @@ export default {
     },
 
     tryFormLogin() {
+      if (!this.username)
+        return;
+
       this.reset();
 
       const form = new URLSearchParams();

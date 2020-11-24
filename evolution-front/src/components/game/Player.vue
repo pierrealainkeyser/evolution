@@ -5,8 +5,8 @@
       <v-icon>{{playerIcon}}</v-icon> <span>{{player.name}}</span>
       <v-spacer />
       <template v-if="!isMyself">
-        <v-icon small class="ml-2" color="grey lighten-1">mdi-cards</v-icon><span class="grey--text--lighten-1" > {{handSize}}</span>
-        <v-icon small class="ml-1" color="grey lighten-1">{{player.connected?'mdi-wifi':'mdi-wifi-off'}}</v-icon>
+        <v-icon small class="ml-2">mdi-cards</v-icon><span > {{handSize}}</span>
+        <v-icon small class="ml-1">{{player.connected?'mdi-wifi':'mdi-wifi-off'}}</v-icon>
     </template>
     </div>
   </div>
@@ -110,8 +110,12 @@ export default {
   height: 100%;
   width: 0%;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.6, 1);
-  background: #2196f3 ;
+  background: #ff4081;
   z-index: 0;
+}
+
+.header.myself::before {
+  background: #2196f3;
 }
 
 .header.active::before {

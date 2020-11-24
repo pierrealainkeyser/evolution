@@ -97,6 +97,9 @@ export default {
     }, partial) {
 
       partial.events.forEach((event) => {
+
+        commit('gamestate/addEvent', event, ROOT);
+
         if (['player-state-changed',
             'player-card-added-to-pool',
             'player-card-dealed',
@@ -117,6 +120,10 @@ export default {
           commit(`gamestate/${event.type}`, event, ROOT);
         }
       });
+
+      if (partial.scoreBoards) {
+        commit('gamestate/loadScoreBoards', partial.scoreBoards, ROOT);
+      }
 
       if (partial.actions) {
         commit('action/loadActions', partial.actions, ROOT);

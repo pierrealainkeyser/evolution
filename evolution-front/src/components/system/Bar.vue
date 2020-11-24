@@ -1,9 +1,11 @@
 <template>
 <v-app-bar dense app>
-  <v-app-bar-nav-icon @click="toHome"><v-icon>mdi-paw-outline</v-icon></v-app-bar-nav-icon>
+  <v-app-bar-nav-icon @click="toHome">
+    <v-icon>mdi-paw-outline</v-icon>
+  </v-app-bar-nav-icon>
   <v-toolbar-items class="align-center" v-if="loaded">
     <span class="text-uppercase">{{stepLabel}}</span>
-    <v-icon>mdi-chevron-right</v-icon>
+    <v-icon v-if="actions.length">mdi-chevron-right</v-icon>
     <v-chip v-for="(a) in actions" :key="`action-${a.label}`" label small :color="a.color" class="action mr-1">
       <v-avatar left>
         <v-icon small>{{a.icon}}</v-icon>
@@ -102,7 +104,7 @@ export default {
     }
   },
   methods: {
-    toHome(){
+    toHome() {
       this.$router.push('/');
     },
     formatAction(type) {

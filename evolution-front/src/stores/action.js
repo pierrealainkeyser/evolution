@@ -171,7 +171,8 @@ export default {
           } else if (getters.playcard) {
 
             const myself = rootState.gamestate.myself;
-            const species = rootGetters['gamestate/players'][myself].species;
+            const players = rootGetters['gamestate/players'];
+            const species = players[myself].species;
             const starteds = [{
                 type: 'add-new-specie',
                 card: startOnCard.id,
@@ -210,6 +211,8 @@ export default {
                 });
               });
 
+            const maxTraits = players.length === 2 ? 2 : 3;
+
             species.forEach(s => {
               if (!s.traits.some(t => t.trait === startOnCard.trait)) {
                 const len = s.traits.length;
@@ -226,7 +229,7 @@ export default {
                   });
                 }
 
-                if (len < 3) {
+                if (len < maxTraits) {
                   starteds.push({
                     type: 'add-trait',
                     card: startOnCard.id,
