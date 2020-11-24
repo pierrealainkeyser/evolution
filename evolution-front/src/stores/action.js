@@ -6,11 +6,6 @@ function findSpecieAction(actions, rootGetters, specie = true) {
   return null;
 }
 
-const getDefaultState = () => ({
-  possibles: null,
-  starteds: null,
-  playing: null
-});
 
 function mapTraits(t) {
   return `${t.specie}-${t.trait}`;
@@ -66,6 +61,14 @@ function mapViolations(violations) {
   }) : null;
 }
 
+
+const getDefaultState = () => ({
+  possibles: null,
+  pass: false,
+  starteds: null,
+  playing: null
+});
+
 const state = getDefaultState();
 
 export default {
@@ -78,11 +81,12 @@ export default {
     resetState: (state) => {
       Object.assign(state, getDefaultState());
     },
-    loadActions: (state, actions) => {
-      if (!actions)
+    loadActions: (state, container) => {
+      if (!container)
         return;
 
-      state.possibles = actions.flatMap(a => {
+      state.pass = container.pass;
+      state.possibles = container.actions.flatMap(a => {
         if ('feed' === a.type) {
           const effects = flatMapEffects(a.events);
           return [{
@@ -126,6 +130,7 @@ export default {
 
     resetAction: (state) => {
       state.possibles = null;
+      state.pass = false;
     }
   },
   actions: {
@@ -250,6 +255,10 @@ export default {
     },
   },
   getters: {
+    passEnabled: (state, getters) => {
+      return getters['playcard'] || state.pass;
+    },
+
     playcard: (state, getters, rootState, rootGetters) => {
       const myStatus = rootGetters['gamestate/myStatus'];
       return 'PLAY_CARDS' === myStatus;

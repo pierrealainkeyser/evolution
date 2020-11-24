@@ -8,9 +8,9 @@ public class UserView {
 
 	private final List<CardView> hand;
 
-	private final List<SummaryView> actions;
+	private final ActionsView actions;
 
-	public UserView(int myself, List<CardView> hand, List<SummaryView> actions) {
+	public UserView(int myself, List<CardView> hand, ActionsView actions) {
 		this.myself = myself;
 		this.hand = hand;
 		this.actions = actions;
@@ -24,7 +24,7 @@ public class UserView {
 		return hand;
 	}
 
-	public List<SummaryView> getActions() {
+	public ActionsView getActions() {
 		return actions;
 	}
 }

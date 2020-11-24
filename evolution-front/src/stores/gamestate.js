@@ -46,6 +46,8 @@ function middleTrait(trait) {
     return 'Symbiosum';
   else if ('COOPERATION' === trait)
     return 'Cooperantem';
+    else if ('BURROWING' === trait)
+      return 'Fodiensem';
 
   return 'Species';
 }
@@ -71,6 +73,8 @@ function firstTrait(trait) {
     return 'Symbiosis';
   else if ('COOPERATION' === trait)
     return 'Cooperante';
+    else if ('BURROWING' === trait)
+      return 'Fodiens';
 
   return 'Vulgaris';
 }

@@ -18,14 +18,23 @@ public class IntelligentFeedSummary extends CostOutcome implements FeedingAction
 
 	private final UsedTrait trait;
 
+	private final boolean optional;
+
 	@JsonCreator
-	public IntelligentFeedSummary(@JsonProperty("specie") SpecieId specie, @JsonProperty("card") CardId card,
+	public IntelligentFeedSummary(@JsonProperty("optional") boolean optional, @JsonProperty("specie") SpecieId specie,
+			@JsonProperty("card") CardId card,
 			@JsonProperty("trait") UsedTrait trait, @JsonProperty("events") List<Event> events,
 			@JsonProperty("cost") int cost) {
 		super(events, cost);
+		this.optional = optional;
 		this.trait = trait;
 		this.card = card;
 		this.specie = specie;
+	}
+
+	@Override
+	public boolean isOptional() {
+		return optional;
 	}
 
 	@Override

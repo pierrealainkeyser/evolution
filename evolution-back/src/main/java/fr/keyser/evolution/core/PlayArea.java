@@ -63,6 +63,7 @@ import fr.keyser.evolution.model.UsedTrait;
 import fr.keyser.evolution.summary.AttackOutcome;
 import fr.keyser.evolution.summary.AttackSummary;
 import fr.keyser.evolution.summary.FeedSummary;
+import fr.keyser.evolution.summary.FeedingActionSummaries;
 import fr.keyser.evolution.summary.FeedingActionSummary;
 import fr.keyser.evolution.summary.IntelligentFeedSummary;
 
@@ -175,11 +176,13 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		return species.forPlayer(id);
 	}
 
-	public List<FeedingActionSummary> actionsForPlayer(int player) {
+	public FeedingActionSummaries actionsForPlayer(int player) {
 		Map<Integer, PlayerSpecies> all = players.getPlayers().stream()
 				.collect(Collectors.toMap(Player::getId, p -> forPlayer(p.getId())));
 		PlayerSpecies current = all.get(player);
-		return current.stream().flatMap(s -> summaryFor(s, all)).collect(Collectors.toList());
+		List<FeedingActionSummary> actions = current.stream().flatMap(s -> summaryFor(s, all))
+				.collect(Collectors.toList());
+		return new FeedingActionSummaries(actions);
 	}
 
 	private Stream<FeedingActionSummary> summaryFor(Specie specie, Map<Integer, PlayerSpecies> all) {
@@ -198,13 +201,14 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 
 	private Stream<FeedingActionSummary> carnivorousFeeding(Specie specie, Map<Integer, PlayerSpecies> all) {
 		SpecieId id = specie.getId();
+		boolean fed = specie.isFed();
 		return all.values().stream().flatMap(arround -> {
 			return arround.stream().flatMap(target -> {
 				if (id.equals(target.getId()))
 					return Stream.empty();
 
 				AttackViolations attack = attack(specie, target, arround);
-				return Stream.of(summarize(attack));
+				return Stream.of(summarize(attack, fed));
 			});
 		});
 	}
@@ -237,6 +241,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 
 	private Stream<FeedingActionSummary> vegetarianFeeding(Specie specie) {
 		SpecieId specieId = specie.getId();
+		boolean fed = specie.isFed();
 
 		List<FeedingActionSummary> summary = new ArrayList<FeedingActionSummary>();
 		Player player = getPlayer(specieId);
@@ -244,19 +249,29 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 
 			player.getHands().forEach(card -> {
 				summary.add(
-						new IntelligentFeedSummary(specieId, card.getId(), specie.usedTrait(Trait.INTELLIGENT),
+						new IntelligentFeedSummary(fed, specieId, card.getId(), specie.usedTrait(Trait.INTELLIGENT),
 								process(intelligentPlantEat(specieId, card)).getEvents(), 1));
 			});
 
 		}
 
 		plantEat(specieId)
-				.ifPresent(foodEaten -> summary.add(new FeedSummary(specieId, process(foodEaten).getEvents())));
+				.ifPresent(foodEaten -> summary.add(new FeedSummary(fed, specieId, process(foodEaten).getEvents())));
 
 		return summary.stream();
 	}
 
-	public AttackSummary summarize(AttackViolations violations) {
+	/**
+	 * For test only
+	 * 
+	 * @param violations
+	 * @return
+	 */
+	AttackSummary summarize(AttackViolations violations) {
+		return summarize(violations, false);
+	}
+
+	private AttackSummary summarize(AttackViolations violations, boolean fed) {
 		SpecieId source = violations.getSource();
 
 		Player player = getPlayer(source);
@@ -277,7 +292,7 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 			}
 
 		}
-		return new AttackSummary(source, violations.getTarget(), violations.getViolations(), outcomes);
+		return new AttackSummary(fed, source, violations.getTarget(), violations.getViolations(), outcomes);
 	}
 
 	private AttackOutcome outcome(Player player, AttackViolations violations, List<String> disabled,

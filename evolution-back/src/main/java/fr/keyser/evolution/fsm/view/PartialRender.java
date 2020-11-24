@@ -10,9 +10,9 @@ public class PartialRender extends Render {
 
 	private final List<PlayerScoreBoard> scoreBoards;
 
-	private final List<SummaryView> actions;
+	private final ActionsView actions;
 
-	public PartialRender(int draw, List<SummaryView> actions, List<PlayerScoreBoard> scoreBoards,
+	public PartialRender(int draw, ActionsView actions, List<PlayerScoreBoard> scoreBoards,
 			List<RenderedEvent> events) {
 		super(draw);
 		this.actions = actions;
@@ -29,7 +29,7 @@ public class PartialRender extends Render {
 		return events;
 	}
 
-	public List<SummaryView> getActions() {
+	public ActionsView getActions() {
 		return actions;
 	}
 

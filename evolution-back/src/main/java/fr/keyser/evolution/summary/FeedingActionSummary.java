@@ -1,5 +1,6 @@
 package fr.keyser.evolution.summary;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -16,4 +17,10 @@ public interface FeedingActionSummary {
 
 	SpecieId getSpecie();
 
+	public boolean isOptional();
+
+	@JsonIgnore
+	public default boolean isPossible() {
+		return true;
+	}
 }

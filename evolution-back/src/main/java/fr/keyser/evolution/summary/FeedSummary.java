@@ -12,10 +12,19 @@ public class FeedSummary extends Outcome implements FeedingActionSummary {
 
 	private final SpecieId specie;
 
+	private final boolean optional;
+
 	@JsonCreator
-	public FeedSummary(@JsonProperty("specie") SpecieId specie, @JsonProperty("events") List<Event> events) {
+	public FeedSummary(@JsonProperty("optional") boolean optional, @JsonProperty("specie") SpecieId specie,
+			@JsonProperty("events") List<Event> events) {
 		super(events);
+		this.optional = optional;
 		this.specie = specie;
+	}
+
+	@Override
+	public boolean isOptional() {
+		return optional;
 	}
 
 	@Override

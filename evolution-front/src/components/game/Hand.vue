@@ -1,7 +1,7 @@
 <template>
 <div class="cardsWrapper ">
   <transition-group name="cards" tag="div" class="d-flex align-center">
-    <v-btn v-if="playcard" key="pass" class="pass" @click="pass">{{$t('game.pass')}}</v-btn>
+    <v-btn v-if="passEnabled" key="pass" class="pass" @click="pass">{{$t('game.pass')}}</v-btn>
     <Card v-for="s in hands" :key="s.id" :id="s.id" :trait="s.trait" :food="s.food" />
   </transition-group>
 </div>
@@ -24,8 +24,8 @@ export default {
       hands: state => state.gamestate.hands
     }),
     ...mapGetters({
-      playcard: 'action/playcard',
-    }),
+      passEnabled: 'action/passEnabled',
+    })    
   },
   methods: {
     ...mapActions({

@@ -117,9 +117,11 @@ public class Renderer {
 				.collect(Collectors.toList());
 	}
 
-	private List<SummaryView> actions(int player, FeedingActionSummaries actions) {
+	private ActionsView actions(int player, FeedingActionSummaries actions) {
 		if (actions != null) {
-			return actions.stream().map(a -> renderAction(player, a)).collect(Collectors.toList());
+			List<SummaryView> collect = actions.stream().map(a -> renderAction(player, a)).collect(Collectors.toList());
+			boolean pass = actions.stream().allMatch(FeedingActionSummary::isOptional);
+			return new ActionsView(collect, pass);
 
 		}
 		return null;

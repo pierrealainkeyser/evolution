@@ -13,7 +13,6 @@ import fr.keyser.evolution.core.TurnStep;
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.engine.Events;
 import fr.keyser.evolution.summary.FeedingActionSummaries;
-import fr.keyser.evolution.summary.FeedingActionSummary;
 
 public class PlayAreaMonitor {
 	private final PlayArea area;
@@ -116,11 +115,11 @@ public class PlayAreaMonitor {
 		int target = currentPlayer;
 
 		do {
-			List<FeedingActionSummary> actionsForPlayer = area.actionsForPlayer(target);
-			if (actionsForPlayer.isEmpty()) {
+			FeedingActionSummaries actionsForPlayer = area.actionsForPlayer(target);
+			if (actionsForPlayer.isImpossible()) {
 				target = (target + 1) % nbPlayers;
 			} else {
-				return Optional.of(new ActiveFeedingPlayer(target, new FeedingActionSummaries(actionsForPlayer)));
+				return Optional.of(new ActiveFeedingPlayer(target, actionsForPlayer));
 			}
 		} while (target != currentPlayer);
 

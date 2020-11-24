@@ -57,7 +57,7 @@ public class TestJsonDataMapAdapter {
 
 		AutomatInstanceContainerValue in = AutomatInstanceContainerValue.create(Arrays.asList(aiv),
 				Map.of("actions", new FeedingActionSummaries(
-						Arrays.asList(new FeedSummary(new SpecieId(0, 0), Arrays.asList())))));
+						Arrays.asList(new FeedSummary(false, new SpecieId(0, 0), Arrays.asList())))));
 
 		ObjectMapper om = new ObjectMapper().registerModule(adapter.asModule());
 

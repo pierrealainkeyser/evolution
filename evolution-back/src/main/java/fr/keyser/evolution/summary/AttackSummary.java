@@ -17,11 +17,14 @@ public class AttackSummary implements FeedingActionSummary {
 	private final List<AttackViolation> violations;
 
 	private final List<AttackOutcome> outcomes;
+	
+	private final boolean optional;
 
 	@JsonCreator
-	public AttackSummary(@JsonProperty("specie") SpecieId specie, @JsonProperty("target") SpecieId target,
+	public AttackSummary(@JsonProperty("optional") boolean optional,@JsonProperty("specie") SpecieId specie, @JsonProperty("target") SpecieId target,
 			@JsonProperty("violations") List<AttackViolation> violations,
 			@JsonProperty("outcomes") List<AttackOutcome> outcomes) {
+		this.optional=optional;
 		this.specie = specie;
 		this.target = target;
 		this.violations = violations;
@@ -54,6 +57,11 @@ public class AttackSummary implements FeedingActionSummary {
 	public String toString() {
 		return String.format("AttackSummaryView [specie=%s, target=%s, violations=%s, outcomes=%s]", specie, target,
 				violations, outcomes);
+	}
+
+	@Override
+	public boolean isOptional() {
+		return optional;
 	}
 
 }

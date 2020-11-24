@@ -180,7 +180,7 @@ public class TestPlayArea {
 		area = run(area, new PopulationIncreased(s3.getSrc(), 3, builder.card(Trait.FORAGING)));
 
 		// check the plain feeding
-		assertThat(area.actionsForPlayer(0))
+		assertThat(area.actionsForPlayer(0).getActions())
 				.hasSize(1)
 				.anySatisfy(s -> {
 					assertThat(s).isInstanceOfSatisfying(FeedSummary.class, f -> {
@@ -197,7 +197,7 @@ public class TestPlayArea {
 				});
 
 		// check the carnivorous
-		assertThat(area.actionsForPlayer(1))
+		assertThat(area.actionsForPlayer(1).getActions())
 				.hasSize(2)
 				.anySatisfy(s -> {
 					assertThat(s).isInstanceOfSatisfying(AttackSummary.class, a -> {
@@ -213,7 +213,7 @@ public class TestPlayArea {
 				});
 
 		// check the intelligent
-		assertThat(area.actionsForPlayer(2))
+		assertThat(area.actionsForPlayer(2).getActions())
 				.hasSize(2)
 				.anySatisfy(s -> {
 					assertThat(s).isInstanceOfSatisfying(FeedSummary.class, f -> {
@@ -258,7 +258,7 @@ public class TestPlayArea {
 		area = run(area, new PopulationIncreased(s2.getSrc(), 3, builder.card(Trait.FORAGING)));
 
 		// check the intelligent foraging
-		assertThat(area.actionsForPlayer(0))
+		assertThat(area.actionsForPlayer(0).getActions())
 				.hasSize(2)
 				.allSatisfy(s -> {
 					assertThat(s).isInstanceOfSatisfying(IntelligentFeedSummary.class, f -> {
@@ -277,7 +277,7 @@ public class TestPlayArea {
 				});
 
 		// check the intelligent without cards
-		assertThat(area.actionsForPlayer(1)).isEmpty();
+		assertThat(area.actionsForPlayer(1).getActions()).isEmpty();
 
 		Event event = area.handleCommand(new PlayerCommand(0, new IntelligentFeedCommand(s1.getSrc(), card.getId())));
 		assertThat(event).isInstanceOfSatisfying(FoodEaten.class, eaten -> {
@@ -287,7 +287,7 @@ public class TestPlayArea {
 		area = run(area, event);
 
 		// no more actions
-		assertThat(area.actionsForPlayer(0)).isEmpty();
+		assertThat(area.actionsForPlayer(0).getActions()).isEmpty();
 
 	}
 
@@ -517,7 +517,7 @@ public class TestPlayArea {
 		summary = area.summarize(area.attack(area.getSpecie(attackerId), area.getSpecie(defender)));
 		assertThat(summary.isPossible()).isTrue();
 	}
-	
+
 	@Test
 	void packHunting() {
 		DeckBuilder builder = new DeckBuilder();
@@ -536,7 +536,7 @@ public class TestPlayArea {
 
 		area = run(area, new TraitAdded(attackerId, builder.card(Trait.CARNIVOROUS), 0, null));
 		area = run(area, new TraitAdded(attackerId, builder.card(Trait.PACK_HUNTING), 1, null));
-		
+
 		area = run(area, new TraitAdded(defender, builder.card(Trait.HARD_SHELL), 1, null));
 
 		AttackSummary summary = area.summarize(area.attack(area.getSpecie(attackerId), area.getSpecie(defender)));
