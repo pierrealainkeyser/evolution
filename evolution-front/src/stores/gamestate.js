@@ -56,6 +56,8 @@ function middleTrait(trait) {
     return 'Populi';
   else if ('HORNS' === trait)
     return 'Cornutum';
+  else if ('HARD_SHELL' === trait)
+    return 'Durum';
 
   return 'Species';
 }
@@ -91,6 +93,8 @@ function firstTrait(trait) {
     return 'Turba';
   else if ('HORNS' === trait)
     return 'Cornibus';
+  else if ('HARD_SHELL' === trait)
+    return 'Testa';
 
   return 'Vulgaris';
 }

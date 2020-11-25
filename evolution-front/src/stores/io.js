@@ -93,12 +93,21 @@ export default {
     },
 
     async processPartial({
-      commit
+      commit,
+      dispatch
     }, partial) {
 
-      partial.events.forEach((event) => {
-
+      const events = partial.events;
+      const len = events.length;
+      for (var index = 0; index < len; ++index) {
+        const event = events[index];
         commit('gamestate/addEvent', event, ROOT);
+
+        if (index === 0) {
+          if ('specie-attacked' === event.type) {
+            await dispatch('animation/attacked', events, ROOT);
+          }
+        }
 
         if (['player-state-changed',
             'player-card-added-to-pool',
@@ -119,7 +128,12 @@ export default {
           ].includes(event.type)) {
           commit(`gamestate/${event.type}`, event, ROOT);
         }
-      });
+
+
+        if ('new-step' === event.type) {
+          await dispatch('animation/newStep', event, ROOT);
+        }
+      }
 
       if (partial.scoreBoards) {
         commit('gamestate/loadScoreBoards', partial.scoreBoards, ROOT);

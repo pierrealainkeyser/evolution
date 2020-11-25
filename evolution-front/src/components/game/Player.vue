@@ -12,7 +12,7 @@
   </div>
   <transition-group name="specie" tag="div" class="d-flex">
     <AddSpecieArea v-if="isMyself" key="l" position="left" class="left" :playerId="playerId" />
-    <Specie v-for="s in species" :key="s.id" :id="s.id" :size="s.size" :population="s.population" :food="s.food" :fat="s.fat" :traits="s.traits" />
+    <Specie v-for="s in species" :key="s.id" :id="s.id" :size="s.size" :population="s.population" :food="s.food" :fat="s.fat" :traits="s.traits" ref="species" />
     <AddSpecieArea v-if="isMyself" key="r" position="right" :playerId="playerId" />
   </transition-group>
 </div>
@@ -73,6 +73,14 @@ export default {
         classes.push('active');
       return classes.join(" ");
 
+    }
+  },
+  methods: {
+    specieBox(specieId) {
+      const index = this.species.findIndex(s => s.id === specieId);
+      if (index > -1)
+        return this.$refs.species[index].box();
+      return null;
     }
   }
 }

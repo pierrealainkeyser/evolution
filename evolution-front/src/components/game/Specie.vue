@@ -421,6 +421,9 @@ export default {
     },
     enterTrait(e) {
       this.doEnterTrait(this.wrapEvent(e));
+    },
+    box() {
+      return this.boundingBox('main');
     }
   }
 }

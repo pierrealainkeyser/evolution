@@ -8,6 +8,7 @@ import action from '@/stores/action';
 import gamestate from '@/stores/gamestate';
 import io from '@/stores/io';
 import ws from '@/stores/ws';
+import animation from '@/stores/animation';
 
 
 Vue.use(Vuex);
@@ -20,6 +21,7 @@ export default new Vuex.Store({
     action,
     gamestate,
     io,
-    ws
+    ws,
+    animation
   }
 });

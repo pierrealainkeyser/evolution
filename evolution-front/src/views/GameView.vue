@@ -16,9 +16,11 @@
         </v-btn>
 
 
-        <Player ref="player" :playerId="index" class="player" v-for="(p,index) in players" :key="index" :style="computeStyle(index)" />
+        <Player ref="players" :playerId="index" class="player" v-for="(p,index) in players" :key="index" :style="computeStyle(index)" />
         <Pool ref="pool" class="pool" :style="poolStyle" />
         <Hand />
+
+        <AnimationLayer />
 
 
         <v-fade-transition>
@@ -98,6 +100,7 @@ import {
 import Player from '@/components/game/Player';
 import Hand from '@/components/game/Hand';
 import Pool from '@/components/game/Pool';
+import AnimationLayer from '@/components/game/AnimationLayer';
 import Events from '@/components/game/Events';
 
 export default {
@@ -106,6 +109,7 @@ export default {
     Player,
     Pool,
     Hand,
+    AnimationLayer,
     Events
   },
   props: {
@@ -284,6 +288,10 @@ export default {
       connectGame: 'io/connect',
       resetGame: 'io/reset'
     }),
+    specieBox(specieId) {
+      const index = specieId.match(/\d+p(\d+)/)[1];
+      return this.$refs.players[index].specieBox(specieId);
+    },
     updateContainers() {
       const container = this.$refs.container;
       this.container.height = container.clientHeight;

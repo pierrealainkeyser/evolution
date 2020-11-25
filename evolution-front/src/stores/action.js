@@ -81,6 +81,18 @@ export default {
     resetState: (state) => {
       Object.assign(state, getDefaultState());
     },
+    
+    loadPlaying: (state, events) => {
+      if (events) {
+        state.playing = [{
+          effects: flatMapEffects(events),
+          valid: true
+        }];
+      } else {
+        state.playing = null;
+      }
+    },
+
     loadActions: (state, container) => {
       if (!container)
         return;
