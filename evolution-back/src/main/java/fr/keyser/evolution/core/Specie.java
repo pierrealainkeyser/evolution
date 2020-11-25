@@ -94,7 +94,10 @@ public class Specie {
 	}
 
 	public Specie score(FoodScored scored) {
-		return new Specie(id, position, traits, stat.score());
+		int fat = 0;
+		if (isFatTissue())
+			fat = getFat();
+		return new Specie(id, position, traits, stat.score(fat));
 	}
 
 	public Specie eat(FoodEaten eaten) {

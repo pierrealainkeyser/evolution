@@ -60,7 +60,7 @@ public class SpecieStat {
 		return new FoodConsumption(direct, fat);
 	}
 
-	public SpecieStat score() {
+	public SpecieStat score(int fat) {
 		return new SpecieStat(size, population, 0, fat);
 	}
 

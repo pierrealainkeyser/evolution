@@ -42,6 +42,7 @@ import fr.keyser.evolution.event.Quilled;
 import fr.keyser.evolution.event.SpecieAdded;
 import fr.keyser.evolution.event.SpecieEvent;
 import fr.keyser.evolution.event.SpecieExtincted;
+import fr.keyser.evolution.event.TraitAdded;
 import fr.keyser.evolution.event.TraitsRevealed;
 import fr.keyser.evolution.event.TurnEvent;
 import fr.keyser.evolution.exception.IllegalCommandException;
@@ -739,13 +740,24 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 			reduced(consumer, (PopulationReduced) event);
 		} else if (event instanceof SpecieExtincted) {
 			extincted(consumer, (SpecieExtincted) event);
-		} else if (event instanceof CardDealed)
+		} else if (event instanceof CardDealed) {
 			cardDealed(consumer, (CardDealed) event);
+		} else if (event instanceof TraitAdded) {
+			traitAdded(consumer, (TraitAdded) event);
+		}
 	}
 
 	private void cardDealed(EventConsumer<Event> consumer, CardDealed dealed) {
 		if (dealed.isShuffle()) {
 			consumer.event(new LastTurnEvent(true));
+		}
+	}
+
+	private void traitAdded(EventConsumer<Event> consumer, TraitAdded added) {
+		Specie specie = species.forEvent(added);
+		int fat = specie.getFat();
+		if (fat > 0 && !specie.isFatTissue()) {
+			consumer.event(new FoodScored(specie.getId(), fat));
 		}
 	}
 
