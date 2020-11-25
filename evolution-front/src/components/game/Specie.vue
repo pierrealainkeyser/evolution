@@ -140,9 +140,18 @@ export default {
           borderColor: colors.grey.darken3,
           backgroundColor: colors.grey.darken4
         };
+      } else if (this.highlighted) {
+        return {
+          borderColor: theme.accent,
+          backgroundColor: colors.grey.darken4
+        };
       }
 
       return null;
+    },
+
+    highlighted() {
+      return this.id === this.highlightSpecie;
     },
 
     iconColor() {
@@ -156,7 +165,9 @@ export default {
           return 'success';
         else
           return 'error';
-      } else
+      } else if (this.highlighted)
+        return 'accent';
+      else
         return colors.grey.darken3;
     },
 
@@ -298,7 +309,8 @@ export default {
 
     ...mapGetters({
       currents: 'action/currents',
-      startOnSpecie: 'action/startOnSpecie'
+      startOnSpecie: 'action/startOnSpecie',
+      highlightSpecie: 'selection/highlightSpecie'
     }),
   },
   methods: {

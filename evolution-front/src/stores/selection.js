@@ -1,6 +1,7 @@
 const getDefaultState = () => ({
   rotation: 0,
   specie: null,
+  hoverSpecie: null,
   trait: null,
   stat: null,
   card: null,
@@ -26,6 +27,9 @@ export default {
     },
     setSpecie: (state, specie) => {
       state.specie = specie;
+    },
+    setHoverSpecie: (state, hoverSpecie) => {
+      state.hoverSpecie = hoverSpecie;
     },
     setTrait: (state, trait) => {
       state.trait = trait;
@@ -76,6 +80,7 @@ export default {
     }) => {
       commit('setCard', null);
     },
+
     enterSpecie: ({
       commit
     }, evt) => {
@@ -88,6 +93,17 @@ export default {
       commit
     }) => {
       commit('setSpecie', null);
+    },
+
+    enterHoverSpecie: ({
+      commit
+    }, specie) => {
+      commit('setHoverSpecie', specie);
+    },
+    leaveHoverSpecie: ({
+      commit
+    }) => {
+      commit('setHoverSpecie', null);
     },
 
     enterTrait: ({
@@ -161,6 +177,13 @@ export default {
     specieId: state => {
       if (state.specie) {
         return state.specie.id;
+      }
+      return null;
+    },
+
+    highlightSpecie: state => {
+      if (state.hoverSpecie) {
+        return state.hoverSpecie;
       }
       return null;
     },

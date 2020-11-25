@@ -46,15 +46,23 @@ function middleTrait(trait) {
     return 'Symbiosum';
   else if ('COOPERATION' === trait)
     return 'Cooperantem';
-    else if ('BURROWING' === trait)
-      return 'Fodiensem';
+  else if ('BURROWING' === trait)
+    return 'Fodiensem';
+  else if ('AMBUSH' === trait)
+    return 'Insidium';
+  else if ('WARNING_CALL' === trait)
+    return 'Vigilentum';
+  else if ('DEFENSIVE_HERDING' === trait)
+    return 'Populi';
+  else if ('HORNS' === trait)
+    return 'Cornutum';
 
   return 'Species';
 }
 
 function firstTrait(trait) {
   if ('CARNIVOROUS' === trait)
-    return 'Poteris';
+    return 'Venandi';
   else if ('PACK_HUNTING' === trait)
     return 'Stipus';
   else if ('CLIMBING' === trait)
@@ -73,8 +81,16 @@ function firstTrait(trait) {
     return 'Symbiosis';
   else if ('COOPERATION' === trait)
     return 'Cooperante';
-    else if ('BURROWING' === trait)
-      return 'Fodiens';
+  else if ('BURROWING' === trait)
+    return 'Fodiens';
+  else if ('AMBUSH' === trait)
+    return 'Insidiis';
+  else if ('WARNING_CALL' === trait)
+    return 'Vigilate';
+  else if ('DEFENSIVE_HERDING' === trait)
+    return 'Turba';
+  else if ('HORNS' === trait)
+    return 'Cornibus';
 
   return 'Vulgaris';
 }

@@ -21,11 +21,11 @@
     </template>
 
     <template #specieName v-if="e.specieName">
-      <strong>{{e.specieName}}</strong>
+      <strong @mouseenter="enter(e.specie)" @mouseleave="leave">{{e.specieName}}</strong>
     </template>
 
     <template #attackerName v-if="e.attackerName">
-      <strong>{{e.attackerName}}</strong>
+      <strong @mouseenter="enter(e.target)" @mouseleave="leave" >{{e.attackerName}}</strong>
     </template>
 
     <template #foodConsumption v-if="e.source">
@@ -43,6 +43,7 @@
 
 <script>
 import {
+  mapActions,
   mapGetters
 } from 'vuex';
 
@@ -88,6 +89,12 @@ export default {
         events.pop();
       return events;
     }
+  },
+  methods:{
+    ...mapActions({
+      enter: 'selection/enterHoverSpecie',
+      leave: 'selection/leaveHoverSpecie'
+    })
   }
 };
 </script>
