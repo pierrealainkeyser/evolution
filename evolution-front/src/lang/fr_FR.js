@@ -45,6 +45,8 @@ export default {
       PLAY_CARDS: 'Jouer des cartes',
       FEEDING: 'Nourrire',
       ENDED: 'Terminée',
+      'new': 'Nouvelle phase :',
+      yourturn: 'À vous de jouer !'
     },
     trait: {
       '?': 'Masqué pour le moment',

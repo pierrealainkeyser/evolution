@@ -94,8 +94,12 @@ export default {
 
     async processPartial({
       commit,
-      dispatch
+      dispatch,
+      rootGetters
     }, partial) {
+
+      const myStatus = rootGetters['gamestate/myStatus'];
+      const wasIdle = myStatus === 'IDLE';
 
       const events = partial.events;
       const len = events.length;
@@ -129,7 +133,6 @@ export default {
           commit(`gamestate/${event.type}`, event, ROOT);
         }
 
-
         if ('new-step' === event.type) {
           await dispatch('animation/newStep', event, ROOT);
         }
@@ -141,6 +144,9 @@ export default {
 
       if (partial.actions) {
         commit('action/loadActions', partial.actions, ROOT);
+
+        if (wasIdle)
+          await dispatch('animation/yourTurn', event, ROOT);
       }
     },
 

@@ -3,6 +3,16 @@
   <div class="animated" ref="attacking" v-if="attacking">
     <v-icon large color="warning">mdi-paw</v-icon>
   </div>
+
+  <v-overlay :value="overlay">
+    <v-alert v-if="newStep" border="left" colored-border color="accent" elevation="2" class="pa-5">
+      <h1>{{this.$t('game.step.new')}} {{stepLabel}}</h1>
+    </v-alert>
+
+    <v-alert v-if="yourTurn" border="left" colored-border color="primary" elevation="2" class="pa-5">
+      <h1>{{this.$t('game.step.yourturn')}}</h1>
+    </v-alert>
+  </v-overlay>
 </div>
 </template>
 
@@ -27,12 +37,29 @@ export default {
     attacking() {
       return this.animation && this.animation.type === 'attack';
     },
+    newStep() {
+      return this.animation && this.animation.type === 'newStep';
+    },
+    yourTurn() {
+      return this.animation && this.animation.type === 'yourTurn';
+    },
+    overlay() {
+      return this.newStep || this.yourTurn;
+    },
+    stepLabel() {
+      return this.animation ? this.$t(`game.step.${this.animation.step}`) : null;
+    }
   },
   watch: {
     animation() {
       if (this.animation) {
-        if (this.animation.type === 'attack') {
+        const type = this.animation.type;
+        if (type === 'attack') {
           this.startAttack(this.animation);
+        } else if (type === 'newStep') {
+          this.doneAfter(1500);
+        } else if (type === 'yourTurn') {
+          this.doneAfter(1000);
         }
       }
     }
@@ -84,9 +111,11 @@ export default {
         const targetBox = this.$parent.specieBox(target);
         const attackerBox = this.$parent.specieBox(attacker);
 
-
         this.animateRef('attacking', attackerBox, targetBox);
       });
+    },
+    doneAfter(timer) {
+      setTimeout(() => this.animationDone(), timer);
     }
   }
 }
@@ -98,10 +127,19 @@ export default {
   width: 100%;
   height: 100%;
   position: absolute;
+  top: 0px;
 }
 
 .animated {
   position: absolute;
   display: inline-block;
+}
+
+.newStep {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

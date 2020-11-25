@@ -42,12 +42,21 @@ export default {
 
     newStep({
       commit
-    }, events) {
-      var machin = false;
-      if (machin)
-        commit('todo', events);
-      // return synchro.wait();
-      return Promise.resolve();
+    }, step) {
+      commit('animation', {
+        type: 'newStep',
+        step: step.step
+      });
+      return synchro.wait();
+    },
+
+    yourTurn({
+      commit
+    }) {
+      commit('animation', {
+        type: 'yourTurn'
+      });
+      return synchro.wait();
     },
 
     done({

@@ -1,5 +1,5 @@
 <template>
-<v-container fluid class="areaWrapper pa-1 d-flex align-start">
+<v-container fluid class="areaWrapper d-flex align-start">
 
   <div class="area flex-grow-1" @mousedown="mousedown" @mouseup="mouseup" ref="container" :style="containerStyle">
     <v-fade-transition mode="out-in">
