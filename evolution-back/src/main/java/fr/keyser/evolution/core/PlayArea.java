@@ -1,6 +1,7 @@
 package fr.keyser.evolution.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -89,7 +90,6 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 	@JsonProperty
 	private final FoodPool pool;
 
-	@JsonProperty
 	private final Species species;
 
 	@JsonProperty(index = 0)
@@ -654,6 +654,21 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 		return players.handleCommand(playerCommand, species);
 	}
 
+	public List<SpecieEvent> handleCreateSpecies() {
+		return players.getPlayers().stream().flatMap(p -> {
+			List<SpecieEvent> evts = Collections.emptyList();
+
+			int player = p.getId();
+			int nSpecies = forPlayer(player).size();
+			if (nSpecies == 0) {
+				evts = Arrays.asList(addSpecie(player, null, SpeciePosition.RIGHT));
+			}
+
+			return evts.stream();
+		}).collect(Collectors.toList());
+
+	}
+
 	public List<SpecieEvent> handleCleanUp() {
 		return species.stream()
 				.flatMap(s -> {
@@ -770,14 +785,9 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 	}
 
 	private void extincted(EventConsumer<Event> consumer, SpecieExtincted extincted) {
-		int player = extincted.getPlayer();
-		if (forPlayer(player).size() == 0) {
-			// recreate a specie when last specie is extincted
-			consumer.event(addSpecie(player, null, SpeciePosition.RIGHT));
-		}
-
 		int draw = extincted.getTraits().size();
 		if (draw > 0) {
+			int player = extincted.getPlayer();
 			CardDealed pickForPlayer = pickForPlayer(deck.picker(), player, draw);
 			consumer.event(pickForPlayer);
 
@@ -821,6 +831,10 @@ public class PlayArea implements EventProcessor<Event, PlayArea> {
 
 	public Deck getDeck() {
 		return deck;
+	}
+
+	public Species getSpecies() {
+		return species;
 	}
 
 }

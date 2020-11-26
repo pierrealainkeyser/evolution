@@ -81,6 +81,7 @@ public class PlayAreaMonitor {
 	public PlayAreaMonitor feeding() {
 		TurnStatus ts = area.getTurnStatus();
 		Events<Event, PlayArea> process = area.process(ts.nextStep(TurnStep.FEEDING));
+		process = process.and(process.getOutput().handleCreateSpecies());
 		process = process.and(process.getOutput().handleTraitsRevealed());
 		process = process.and(process.getOutput().handleFertiles());
 		process = process.and(Arrays.asList(process.getOutput().handlePoolReveal()));

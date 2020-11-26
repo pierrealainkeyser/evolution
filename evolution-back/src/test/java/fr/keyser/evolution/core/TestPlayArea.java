@@ -292,6 +292,17 @@ public class TestPlayArea {
 	}
 
 	@Test
+	void createSpecies() {
+		DeckBuilder builder = new DeckBuilder();
+
+		PlayArea area = PlayArea.with(Players.players(3), builder.deck());
+		for (int i = 0; i < 2; ++i) {
+			area = run(area, area.handleCreateSpecies(), true);
+			assertThat(area.getSpecies().values()).hasSize(3);
+		}
+	}
+
+	@Test
 	void attack() {
 
 		DeckBuilder builder = new DeckBuilder();
