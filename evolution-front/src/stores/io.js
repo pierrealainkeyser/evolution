@@ -31,7 +31,6 @@ export default {
     draw: (state, draw) => {
       state.draw = draw;
       state.connecting = false;
-      state.sendingData = false;
       state.loaded = draw >= 0;
     },
     sendingData: (state, sendingData) => {
@@ -39,7 +38,7 @@ export default {
     },
     resetState: (state) => {
       Object.assign(state, getDefaultState());
-    },
+    }
   },
   actions: {
 
@@ -79,6 +78,7 @@ export default {
         commit('draw', draw);
         commit('gamestate/loadComplete', evt, ROOT);
         commit('action/loadActions', evt.user.actions, ROOT);
+        commit('sendingData', false);
 
         Vue.nextTick(() => {
           commit('selection/setRotation', evt.game.players.length, ROOT);
@@ -111,9 +111,14 @@ export default {
           if ('specie-attacked' === event.type) {
             await dispatch('animation/attacked', events, ROOT);
           }
+
+          if ('specie-food-eaten' === event.type && event.source === 'POOL') {
+            await dispatch('animation/feed', events, ROOT);
+          }
         }
 
-        if (['player-state-changed',
+        if (['new-turn',
+            'player-state-changed',
             'player-card-added-to-pool',
             'player-card-dealed',
             'new-step',
@@ -148,11 +153,17 @@ export default {
         if (wasIdle)
           await dispatch('animation/yourTurn', event, ROOT);
       }
+
+      commit('sendingData', false);
     },
 
     pass({
-      dispatch
+      dispatch,
+      state
     }) {
+      if (state.sendingData)
+        return;
+
       dispatch('emit', {
         type: 'pass'
       })
@@ -162,6 +173,9 @@ export default {
       commit,
       state
     }, action) {
+
+      if (state.sendingData)
+        return;
 
       var name = null;
       const command = {};
@@ -204,7 +218,6 @@ export default {
         const to = `/app/game/${state.gameId}/${name}`;
 
         commit('action/resetAction', null, ROOT);
-
         commit('sendingData', true);
 
         if (stomp.status) {

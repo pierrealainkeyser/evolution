@@ -6,8 +6,10 @@ import static fr.keyser.fsm.impl.transition.TransitionSourceBuilder.route;
 import static fr.keyser.fsm.impl.transition.TransitionSourceBuilder.to;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import fr.keyser.evolution.command.AddCardToPoolCommand;
 import fr.keyser.evolution.command.Command;
@@ -31,6 +33,7 @@ import fr.keyser.fsm.impl.AutomatEngine;
 import fr.keyser.fsm.impl.graph.AutomatGraph;
 import fr.keyser.fsm.impl.graph.GraphBuilder;
 import fr.keyser.fsm.impl.graph.GraphBuilder.NodeBuilder;
+import fr.keyser.fsm.impl.transition.TransitionSourceBuilder.RouteBuilder;
 
 public class EvolutionGraphBuilder {
 
@@ -97,6 +100,7 @@ public class EvolutionGraphBuilder {
 
 			NodeBuilder start = root.sub("start");
 			NodeBuilder idle = root.sub("idle");
+			NodeBuilder passed = root.sub("pass");
 
 			NodeBuilder selectFood = root.sub("selectFood");
 			NodeBuilder playCards = root.sub("playCards");
@@ -105,23 +109,37 @@ public class EvolutionGraphBuilder {
 			start.entry(this::start);
 			start.auto(idle);
 
-			idle.entry(playerState(PlayerInputStatus.IDLE));
-			idle.transition(route()
+			RouteBuilder idleTransition = route()
 					.on(PlayerFlowEnum.SELECT_FOOD, to(selectFood))
 					.on(PlayerFlowEnum.PLAY_CARDS, to(playCards))
-					.on(PlayerFlowEnum.FEEDING, check(this::checkSummary, to(feeding))));
+					.on(PlayerFlowEnum.FEEDING, check(this::checkSummary, to(feeding)));
+
+			idle.entry(playerState(PlayerInputStatus.IDLE));
+			idle.transition(idleTransition);
+			passed.entry(playerState(PlayerInputStatus.PASSED));
+			passed.transition(idleTransition);
 
 			selectFood(selectFood, idle);
 			if (settings.isQuickplay())
 				quickPlayCards(playCards, idle);
 			else
 				playCards(playCards, idle);
-			feeding(feeding, idle);
+			feeding(feeding, idle, passed);
 		}
 
 		boolean checkSummary(AutomatInstance instance, AutomatEvent event) {
 			Object payload = event.getPayload();
 			return payload instanceof FeedingActionSummaries;
+		}
+
+		boolean checkPassFeeding(AutomatInstance instance, AutomatEvent event) {
+
+			FeedingActionSummaries summaries = instance.getLocal(FEEDING_ACTIONS);
+			if (summaries != null) {
+				return summaries.isPass();
+			}
+
+			return false;
 		}
 
 		private void selectFood(NodeBuilder selectFood, NodeBuilder idle) {
@@ -214,19 +232,23 @@ public class EvolutionGraphBuilder {
 			return payload instanceof PlayCardsPhaseCommand;
 		}
 
-		private void feeding(NodeBuilder feeding, NodeBuilder idle) {
+		private void feeding(NodeBuilder feeding, NodeBuilder idle, NodeBuilder passed) {
 			feeding.entry(playerState(PlayerInputStatus.FEEDING));
 
 			NodeBuilder wait = feeding.sub("wait");
 			NodeBuilder play = feeding.sub("play");
+			NodeBuilder pass = feeding.sub("pass");
 
 			wait.entry(this::registerSummary);
 			wait.transition(route()
 					.on(INPUT, check(this::checkFeedingPhaseCommand, to(play)))
-					.on(DONE, to(idle)));
+					.on(DONE, check(this::checkPassFeeding, to(pass))));
 
 			play.entry(this::command);
 			play.auto(idle);
+
+			pass.entry(this::pass);
+			pass.auto(passed);
 
 			feeding.leave(this::fed);
 			feeding.leave(this::done);
@@ -398,7 +420,12 @@ public class EvolutionGraphBuilder {
 		private AutomatInstance nextFeedingActions(AutomatInstance instance) {
 			PlayAreaMonitor monitor = instance.getGlobal(PLAY_AREA);
 
-			Optional<ActiveFeedingPlayer> firstActive = monitor.firstActive();
+			Set<Integer> passed = instance.getChilds().stream().filter(a -> {
+				PlayerState status = a.getLocal(STATUS);
+				return PlayerInputStatus.PASSED == status.getState();
+			}).map(AutomatInstance::getIndex).collect(Collectors.toSet());
+
+			Optional<ActiveFeedingPlayer> firstActive = monitor.firstActive(passed);
 			if (firstActive.isPresent()) {
 
 				ActiveFeedingPlayer afp = firstActive.get();

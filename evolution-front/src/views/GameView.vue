@@ -292,6 +292,9 @@ export default {
       const index = specieId.match(/\d+p(\d+)/)[1];
       return this.$refs.players[index].specieBox(specieId);
     },
+    foodPoolBox() {
+      return this.$refs.pool.foodPoolBox();
+    },
     updateContainers() {
       const container = this.$refs.container;
       this.container.height = container.clientHeight;

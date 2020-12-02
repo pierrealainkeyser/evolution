@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-import fr.keyser.evolution.core.Card;
 import fr.keyser.evolution.core.PlayArea;
 import fr.keyser.evolution.engine.Event;
 import fr.keyser.evolution.fsm.PlayAreaMonitor;
@@ -35,22 +34,17 @@ public class PlayAreaMonitorDeserializer extends StdDeserializer<PlayAreaMonitor
 		JsonNode node = codec.readTree(p);
 
 		PlayArea playArea = codec.treeToValue(node.get("area"), PlayArea.class);
-		Card.useDeck(playArea.getDeck());
-		try {
 
-			TypeReference<List<Event>> eventsType = new TypeReference<List<Event>>() {
-			};
+		TypeReference<List<Event>> eventsType = new TypeReference<List<Event>>() {
+		};
 
-			List<Event> currents = codec.readValue(codec.treeAsTokens(node.get("currents")), eventsType);
-			List<Event> history = codec.readValue(codec.treeAsTokens(node.get("history")), eventsType);
+		List<Event> currents = codec.readValue(codec.treeAsTokens(node.get("currents")), eventsType);
+		List<Event> history = codec.readValue(codec.treeAsTokens(node.get("history")), eventsType);
 
-			int draw = node.get("draw").asInt();
+		int draw = node.get("draw").asInt();
 
-			return new PlayAreaMonitor(playArea, currents, history, draw);
+		return new PlayAreaMonitor(playArea, currents, history, draw);
 
-		} finally {
-			Card.removeDeck();
-		}
 	}
 
 }

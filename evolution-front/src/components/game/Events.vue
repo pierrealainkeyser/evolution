@@ -1,7 +1,7 @@
 <template>
-<v-slide-y-transition group tag="div" class="events">
+<v-fade-transition group tag="div" class="events">
 
-  <i18n v-for="(e,i) in viewed" :key="i" :path="`game.events.${e.type}`" tag="p" class="mb-1">
+  <i18n v-for="e in viewed" :key="e.index" :path="`game.events.${e.type}`" tag="p" class="mb-1">
     <template #player v-if="e.player">
       <v-chip small label>{{e.player.name}}</v-chip>
     </template>
@@ -30,7 +30,7 @@
 
     <template #foodConsumption v-if="e.source">
         <template v-if="['MEAT','ATTACK'].includes(e.source)">{{$tc('game.eat.meat',e.fat+e.food)}}</template>
-        <template v-else>{{$tc('game.eat.plant',e.fat+e.food)}}</template>
+    <template v-else>{{$tc('game.eat.plant',e.fat+e.food)}}</template>
     </template>
 
 
@@ -38,7 +38,7 @@
         {{$tc(e.delta>=0?'game.pool-added':'game.pool-removed',e.delta)}}
     </template>
   </i18n>
-</v-slide-y-transition>
+</v-fade-transition>
 </template>
 
 <script>
@@ -59,15 +59,28 @@ export default {
       players: 'gamestate/players',
     }),
     viewed() {
-      const events = [...this.events].flatMap(e => {
+      const events = [...this.events].flatMap((e, index) => {
         if (['player-card-dealed',
             'player-card-added-to-pool',
             'specie-trait-added',
             'specie-added',
+            'player-passed'
           ].includes(e.type)) {
           const player = this.players[e.player];
           return [{
             ...e,
+            index,
+            player: {
+              name: player.name
+            }
+          }];
+        }
+
+        if (['new-turn'].includes(e.type)) {
+          const player = this.players[e.first];
+          return [{
+            ...e,
+            index,
             player: {
               name: player.name
             }
@@ -79,7 +92,10 @@ export default {
             'specie-food-eaten',
             'specie-extincted',
           ].includes(e.type)) {
-          return [e];
+          return [{
+            ...e,
+            index,
+          }];
         }
 
         return [];
@@ -90,7 +106,7 @@ export default {
       return events;
     }
   },
-  methods:{
+  methods: {
     ...mapActions({
       enter: 'selection/enterHoverSpecie',
       leave: 'selection/leaveHoverSpecie'

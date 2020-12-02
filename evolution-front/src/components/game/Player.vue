@@ -57,11 +57,12 @@ export default {
       return this.myself == this.playerId;
     },
     playerIcon() {
-      if (this.isMyself) {
-        return 'mdi-account';
+      if (this.player.first) {
+        return this.isMyself ? 'mdi-numeric-1-box' : 'mdi-numeric-1-box-outline';
       }
 
-      return 'mdi-account-outline';
+
+      return this.isMyself ? 'mdi-account' : 'mdi-account-outline';
     },
     playerClass() {
       const classes = [];

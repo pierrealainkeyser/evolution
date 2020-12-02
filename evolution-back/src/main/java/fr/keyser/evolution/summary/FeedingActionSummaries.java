@@ -15,6 +15,11 @@ public class FeedingActionSummaries {
 	public FeedingActionSummaries(@JsonProperty("actions") List<FeedingActionSummary> actions) {
 		this.actions = actions;
 	}
+	
+	@JsonIgnore
+	public boolean isPass() {
+		return  stream().allMatch(FeedingActionSummary::isOptional);
+	}
 
 	@JsonIgnore
 	public boolean isImpossible() {

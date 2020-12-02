@@ -1,5 +1,5 @@
 <template>
-<div @mouseenter="enter" @mouseleave="leave" :style="wrapperStyle">
+<div ref="pool" @mouseenter="enter" @mouseleave="leave" :style="wrapperStyle">
   <span :class="foodColor?`${foodColor}--text`:null">
     <v-icon :color="foodColor" large>mdi-barley</v-icon> {{food}}
   </span>
@@ -15,7 +15,9 @@ import {
   mapGetters
 } from 'vuex';
 import colors from 'vuetify/lib/util/colors';
+import boundingBox from '@/mixins/boundingBox';
 export default {
+  mixins: [boundingBox],
   computed: {
     ...mapGetters({
       foodPool: 'gamestate/food',
@@ -76,7 +78,11 @@ export default {
     ...mapActions({
       enter: 'selection/enterPool',
       leave: 'selection/leavePool'
-    })
+    }),
+
+    foodPoolBox(){
+      return this.boundingBox('pool');
+    }
   }
 }
 </script>

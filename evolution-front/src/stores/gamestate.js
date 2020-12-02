@@ -5,6 +5,7 @@ const getDefaultState = () => ({
   events: [],
   step: null,
   lastTurn: false,
+  first: 0,
   scoreBoards: null,
   pool: {
     food: 0,
@@ -165,6 +166,7 @@ export default {
 
       state.scoreBoards = game.scoreBoards;
       state.step = game.step;
+      state.first = game.first;
       state.lastTurn = game.lastTurn;
       state.pool.food = game.foodPool.food;
       state.pool.cards = game.foodPool.waiting;
@@ -201,6 +203,9 @@ export default {
       }
 
       state.events.push(out);
+    },
+    'new-turn': (state, evt) => {
+      state.first = evt.first;
     },
     'new-step': (state, evt) => {
       state.step = evt.step;
@@ -365,15 +370,18 @@ export default {
         to.push(specie);
       }
 
+      const first = state.first;
+
       const connectedUsers = rootGetters['overview/users'];
 
       return state.players.map((p, index) => ({
         connected: connectedUsers.some((cu) => cu.name === p.user.name),
+        first: first === index,
         name: p.user.label,
         status: p.status,
         hands: p.hands,
         index,
-        species: byPlayers[index]
+        species: byPlayers[index] || []
       }));
     },
 

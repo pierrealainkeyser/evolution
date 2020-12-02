@@ -40,6 +40,19 @@ export default {
       return synchro.wait();
     },
 
+    feed({
+      commit
+    }, events) {
+      commit('action/loadPlaying', events, ROOT);
+      const feed = events[0];
+      commit('animation', {
+        type: 'feed',
+        specie: feed.specie
+      });
+
+      return synchro.wait();
+    },
+
     newStep({
       commit
     }, step) {

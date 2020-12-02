@@ -37,18 +37,13 @@ public class PlayAreaDeserializer extends StdDeserializer<PlayArea> {
 
 		Deck deck = codec.treeToValue(node.get("deck"), Deck.class);
 		Card.useDeck(deck);
-		try {
 
-			Players players = codec.treeToValue(node.get("players"), Players.class);
-			Species species = codec.treeToValue(node.get("species"), Species.class);
-			FoodPool pool = codec.treeToValue(node.get("pool"), FoodPool.class);
-			TurnStatus turnStatus = codec.treeToValue(node.get("turnStatus"), TurnStatus.class);
+		Players players = codec.treeToValue(node.get("players"), Players.class);
+		Species species = codec.treeToValue(node.get("species"), Species.class);
+		FoodPool pool = codec.treeToValue(node.get("pool"), FoodPool.class);
+		TurnStatus turnStatus = codec.treeToValue(node.get("turnStatus"), TurnStatus.class);
 
-			return new PlayArea(players, deck, species, pool, turnStatus);
-
-		} finally {
-			Card.removeDeck();
-		}
+		return new PlayArea(players, deck, species, pool, turnStatus);
 	}
 
 }

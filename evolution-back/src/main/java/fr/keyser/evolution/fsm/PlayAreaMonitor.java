@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import fr.keyser.evolution.command.PlayerCommand;
 import fr.keyser.evolution.core.PlayArea;
@@ -48,6 +49,7 @@ public class PlayAreaMonitor {
 	public PlayAreaMonitor dealCards() {
 		TurnStatus ts = area.getTurnStatus();
 		Events<Event, PlayArea> process = area.process(ts.nextStep(TurnStep.SELECT_FOOD));
+		process = process.and(process.getOutput().handleCreateSpecies());
 		process = process.and(process.getOutput().handleDealCards());
 		return withEvents(process);
 	}
@@ -81,7 +83,6 @@ public class PlayAreaMonitor {
 	public PlayAreaMonitor feeding() {
 		TurnStatus ts = area.getTurnStatus();
 		Events<Event, PlayArea> process = area.process(ts.nextStep(TurnStep.FEEDING));
-		process = process.and(process.getOutput().handleCreateSpecies());
 		process = process.and(process.getOutput().handleTraitsRevealed());
 		process = process.and(process.getOutput().handleFertiles());
 		process = process.and(Arrays.asList(process.getOutput().handlePoolReveal()));
@@ -110,18 +111,19 @@ public class PlayAreaMonitor {
 			return new PlayAreaMonitor(process.getOutput(), currents, history, draw);
 	}
 
-	public Optional<ActiveFeedingPlayer> firstActive() {
+	public Optional<ActiveFeedingPlayer> firstActive(Set<Integer> passed) {
 		int nbPlayers = area.getPlayers().size();
 		int currentPlayer = area.getTurnStatus().getCurrentPlayer();
 		int target = currentPlayer;
 
 		do {
-			FeedingActionSummaries actionsForPlayer = area.actionsForPlayer(target);
-			if (actionsForPlayer.isImpossible()) {
-				target = (target + 1) % nbPlayers;
-			} else {
-				return Optional.of(new ActiveFeedingPlayer(target, actionsForPlayer));
+			if (!passed.contains(target)) {
+				FeedingActionSummaries actionsForPlayer = area.actionsForPlayer(target);
+				if (!actionsForPlayer.isImpossible()) {
+					return Optional.of(new ActiveFeedingPlayer(target, actionsForPlayer));
+				}
 			}
+			target = (target + 1) % nbPlayers;
 		} while (target != currentPlayer);
 
 		return Optional.empty();

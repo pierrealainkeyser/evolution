@@ -13,13 +13,16 @@ public class PlayerAreaView {
 
 	private final TurnStep step;
 
+	private final int first;
+
 	private final boolean lastTurn;
 
 	private final FoodPoolView foodPool;
 
-	public PlayerAreaView(List<PlayerView> players, List<PlayerScoreBoard> scoreBoards, TurnStep step, boolean lastTurn,
-			FoodPoolView foodPool) {
+	public PlayerAreaView(List<PlayerView> players, int first, List<PlayerScoreBoard> scoreBoards, TurnStep step,
+			boolean lastTurn, FoodPoolView foodPool) {
 		this.players = players;
+		this.first = first;
 		this.scoreBoards = scoreBoards;
 		this.step = step;
 		this.lastTurn = lastTurn;
@@ -44,6 +47,10 @@ public class PlayerAreaView {
 
 	public FoodPoolView getFoodPool() {
 		return foodPool;
+	}
+
+	public int getFirst() {
+		return first;
 	}
 
 }

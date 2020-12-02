@@ -99,6 +99,8 @@ export default {
       'specie-food-eaten': '{specieName} mange {foodConsumption}',
       'specie-attacked': '{attackerName} attaque {specieName}',
       'specie-extincted': '{specieName} s\'éteint',
+      'new-turn': 'Un nouveau tour commence. {player} devient premier joueur',
+      'player-passed' : '{player} passe'
     }
   }
 };

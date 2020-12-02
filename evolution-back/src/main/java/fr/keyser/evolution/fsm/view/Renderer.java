@@ -66,7 +66,7 @@ public class Renderer {
 		List<PlayerView> playersView = players.stream()
 				.map(p -> renderPlayer(player, p, area, root.getChilds().get(p.getIndex())))
 				.collect(Collectors.toList());
-		PlayerAreaView playerAreaView = new PlayerAreaView(playersView,
+		PlayerAreaView playerAreaView = new PlayerAreaView(playersView, ts.getFirstPlayer(),
 				scoreBoards != null ? scoreBoards.getBoards() : null, ts.getStep(), ts.isLastTurn(),
 				new FoodPoolView(area.getPool()));
 
@@ -120,7 +120,7 @@ public class Renderer {
 	private ActionsView actions(int player, FeedingActionSummaries actions) {
 		if (actions != null) {
 			List<SummaryView> collect = actions.stream().map(a -> renderAction(player, a)).collect(Collectors.toList());
-			boolean pass = actions.stream().allMatch(FeedingActionSummary::isOptional);
+			boolean pass = actions.isPass();
 			return new ActionsView(collect, pass);
 
 		}

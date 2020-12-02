@@ -1,7 +1,12 @@
 <template>
 <div class="animationLayer" ref="layer">
+
   <div class="animated" ref="attacking" v-if="attacking">
     <v-icon large color="warning">mdi-paw</v-icon>
+  </div>
+
+  <div class="animated" ref="feeding" v-if="feeding">
+    <v-icon large color="warning">mdi-cow</v-icon>
   </div>
 
   <v-overlay :value="overlay">
@@ -37,6 +42,9 @@ export default {
     attacking() {
       return this.animation && this.animation.type === 'attack';
     },
+    feeding() {
+      return this.animation && this.animation.type === 'feed';
+    },
     newStep() {
       return this.animation && this.animation.type === 'newStep';
     },
@@ -56,6 +64,8 @@ export default {
         const type = this.animation.type;
         if (type === 'attack') {
           this.startAttack(this.animation);
+        } else if (type === 'feed') {
+          this.startFeed(this.animation);
         } else if (type === 'newStep') {
           this.doneAfter(1500);
         } else if (type === 'yourTurn') {
@@ -112,6 +122,16 @@ export default {
         const attackerBox = this.$parent.specieBox(attacker);
 
         this.animateRef('attacking', attackerBox, targetBox);
+      });
+    },
+    startFeed(animation) {
+      const specie = animation.specie;
+
+      this.$nextTick(() => {
+        const foodPoolBox = this.$parent.foodPoolBox();
+        const specieBox = this.$parent.specieBox(specie);
+
+        this.animateRef('feeding', specieBox, foodPoolBox);
       });
     },
     doneAfter(timer) {

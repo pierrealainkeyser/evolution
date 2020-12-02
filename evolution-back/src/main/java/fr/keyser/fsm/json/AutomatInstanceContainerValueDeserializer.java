@@ -35,14 +35,15 @@ public class AutomatInstanceContainerValueDeserializer extends StdDeserializer<A
 
 		ObjectCodec codec = p.getCodec();
 		JsonNode node = codec.readTree(p);
+		
+		Map<String, Object> data = adapter.deserialize(node.get("data"), codec);
 
 		List<AutomatInstanceValue> all = new ArrayList<>();
 
 		JsonNode allNode = node.get("all");
 		for (JsonNode sub : allNode)
 			all.add(codec.treeToValue(sub, AutomatInstanceValue.class));
-
-		Map<String, Object> data = adapter.deserialize(node.get("data"), codec);
+		
 		return AutomatInstanceContainerValue.create(all, data);
 	}
 
