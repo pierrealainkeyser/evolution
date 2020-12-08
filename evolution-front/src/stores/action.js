@@ -81,12 +81,17 @@ export default {
     resetState: (state) => {
       Object.assign(state, getDefaultState());
     },
-    
+
     loadPlaying: (state, events) => {
       if (events) {
+        const etype = events[0].type;
+        var type = 'feed';
+        if ('specie-attacked' === etype)
+          type = 'attack';
         state.playing = [{
           effects: flatMapEffects(events),
-          valid: true
+          valid: true,
+          type
         }];
       } else {
         state.playing = null;

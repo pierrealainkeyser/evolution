@@ -81,12 +81,15 @@ export default {
     animateRef(iconRefName, sourceBox, targetBox) {
       const iconBox = this.boundingBox(iconRefName);
       const ref = this.$refs[iconRefName];
-
       const layer = this.boundingBox('layer');
+
       const center = (box) => ({
         x: box.x + (box.width / 2) - layer.x - (iconBox.width / 2),
         y: box.y + (box.height / 2) - layer.y - (iconBox.height / 2)
       });
+
+      const duration = 0.5;
+      const half = duration / 2;
 
       const me = this;
       gsap.timeline({
@@ -100,17 +103,17 @@ export default {
         .to(ref, {
           ...center(targetBox),
           ease: 'power2.out',
-          duration: 0.4
+          duration
         }, 'start')
         .to(ref, {
           opacity: 1,
           ease: 'power4.inOut',
-          duration: 0.2
+          duration: half
         }, 'start')
         .to(ref, {
           opacity: 0,
           ease: 'power4.inOut',
-          duration: 0.2
+          duration: half
         });
     },
     startAttack(animation) {

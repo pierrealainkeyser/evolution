@@ -423,7 +423,10 @@ export default {
       this.doEnterTrait(this.wrapEvent(e));
     },
     box() {
-      return this.boundingBox('main');
+      return {
+        ...this.boundingBox('main'),
+        id:this.id
+      };
     }
   }
 }
